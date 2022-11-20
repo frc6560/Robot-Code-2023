@@ -44,6 +44,14 @@ public class Drivetrain extends SubsystemBase {
 
   private static final ChassisSpeeds stopSpeed = new ChassisSpeeds(0.0, 0.0, 0.0);
 
+  // X shape for defense
+  public static final SwerveModuleState[] DEFAULT_MODULE_STATES = new SwerveModuleState[] {
+        new SwerveModuleState(0.0, new Rotation2d(Math.toRadians(45))),
+        new SwerveModuleState(0.0, new Rotation2d(Math.toRadians(-45))),
+        new SwerveModuleState(0.0, new Rotation2d(Math.toRadians(-45))),
+        new SwerveModuleState(0.0, new Rotation2d(Math.toRadians(45)))
+    };
+
   private SwerveDriveOdometry odometry = new SwerveDriveOdometry(Constants.m_kinematics, m_navx.getRotation2d());
 
   public Drivetrain() {
@@ -114,8 +122,14 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void drive(ChassisSpeeds chassisSpeeds) {
-    SwerveModuleState[] states = Constants.m_kinematics.toSwerveModuleStates(chassisSpeeds);
-    SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
+    // X shape for defense
+    SwerveModuleState[] states = DEFAULT_MODULE_STATES;
+
+    if (chassisSpeeds.vxMetersPerSecond != 0 || chassisSpeeds.vyMetersPerSecond != 0 || chassisSpeeds.omegaRadiansPerSecond != 0) {
+        states = Constants.m_kinematics.toSwerveModuleStates(chassisSpeeds);
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
+    }
+    
     setChassisState(states);
   }
 
@@ -138,8 +152,8 @@ public class Drivetrain extends SubsystemBase {
         return odometry.getPoseMeters();
   }
 
-  public void resetOdometry(Pose2d initialPose) {
-        odometry.resetPosition(initialPose, getGyroscopeRotation());
+  public void resetOdometry(Pose2d pose) {
+        odometry.resetPosition(pose, getGyroscopeRotation());
   }
 
   public void stopModules() {
