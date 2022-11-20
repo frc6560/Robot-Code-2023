@@ -27,7 +27,7 @@ import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final Drivetrain m_drivetrainSubsystem = new Drivetrain();
+  private final Drivetrain drivetrain = new Drivetrain();
 
   private final DriveCommand driveCommand;
 
@@ -37,8 +37,8 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    driveCommand = new DriveCommand(m_drivetrainSubsystem, manualControls);
-    m_drivetrainSubsystem.setDefaultCommand(driveCommand);
+    driveCommand = new DriveCommand(drivetrain, manualControls);
+    drivetrain.setDefaultCommand(driveCommand);
 
     // Configure the button bindings
     configureButtonBindings();
@@ -87,18 +87,18 @@ public class RobotContainer {
     // 4. Construct command to follow trajectory
     SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
             trajectory,
-            m_drivetrainSubsystem::getPose,
+            drivetrain::getPose,
             Constants.m_kinematics,
             xController,
             yController,
             thetaController,
-            m_drivetrainSubsystem::setChassisState,
-            m_drivetrainSubsystem);
+            drivetrain::setChassisState,
+            drivetrain);
 
     // 5. Add some init and wrap-up, and return everything
     return new SequentialCommandGroup(
-            new InstantCommand(() -> m_drivetrainSubsystem.resetOdometry(trajectory.getInitialPose())),
+            new InstantCommand(() -> drivetrain.resetOdometry(trajectory.getInitialPose())),
             swerveControllerCommand,
-            new InstantCommand(() -> m_drivetrainSubsystem.stopModules()));
+            new InstantCommand(() -> drivetrain.stopModules()));
 }
 }

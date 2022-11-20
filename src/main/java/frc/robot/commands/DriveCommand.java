@@ -9,7 +9,6 @@ import frc.robot.subsystems.Drivetrain;
 public class DriveCommand extends CommandBase {
     private final Drivetrain m_drivetrainSubsystem;
 
-
     private final SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.MAX_ACCELERATION);
     private final SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.MAX_ACCELERATION);
     private final SlewRateLimiter turnLimiter = new SlewRateLimiter(Constants.MAX_ANGULAR_ACCELERATION);
@@ -23,8 +22,6 @@ public class DriveCommand extends CommandBase {
 
     private Controls controls;
 
-    
-
     public DriveCommand(Drivetrain drivetrainSubsystem, Controls controls) {
         this.m_drivetrainSubsystem = drivetrainSubsystem;
         this.controls = controls;
@@ -34,16 +31,17 @@ public class DriveCommand extends CommandBase {
 
     @Override
     public void execute() {
-        // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of field-oriented movement
+        // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of
+        // field-oriented movement
         m_drivetrainSubsystem.drive(
-                ChassisSpeeds.fromFieldRelativeSpeeds(
-                        xLimiter.calculate(controls.driveX()),
-                        yLimiter.calculate(controls.driveY()),
-                        turnLimiter.calculate(controls.driveRotation()),
-                        m_drivetrainSubsystem.getGyroscopeRotation()
-                )
-            );
-        
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                xLimiter.calculate(controls.driveX()),
+                yLimiter.calculate(controls.driveY()),
+                turnLimiter.calculate(controls.driveRotation()),
+                m_drivetrainSubsystem.getGyroscopeRotation()
+            )
+        );
+
     }
 
     @Override

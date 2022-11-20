@@ -14,7 +14,7 @@ import frc.robot.utility.Util;
 /** Add your docs here. */
 public class ManualControls implements DriveCommand.Controls {
 
-    private  XboxController xbox;
+    private XboxController xbox;
 
     private final PovNumberStepper speed;
     private final PovNumberStepper turnSpeed;
@@ -23,16 +23,17 @@ public class ManualControls implements DriveCommand.Controls {
         this.xbox = xbox;
 
         this.speed = new PovNumberStepper(
-            new NumberStepper(Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.4, 0.0, Constants.MAX_VELOCITY_METERS_PER_SECOND, Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.1),
-            xbox,
-            PovNumberStepper.PovDirection.VERTICAL
-        );
+                new NumberStepper(Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.4, 0.0,
+                        Constants.MAX_VELOCITY_METERS_PER_SECOND, Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.1),
+                xbox,
+                PovNumberStepper.PovDirection.VERTICAL);
 
         this.turnSpeed = new PovNumberStepper(
-            new NumberStepper(Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.4, 0.0, Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.1),
-            xbox,
-            PovNumberStepper.PovDirection.HORIZONTAL
-        );
+                new NumberStepper(Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.4, 0.0,
+                        Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+                        Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.1),
+                xbox,
+                PovNumberStepper.PovDirection.HORIZONTAL);
     }
 
     @Override
@@ -55,8 +56,5 @@ public class ManualControls implements DriveCommand.Controls {
     public boolean driveResetYaw() {
         return xbox.getStartButton();
     }
-
-
-    
 
 }
