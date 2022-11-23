@@ -59,46 +59,46 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() {
-    // 1. Create trajectory settings
-    TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            Constants.MAX_VELOCITY_METERS_PER_SECOND,
-            Constants.MAX_ACCELERATION)
-                    .setKinematics(Constants.m_kinematics);
+        public Command getAutonomousCommand() {
+        // 1. Create trajectory settings
+        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+                Constants.MAX_VELOCITY_METERS_PER_SECOND,
+                Constants.MAX_ACCELERATION)
+                        .setKinematics(Constants.m_kinematics);
 
-    // 2. Generate trajectory
-    Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-            new Pose2d(0, 0, new Rotation2d(0)),
-            List.of(
-                    new Translation2d(1, 0),
-                    new Translation2d(1, -1)),
-            new Pose2d(2, -1, Rotation2d.fromDegrees(180)),
-            trajectoryConfig);
+        // 2. Generate trajectory
+        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+                new Pose2d(0, 0, new Rotation2d(0)),
+                List.of(
+                        new Translation2d(1, 0),
+                        new Translation2d(1, -1)),
+                new Pose2d(2, -1, Rotation2d.fromDegrees(180)),
+                trajectoryConfig);
 
-    // 3. Define PID controllers for tracking trajectory
-    PIDController xController = new PIDController(1.5, 0, 0);
-    PIDController yController = new PIDController(1.5, 0, 0);
-    ProfiledPIDController thetaController = new ProfiledPIDController(
-            3, 0, 0, new TrapezoidProfile.Constraints(
-                    Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-                    Constants.MAX_ANGULAR_ACCELERATION));
-    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        // 3. Define PID controllers for tracking trajectory
+        PIDController xController = new PIDController(1.5, 0, 0);
+        PIDController yController = new PIDController(1.5, 0, 0);
+        ProfiledPIDController thetaController = new ProfiledPIDController(
+                3, 0, 0, new TrapezoidProfile.Constraints(
+                        Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+                        Constants.MAX_ANGULAR_ACCELERATION));
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-    // 4. Construct command to follow trajectory
-    SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-            trajectory,
-            drivetrain::getPose,
-            Constants.m_kinematics,
-            xController,
-            yController,
-            thetaController,
-            drivetrain::setChassisState,
-            drivetrain);
+        // 4. Construct command to follow trajectory
+        SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
+                trajectory,
+                drivetrain::getPose,
+                Constants.m_kinematics,
+                xController,
+                yController,
+                thetaController,
+                drivetrain::setChassisState,
+                drivetrain);
 
-    // 5. Add some init and wrap-up, and return everything
-    return new SequentialCommandGroup(
-            new InstantCommand(() -> drivetrain.resetOdometry(trajectory.getInitialPose())),
-            swerveControllerCommand,
-            new InstantCommand(() -> drivetrain.stopModules()));
-}
+        // 5. Add some init and wrap-up, and return everything
+        return new SequentialCommandGroup(
+                new InstantCommand(() -> drivetrain.resetOdometry(trajectory.getInitialPose())),
+                swerveControllerCommand,
+                new InstantCommand(drivetrain::stopModules));
+        }
 }

@@ -40,8 +40,6 @@ public class Drivetrain extends SubsystemBase {
         private final SwerveModule m_backLeftModule;
         private final SwerveModule m_backRightModule;
 
-        private static final ChassisSpeeds stopSpeed = new ChassisSpeeds(0.0, 0.0, 0.0);
-
         // X shape for defense
         public static final SwerveModuleState[] DEFAULT_MODULE_STATES = new SwerveModuleState[] {
                 new SwerveModuleState(0.0, new Rotation2d(Math.toRadians(45))),
@@ -152,7 +150,10 @@ public class Drivetrain extends SubsystemBase {
         }
 
         public void stopModules() {
-                drive(stopSpeed);
+                m_frontLeftModule.set(0.0, m_frontLeftModule.getSteerAngle());
+                m_frontRightModule.set(0.0, m_frontRightModule.getSteerAngle());
+                m_backLeftModule.set(0.0, m_backLeftModule.getSteerAngle());
+                m_backRightModule.set(0.0, m_backRightModule.getSteerAngle());
         }
 
 }
