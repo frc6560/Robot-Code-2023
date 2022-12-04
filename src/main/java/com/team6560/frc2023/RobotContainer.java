@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package com.team6560.frc2022;
+package com.team6560.frc2023;
 
 import java.util.List;
 
@@ -10,9 +10,9 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
-import com.team6560.frc2022.commands.DriveCommand;
-import com.team6560.frc2022.controls.ManualControls;
-import com.team6560.frc2022.subsystems.Drivetrain;
+import com.team6560.frc2023.commands.DriveCommand;
+import com.team6560.frc2023.controls.ManualControls;
+import com.team6560.frc2023.subsystems.Drivetrain;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
