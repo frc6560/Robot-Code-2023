@@ -1,19 +1,13 @@
 package com.team6560.frc2023.commands;
 
-import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.subsystems.Drivetrain;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class DriveCommand extends CommandBase {
     private final Drivetrain m_drivetrainSubsystem;
-
-    // private final SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.MAX_ACCELERATION);
-    // private final SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.MAX_ACCELERATION);
-    // private final SlewRateLimiter turnLimiter = new SlewRateLimiter(Constants.MAX_ANGULAR_ACCELERATION);
-
+    
     public static interface Controls {
         double driveX();
         double driveY();
