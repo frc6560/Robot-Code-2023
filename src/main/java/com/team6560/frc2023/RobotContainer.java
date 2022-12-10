@@ -4,8 +4,8 @@
 
 package com.team6560.frc2023;
 
+import com.team6560.frc2023.auto.AutoBuilder;
 import com.team6560.frc2023.commands.DriveCommand;
-import com.team6560.frc2023.commands.auto.AutoBuilder;
 import com.team6560.frc2023.controls.ManualControls;
 import com.team6560.frc2023.subsystems.Drivetrain;
 
