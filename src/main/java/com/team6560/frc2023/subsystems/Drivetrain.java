@@ -10,6 +10,7 @@ import com.kauailabs.navx.frc.AHRS;
 import com.swervedrivespecialties.swervelib.Mk4iSwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 import com.team6560.frc2023.Constants;
+import com.team6560.frc2023.utility.NetworkTable.NtValueDisplay;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -17,6 +18,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -51,8 +53,16 @@ public class Drivetrain extends SubsystemBase {
         public SwerveModule[] modules;
         private SwerveDriveOdometry odometry = new SwerveDriveOdometry(Constants.m_kinematics, m_navx.getRotation2d());
 
+        private double GYRO_OFFSET = 360 / (360-12);
+
+
         public Drivetrain() {
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
+
+                NtValueDisplay.ntDispTab("Drivetrain")
+                        .add("Yaw", () -> this.getGyroscopeRotation().getDegrees())
+                        .add("Continuous Yaw", () -> m_navx.getRotation2d().getDegrees()*GYRO_OFFSET)
+                        ;
 
                 m_frontLeftModule = Mk4iSwerveModuleHelper.createFalcon500Neo(
                         // This parameter is optional, but will allow you to see the current state of
@@ -116,7 +126,7 @@ public class Drivetrain extends SubsystemBase {
                 // We will only get valid fused headings if the magnetometer is calibrated
                 // We have to invert the angle of the NavX so that rotating the robot
                 // counter-clockwise makes the angle increase.
-                return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
+                return Rotation2d.fromDegrees(360.0 - m_navx.getYaw() * GYRO_OFFSET);
         }
 
         public void drive(ChassisSpeeds chassisSpeeds) {
