@@ -2,11 +2,12 @@ package com.team6560.frc2023.commands;
 
 import com.team6560.frc2023.subsystems.Drivetrain;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class DriveCommand extends CommandBase {
-    private final Drivetrain m_drivetrainSubsystem;
+    private final Drivetrain drivetrain;
 
     /**
      * Interface for defining the controls for the drive command.
@@ -30,10 +31,16 @@ public class DriveCommand extends CommandBase {
      * @param controls            the controls for the command
      */
     public DriveCommand(Drivetrain drivetrainSubsystem, Controls controls) {
-        this.m_drivetrainSubsystem = drivetrainSubsystem;
+        this.drivetrain = drivetrainSubsystem;
         this.controls = controls;
 
         addRequirements(drivetrainSubsystem);
+    }
+
+    @Override
+    public void initialize() {
+        drivetrain.zeroGyroscope();
+        drivetrain.resetOdometry(new Pose2d());
     }
 
     
@@ -41,14 +48,14 @@ public class DriveCommand extends CommandBase {
     public void execute() {
         // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of
         // field-oriented movement
-        m_drivetrainSubsystem.drive(
+        drivetrain.drive(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
                         controls.driveX(),
                         controls.driveY(),
                         controls.driveRotation(),
-                        m_drivetrainSubsystem.getGyroscopeRotation()));
+                        drivetrain.getGyroscopeRotation()));
         if (controls.driveResetYaw()) {
-            m_drivetrainSubsystem.zeroGyroscope();
+            drivetrain.zeroGyroscope();
         }
 
     }
@@ -60,6 +67,6 @@ public class DriveCommand extends CommandBase {
      */
     @Override
     public void end(boolean interrupted) {
-        m_drivetrainSubsystem.stopModules();
+        drivetrain.stopModules();
     }
 }

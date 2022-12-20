@@ -18,7 +18,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -48,10 +48,10 @@ public class Drivetrain extends SubsystemBase {
          * The default states for each module, corresponding to an X shape.
          */
         public static final SwerveModuleState[] DEFAULT_MODULE_STATES = new SwerveModuleState[] {
-                        new SwerveModuleState(0.0, new Rotation2d(Math.toRadians(45))),
-                        new SwerveModuleState(0.0, new Rotation2d(Math.toRadians(-45))),
-                        new SwerveModuleState(0.0, new Rotation2d(Math.toRadians(-45))),
-                        new SwerveModuleState(0.0, new Rotation2d(Math.toRadians(45)))
+                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(45)),
+                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45)),
+                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45)),
+                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(45))
         };
 
         /**
@@ -62,12 +62,12 @@ public class Drivetrain extends SubsystemBase {
         /**
          * The odometry object for this drivetrain.
          */
-        private SwerveDriveOdometry odometry = new SwerveDriveOdometry(Constants.m_kinematics, m_navx.getRotation2d());
+        private SwerveDriveOdometry odometry = new SwerveDriveOdometry(Constants.m_kinematics, getGyroscopeRotation());
 
         /**
          * The offset to apply to the gyroscope readings to account for any drift.
          */
-        private double GYRO_OFFSET = 360 / (360 - 12);
+        private static final double GYRO_OFFSET = 3600.0 / (3473.0);
 
         /**
          * Constructs a new `Drivetrain` object and initializes the swerve modules.
@@ -76,7 +76,8 @@ public class Drivetrain extends SubsystemBase {
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
                 NtValueDisplay.ntDispTab("Drivetrain")
-                                .add("Yaw", () -> this.getGyroscopeRotation().getDegrees())
+                                .add("Yaw Function", () -> this.getGyroscopeRotation().getDegrees())
+                                .add("Raw Yaw", () -> m_navx.getYaw())
                                 .add("Continuous Yaw", () -> m_navx.getRotation2d().getDegrees() * GYRO_OFFSET);
 
                 m_frontLeftModule = Mk4iSwerveModuleHelper.createFalcon500Neo(
@@ -147,7 +148,10 @@ public class Drivetrain extends SubsystemBase {
                 // We will only get valid fused headings if the magnetometer is calibrated
                 // We have to invert the angle of the NavX so that rotating the robot
                 // counter-clockwise makes the angle increase.
-                return Rotation2d.fromDegrees(360.0 - (m_navx.getYaw() * GYRO_OFFSET));
+                return Rotation2d.fromDegrees((360.0 - (m_navx.getYaw() * GYRO_OFFSET)) % 360.0);
+                // return
+                // Rotation2d.fromDegrees(m_navx.getRotation2d().times(-GYRO_OFFSET).getDegrees()
+                // % 360.0);
         }
 
         /**
@@ -160,15 +164,17 @@ public class Drivetrain extends SubsystemBase {
          */
         public void drive(ChassisSpeeds chassisSpeeds) {
                 // X shape for defense
-                SwerveModuleState[] states = DEFAULT_MODULE_STATES;
 
                 if (chassisSpeeds.vxMetersPerSecond != 0 || chassisSpeeds.vyMetersPerSecond != 0
                                 || chassisSpeeds.omegaRadiansPerSecond != 0) {
-                        states = Constants.m_kinematics.toSwerveModuleStates(chassisSpeeds);
+                        SwerveModuleState[] states = Constants.m_kinematics.toSwerveModuleStates(chassisSpeeds);
                         SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
                         setChassisState(states);
                         return;
                 }
+
+                if (DriverStation.isAutonomous())
+                        return;
 
                 for (int i = 0; i < 4; i++) {
                         if (Math.abs(modules[i].getSteerAngle() - DEFAULT_MODULE_STATES[i].angle.getDegrees()) < 5.0
@@ -202,6 +208,17 @@ public class Drivetrain extends SubsystemBase {
                                 states[3].angle.getRadians());
 
                 odometry.update(m_navx.getRotation2d(), states);
+        }
+
+        public void setChassisState(double fLdeg, double fRdeg, double bLdeg, double bRdeg) {
+                setChassisState(
+                        new SwerveModuleState[] {
+                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(fLdeg)),
+                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(fRdeg)),
+                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(bLdeg)),
+                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(bRdeg))
+                        }
+                );
         }
 
         /**
