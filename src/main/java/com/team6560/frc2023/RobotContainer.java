@@ -4,15 +4,19 @@
 
 package com.team6560.frc2023;
 
+import java.io.File;
+
 import com.team6560.frc2023.auto.AutoBuilder;
 import com.team6560.frc2023.commands.DriveCommand;
 import com.team6560.frc2023.controls.ManualControls;
 import com.team6560.frc2023.subsystems.Drivetrain;
 
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 
 public class RobotContainer {
         // The robot's subsystems and commands are defined here...
@@ -23,7 +27,7 @@ public class RobotContainer {
         private final ManualControls manualControls = new ManualControls(new XboxController(0));
 
         // A chooser for autonomous commands
-        private final SendableChooser<String> autoChooser = new SendableChooser<String>();
+        private final SendableChooser<String> autoChooser;
 
         private final AutoBuilder autoBuilder;
 
@@ -37,10 +41,23 @@ public class RobotContainer {
 
                 autoBuilder = new AutoBuilder(drivetrain);
 
-                // Add commands to the autonomous command chooser
-                autoChooser.setDefaultOption("FullAuto", "FullAuto");
+                autoChooser = new SendableChooser<String>();
 
-                autoChooser.addOption("New Path", "New Path");
+                // Add commands to the autonomous command chooser
+                String defaultAuto = "Straight";
+                autoChooser.setDefaultOption(defaultAuto, defaultAuto);
+
+                // for (String f : (new File(Filesystem.getDeployDirectory().getPath() + "/pathplanner")).list()) {
+                //         f = f.strip().replace(".path", "");
+                //         if (!f.equals(defaultAuto)) {
+                //                 autoChooser.addOption(f, f);
+                //                 System.out.println(f);
+                //         }
+                // }
+
+                autoChooser.addOption("StraightSpin", "StraightSpin");
+                autoChooser.addOption("StraightAndBackSpin", "StraightAndBackSpin");
+                autoChooser.addOption("StraightAndBack", "StraightAndBack");
 
                 // Put the chooser on the dashboard
                 Shuffleboard.getTab("Auto Choose").add(autoChooser);

@@ -35,14 +35,14 @@ public class AutoBuilder {
     eventMap.put("marker2", new PrintCommand("Passed marker 2"));
 
     autoBuilder = new SwerveAutoBuilder(
-        drivetrain::getPose, // Pose2d supplier
-        drivetrain::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
+        () -> drivetrain.getPose(), // Pose2d supplier
+        (pose) -> drivetrain.resetOdometry(pose), // Pose2d consumer, used to reset odometry at the beginning of auto
         Constants.m_kinematics, // SwerveDriveKinematics
-        new PIDConstants(3.5, 0.0025, 0.00015), // PID constants to correct for translation error (used to create the X and Y
+        new PIDConstants(5.0, 0.5, 0.0), // PID constants to correct for translation error (used to create the X and Y
                                          // PID controllers)
-        new PIDConstants(0.5, 0.0005, 0.0), // PID constants to correct for rotation error (used to create the rotation
+        new PIDConstants(0.5, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation
                                          // controller)
-        drivetrain::setChassisState, // Module states consumer used to output to the drive subsystem
+        (state) -> drivetrain.setChassisState(state), // Module states consumer used to output to the drive subsystem
         eventMap,
         drivetrain // The drive subsystem. Used to properly set the requirements of path following
                    // commands
@@ -53,11 +53,14 @@ public class AutoBuilder {
   public Command getAutoCommand(String pathName) {
     // This will load the file "FullAuto.path" and generate it with a max velocity
     // of 2.0 m/s and a max acceleration of 1.0 m/s^2 for every path in the group
-    pathGroup = PathPlanner.loadPathGroup(pathName, new PathConstraints(2.0, 1.0));
+    pathGroup = PathPlanner.loadPathGroup(pathName, new PathConstraints(0.5, 0.2));
+
+    drivetrain.resetOdometry(pathGroup.get(0).getInitialHolonomicPose());
 
     return new SequentialCommandGroup(
       new StraightenWheelsCommand(drivetrain),
-      autoBuilder.fullAuto(pathGroup)
+      autoBuilder.fullAuto(pathGroup),
+      new DefaultWheelsCommand(drivetrain)
     );
 
   }

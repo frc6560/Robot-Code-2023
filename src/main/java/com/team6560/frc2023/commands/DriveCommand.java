@@ -38,10 +38,7 @@ public class DriveCommand extends CommandBase {
     }
 
     @Override
-    public void initialize() {
-        drivetrain.zeroGyroscope();
-        drivetrain.resetOdometry(new Pose2d());
-    }
+    public void initialize() {}
 
     
     @Override

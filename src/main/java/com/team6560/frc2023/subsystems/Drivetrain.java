@@ -6,6 +6,8 @@ package com.team6560.frc2023.subsystems;
 
 import static com.team6560.frc2023.Constants.*;
 
+import java.util.Arrays;
+
 import com.kauailabs.navx.frc.AHRS;
 import com.swervedrivespecialties.swervelib.Mk4iSwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
@@ -63,6 +65,8 @@ public class Drivetrain extends SubsystemBase {
          * The odometry object for this drivetrain.
          */
         private SwerveDriveOdometry odometry = new SwerveDriveOdometry(Constants.m_kinematics, getGyroscopeRotation());
+
+        private SwerveModuleState[] currStates = Arrays.copyOf(DEFAULT_MODULE_STATES, DEFAULT_MODULE_STATES.length);
 
         /**
          * The offset to apply to the gyroscope readings to account for any drift.
@@ -148,10 +152,7 @@ public class Drivetrain extends SubsystemBase {
                 // We will only get valid fused headings if the magnetometer is calibrated
                 // We have to invert the angle of the NavX so that rotating the robot
                 // counter-clockwise makes the angle increase.
-                return Rotation2d.fromDegrees((360.0 - (m_navx.getYaw() * GYRO_OFFSET)) % 360.0);
-                // return
-                // Rotation2d.fromDegrees(m_navx.getRotation2d().times(-GYRO_OFFSET).getDegrees()
-                // % 360.0);
+                return new Rotation2d(m_navx.getYaw() * -1 / 180 * Math.PI);
         }
 
         /**
@@ -163,32 +164,21 @@ public class Drivetrain extends SubsystemBase {
          *                      rotational speed
          */
         public void drive(ChassisSpeeds chassisSpeeds) {
-                // X shape for defense
-
                 if (chassisSpeeds.vxMetersPerSecond != 0 || chassisSpeeds.vyMetersPerSecond != 0
                                 || chassisSpeeds.omegaRadiansPerSecond != 0) {
                         SwerveModuleState[] states = Constants.m_kinematics.toSwerveModuleStates(chassisSpeeds);
                         SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
                         setChassisState(states);
-                        return;
-                }
-
-                if (DriverStation.isAutonomous())
-                        return;
-
-                for (int i = 0; i < 4; i++) {
-                        if (Math.abs(modules[i].getSteerAngle() - DEFAULT_MODULE_STATES[i].angle.getDegrees()) < 5.0
-                                        || modules[i].getDriveVelocity() != 0.0) {
-                                setChassisState(DEFAULT_MODULE_STATES);
-                                return;
-                        }
+                } else {
+                        // X shape for defense
+                        setChassisState(DEFAULT_MODULE_STATES);
                 }
 
         }
 
         @Override
         public void periodic() {
-
+                odometry.update(m_navx.getRotation2d(), currStates);
         }
 
         /**
@@ -207,7 +197,7 @@ public class Drivetrain extends SubsystemBase {
                 m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                                 states[3].angle.getRadians());
 
-                odometry.update(m_navx.getRotation2d(), states);
+                currStates = states;
         }
 
         public void setChassisState(double fLdeg, double fRdeg, double bLdeg, double bRdeg) {
