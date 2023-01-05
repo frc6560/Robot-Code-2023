@@ -58,6 +58,8 @@ public class RobotContainer {
                 autoChooser.addOption("StraightSpin", "StraightSpin");
                 autoChooser.addOption("StraightAndBackSpin", "StraightAndBackSpin");
                 autoChooser.addOption("StraightAndBack", "StraightAndBack");
+                autoChooser.addOption("Hamid", "Hamid");
+                autoChooser.addOption("HamidSharp", "HamidSharp");
 
                 // Put the chooser on the dashboard
                 Shuffleboard.getTab("Auto Choose").add(autoChooser);

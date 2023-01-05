@@ -53,14 +53,12 @@ public class AutoBuilder {
   public Command getAutoCommand(String pathName) {
     // This will load the file "FullAuto.path" and generate it with a max velocity
     // of 2.0 m/s and a max acceleration of 1.0 m/s^2 for every path in the group
-    pathGroup = PathPlanner.loadPathGroup(pathName, new PathConstraints(0.5, 0.2));
+    pathGroup = PathPlanner.loadPathGroup(pathName, new PathConstraints(1.5, 0.75));
 
     drivetrain.resetOdometry(pathGroup.get(0).getInitialHolonomicPose());
 
     return new SequentialCommandGroup(
-      new StraightenWheelsCommand(drivetrain),
-      autoBuilder.fullAuto(pathGroup),
-      new DefaultWheelsCommand(drivetrain)
+      autoBuilder.fullAuto(pathGroup)
     );
 
   }

@@ -66,8 +66,6 @@ public class Drivetrain extends SubsystemBase {
          */
         private SwerveDriveOdometry odometry = new SwerveDriveOdometry(Constants.m_kinematics, getGyroscopeRotation());
 
-        private SwerveModuleState[] currStates = Arrays.copyOf(DEFAULT_MODULE_STATES, DEFAULT_MODULE_STATES.length);
-
         /**
          * The offset to apply to the gyroscope readings to account for any drift.
          */
@@ -164,21 +162,29 @@ public class Drivetrain extends SubsystemBase {
          *                      rotational speed
          */
         public void drive(ChassisSpeeds chassisSpeeds) {
-                if (chassisSpeeds.vxMetersPerSecond != 0 || chassisSpeeds.vyMetersPerSecond != 0
-                                || chassisSpeeds.omegaRadiansPerSecond != 0) {
-                        SwerveModuleState[] states = Constants.m_kinematics.toSwerveModuleStates(chassisSpeeds);
-                        SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
+
+                SwerveModuleState[] states = Constants.m_kinematics.toSwerveModuleStates(chassisSpeeds);
+                SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
+
+                if (DriverStation.isAutonomous()) {
                         setChassisState(states);
-                } else {
-                        // X shape for defense
-                        setChassisState(DEFAULT_MODULE_STATES);
+                        return;
                 }
+
+                for (SwerveModuleState state : states) {
+                        if (state.speedMetersPerSecond > 0.05) {
+                                setChassisState(states);
+                                return;
+                        }
+                }
+
+                setChassisState(DEFAULT_MODULE_STATES);
 
         }
 
         @Override
         public void periodic() {
-                odometry.update(m_navx.getRotation2d(), currStates);
+                odometry.update(m_navx.getRotation2d(), getStates());
         }
 
         /**
@@ -188,6 +194,7 @@ public class Drivetrain extends SubsystemBase {
          * @param moduleStates The desired states for each module.
          */
         public void setChassisState(SwerveModuleState[] states) {
+
                 m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                                 states[0].angle.getRadians());
                 m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
@@ -197,7 +204,6 @@ public class Drivetrain extends SubsystemBase {
                 m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                                 states[3].angle.getRadians());
 
-                currStates = states;
         }
 
         public void setChassisState(double fLdeg, double fRdeg, double bLdeg, double bRdeg) {
@@ -220,6 +226,10 @@ public class Drivetrain extends SubsystemBase {
                 return odometry.getPoseMeters();
         }
 
+        public SwerveModuleState[] getStates() {
+                return new SwerveModuleState[] {m_frontLeftModule.getState(), m_frontRightModule.getState(), m_backLeftModule.getState(), m_backRightModule.getState()};
+        }
+
         /**
          * 
          * This method is used to reset the position of the robot's odometry.
@@ -235,7 +245,9 @@ public class Drivetrain extends SubsystemBase {
          * This method is used to stop all of the swerve drive modules.
          */
         public void stopModules() {
-                setChassisState(DEFAULT_MODULE_STATES);
+                for (SwerveModule i : modules) {
+                        i.set(0.0, i.getSteerAngle());
+                }
         }
 
 }
