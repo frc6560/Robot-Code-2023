@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI.Port;
@@ -64,8 +65,7 @@ public class Drivetrain extends SubsystemBase {
         /**
          * The odometry object for this drivetrain.
          */
-        private SwerveDriveOdometry odometry = new SwerveDriveOdometry(Constants.m_kinematics, getGyroscopeRotation());
-
+        private SwerveDriveOdometry odometry = new SwerveDriveOdometry(Constants.m_kinematics, getGyroscopeRotation(), getModulePositions());
         /**
          * The offset to apply to the gyroscope readings to account for any drift.
          */
@@ -153,6 +153,11 @@ public class Drivetrain extends SubsystemBase {
                 return new Rotation2d(m_navx.getYaw() * -1 / 180 * Math.PI);
         }
 
+        public SwerveModulePosition[] getModulePositions() {
+                return new SwerveModulePosition[] {m_frontLeftModule.getPosition(), m_frontRightModule.getPosition(),
+                        m_backLeftModule.getPosition(), m_backRightModule.getPosition()};
+        }
+
         /**
          * 
          * This method is used to control the movement of the chassis.
@@ -184,7 +189,7 @@ public class Drivetrain extends SubsystemBase {
 
         @Override
         public void periodic() {
-                odometry.update(m_navx.getRotation2d(), getStates());
+                odometry.update(getGyroscopeRotation(), getModulePositions());
         }
 
         /**
@@ -237,7 +242,7 @@ public class Drivetrain extends SubsystemBase {
          * @param pose the new pose to use as the starting position for the odometry
          */
         public void resetOdometry(Pose2d pose) {
-                odometry.resetPosition(pose, getGyroscopeRotation());
+                odometry.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);
         }
 
         /**

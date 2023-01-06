@@ -4,8 +4,8 @@
 
 package com.team6560.frc2023.auto;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 public class AutoBuilder {
 
   private HashMap<String, Command> eventMap;
-  private ArrayList<PathPlannerTrajectory> pathGroup;
+  private List<PathPlannerTrajectory> pathGroup;
 
   private SwerveAutoBuilder autoBuilder;
   private Drivetrain drivetrain;
