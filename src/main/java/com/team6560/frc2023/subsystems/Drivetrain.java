@@ -6,19 +6,18 @@ package com.team6560.frc2023.subsystems;
 
 import static com.team6560.frc2023.Constants.*;
 
-import java.util.Arrays;
-
 import com.kauailabs.navx.frc.AHRS;
 import com.swervedrivespecialties.swervelib.Mk4iSwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.utility.NetworkTable.NtValueDisplay;
 
+import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -26,6 +25,8 @@ import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivetrain extends SubsystemBase {
@@ -62,19 +63,24 @@ public class Drivetrain extends SubsystemBase {
          */
         public SwerveModule[] modules;
 
-        /**
-         * The odometry object for this drivetrain.
-         */
-        private SwerveDriveOdometry odometry = new SwerveDriveOdometry(Constants.m_kinematics, getGyroscopeRotation(), getModulePositions());
+        private PhotonCameraWrapper pcw = new PhotonCameraWrapper();
+
+        private SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(Constants.m_kinematics,
+                        getGyroscopeRotation(), getModulePositions(), getPose());
+
         /**
          * The offset to apply to the gyroscope readings to account for any drift.
          */
         private static final double GYRO_OFFSET = 3600.0 / (3473.0);
 
+
+        private final Field2d field = new Field2d();
+
         /**
          * Constructs a new `Drivetrain` object and initializes the swerve modules.
          */
         public Drivetrain() {
+
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
                 NtValueDisplay.ntDispTab("Drivetrain")
@@ -126,6 +132,8 @@ public class Drivetrain extends SubsystemBase {
 
                 modules = new SwerveModule[] { m_frontLeftModule, m_frontRightModule, m_backLeftModule,
                                 m_backRightModule };
+
+                SmartDashboard.putData("Field", field);
         }
 
         /**
@@ -154,8 +162,8 @@ public class Drivetrain extends SubsystemBase {
         }
 
         public SwerveModulePosition[] getModulePositions() {
-                return new SwerveModulePosition[] {m_frontLeftModule.getPosition(), m_frontRightModule.getPosition(),
-                        m_backLeftModule.getPosition(), m_backRightModule.getPosition()};
+                return new SwerveModulePosition[] { m_frontLeftModule.getPosition(), m_frontRightModule.getPosition(),
+                                m_backLeftModule.getPosition(), m_backRightModule.getPosition() };
         }
 
         /**
@@ -189,7 +197,9 @@ public class Drivetrain extends SubsystemBase {
 
         @Override
         public void periodic() {
-                odometry.update(getGyroscopeRotation(), getModulePositions());
+                updateOdometry();
+
+                field.setRobotPose(getPose());
         }
 
         /**
@@ -213,36 +223,36 @@ public class Drivetrain extends SubsystemBase {
 
         public void setChassisState(double fLdeg, double fRdeg, double bLdeg, double bRdeg) {
                 setChassisState(
-                        new SwerveModuleState[] {
-                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(fLdeg)),
-                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(fRdeg)),
-                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(bLdeg)),
-                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(bRdeg))
-                        }
-                );
+                                new SwerveModuleState[] {
+                                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(fLdeg)),
+                                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(fRdeg)),
+                                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(bLdeg)),
+                                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(bRdeg))
+                                });
         }
 
         /**
-         * Gets the current pose of the robot according to the odometry calculations.
+         * Gets the current pose of the robot according to the pose estimator calculations.
          *
          * @return The pose of the robot.
          */
         public Pose2d getPose() {
-                return odometry.getPoseMeters();
+                return poseEstimator.getEstimatedPosition();
         }
 
         public SwerveModuleState[] getStates() {
-                return new SwerveModuleState[] {m_frontLeftModule.getState(), m_frontRightModule.getState(), m_backLeftModule.getState(), m_backRightModule.getState()};
+                return new SwerveModuleState[] { m_frontLeftModule.getState(), m_frontRightModule.getState(),
+                                m_backLeftModule.getState(), m_backRightModule.getState() };
         }
 
         /**
          * 
-         * This method is used to reset the position of the robot's odometry.
+         * This method is used to reset the position of the robot's pose estimator.
          * 
-         * @param pose the new pose to use as the starting position for the odometry
+         * @param pose the new pose to use as the starting position for the pose estimator
          */
         public void resetOdometry(Pose2d pose) {
-                odometry.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);
+                poseEstimator.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);
         }
 
         /**
@@ -255,4 +265,19 @@ public class Drivetrain extends SubsystemBase {
                 }
         }
 
+        /** Updates the field-relative position. */
+        private void updateOdometry() {
+                poseEstimator.update(getGyroscopeRotation(), getModulePositions());
+
+                // Also apply vision measurements. We use 0.3 seconds in the past as an example
+                // -- on
+                // a real robot, this must be calculated based either on latency or timestamps.
+                Pair<Pose2d, Double> result = pcw.getEstimatedGlobalPose(poseEstimator.getEstimatedPosition());
+                Pose2d camPose = result.getFirst();
+                var camPoseObsTime = result.getSecond();
+                if (camPose != null) {
+                        poseEstimator.addVisionMeasurement(camPose, camPoseObsTime);
+                }
+
+        }
 }
