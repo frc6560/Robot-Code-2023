@@ -45,16 +45,8 @@ public class DriveCommand extends CommandBase {
     public void execute() {
         // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of
         // field-oriented movement
-        drivetrain.drive(
-                ChassisSpeeds.fromFieldRelativeSpeeds(
-                        controls.driveX(),
-                        controls.driveY(),
-                        controls.driveRotation(),
-                        drivetrain.getGyroscopeRotation()));
-        if (controls.driveResetYaw()) {
-            drivetrain.zeroGyroscope();
-        }
-
+        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(controls.driveX(), controls.driveY(), controls.driveRotation());
+        drivetrain.drive(chassisSpeeds);
     }
 
     /**
