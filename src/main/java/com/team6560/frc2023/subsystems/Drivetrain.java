@@ -12,6 +12,8 @@ import com.swervedrivespecialties.swervelib.SwerveModule;
 import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.utility.NetworkTable.NtValueDisplay;
 
+import edu.wpi.first.math.MatBuilder;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -20,6 +22,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -133,8 +137,10 @@ public class Drivetrain extends SubsystemBase {
 
                 // TODO: Update standard deviation so it's less jiggly
                 // TODO: Also investigate different AprilTag methods in PhotonCameraWrapper
-                poseEstimator = new SwerveDrivePoseEstimator(Constants.m_kinematics,
-                        getGyroscopeRotation(), getModulePositions(), new Pose2d());
+                poseEstimator = new SwerveDrivePoseEstimator(m_kinematics,
+                        getGyroscopeRotation(), getModulePositions(), new Pose2d(),
+                        new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.1), // State measurement standard deviations. X, Y, theta.
+                        new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.9, 0.9, 0.9)); // Vision measurement standard deviations. X, Y, theta.
 
                 SmartDashboard.putData("Field", field);
         }
