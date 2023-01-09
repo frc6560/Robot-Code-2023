@@ -59,6 +59,8 @@ public final class Constants {
   public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 4;
   public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(111.094 + 180);
 
+  
+
   // The formula for calculating the theoretical maximum velocity is:
   // <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> *
   // pi
@@ -100,6 +102,13 @@ public final class Constants {
       new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0),
       // Back right
       new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0));
+
+
+      public static final int pivotMotorId = 0;
+      public static final int turretMotorId = 0;
+
+
+
 
   public static final class ControllerIds {
     public static final int FIRST_DRIVER_CONTROLLER = 0;

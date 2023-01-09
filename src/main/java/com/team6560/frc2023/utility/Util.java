@@ -18,10 +18,59 @@ public class Util {
      * @return the limited value
      */
     public static double getLimited(double num, double maxMagnitude) {
-        if (num > maxMagnitude) {
-            return maxMagnitude;
-        } else if (num < -maxMagnitude) {
-            return -maxMagnitude;
+        return getLimited(num, -maxMagnitude, maxMagnitude);
+    }
+
+    /**
+     * Returns the given number, limited to the given minimum and maximum values. If the given number is greater than the
+     * given maximum value, the maximum value is returned. If the given number is less than the given minimum value, the
+     * minimum value is returned. Otherwise, the given number is returned unchanged.
+     *
+     * @param num the number to limit
+     * @param min the minimum value to allow
+     * @param max the maximum value to allow
+     * @return the limited value
+     */
+    public static double getLimited(double num, double min, double max) {
+        if (num > max) {
+            return max;
+        } else if (num < min) {
+            return min;
+        } else {
+            return num;
+        }
+    }
+
+
+    /**
+     * Returns the given rotation, limited to the given maximum magnitude. If the given rotation is greater than the given
+     * maximum magnitude, the maximum magnitude is returned. If the given rotation is less than the negative of the given
+     * maximum magnitude, the negative of the maximum magnitude is returned. Otherwise, the given rotation is returned
+     * unchanged.
+     *
+     * @param num the rotation to limit
+     * @param maxMagnitude the maximum magnitude to allow
+     * @return the limited value
+     */
+    public static Rotation2d getLimited(Rotation2d num, Rotation2d maxMagnitude) {
+        return getLimited(num, maxMagnitude.unaryMinus(), maxMagnitude);
+    }
+
+    /**
+     * Returns the given rotation, limited to the given minimum and maximum rotation. If the given rotation is greater than the
+     * given maximum rotation, the maximum rotation is returned. If the given rotation is less than the given minimum rotation, the
+     * minimum rotation is returned. Otherwise, the given rotation is returned unchanged.
+     *
+     * @param num the rotation to limit
+     * @param min the minimum rotation to allow
+     * @param max the maximum rotation to allow
+     * @return the limited rotation
+     */
+    public static Rotation2d getLimited(Rotation2d num, Rotation2d min, Rotation2d max) {
+        if (num.getDegrees() > max.getDegrees()) {
+            return max;
+        } else if (num.getDegrees() < min.getDegrees()) {
+            return min;
         } else {
             return num;
         }
