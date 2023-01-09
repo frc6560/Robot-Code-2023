@@ -243,6 +243,10 @@ public class Drivetrain extends SubsystemBase {
                 return poseEstimator.getEstimatedPosition();
         }
 
+        public ChassisSpeeds getChassisSpeeds() {
+                return Constants.m_kinematics.toChassisSpeeds(getStates());
+        }
+
         public SwerveModuleState[] getStates() {
                 return new SwerveModuleState[] { m_frontLeftModule.getState(), m_frontRightModule.getState(),
                                 m_backLeftModule.getState(), m_backRightModule.getState() };

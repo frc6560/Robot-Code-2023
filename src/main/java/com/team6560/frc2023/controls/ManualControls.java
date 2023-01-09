@@ -104,4 +104,16 @@ public class ManualControls implements DriveCommand.Controls {
   public boolean driveResetYaw() {
     return xbox.getStartButton();
   }
+
+  @Override
+  public boolean GoToDoubleSubstation() {
+    // TODO Auto-generated method stub
+    return xbox.getAButton();
+  }
+
+  @Override
+  public boolean GoToSingleSubstation() {
+    // TODO Auto-generated method stub
+    return false;
+  }
 }

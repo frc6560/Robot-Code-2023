@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package com.team6560.frc2023.auto;
+package com.team6560.frc2023.commands.auto;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,11 +10,16 @@ import java.util.List;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPoint;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.subsystems.Drivetrain;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -57,10 +62,28 @@ public class AutoBuilder {
 
     drivetrain.resetOdometry(pathGroup.get(0).getInitialHolonomicPose());
 
-    return new SequentialCommandGroup(
-      autoBuilder.fullAuto(pathGroup)
+    return autoBuilder.fullAuto(pathGroup);
+
+  }
+
+  public Command goToPose(Pose2d desiredPose) {
+
+    Pose2d currPose = drivetrain.getPose();
+
+    ChassisSpeeds currChassisSpeeds = drivetrain.getChassisSpeeds();
+
+    double currSpeed = Math.sqrt(Math.pow(currChassisSpeeds.vxMetersPerSecond, 2) + Math.pow(currChassisSpeeds.vyMetersPerSecond, 2));
+
+    Rotation2d currHeading = new Rotation2d(currChassisSpeeds.vxMetersPerSecond, currChassisSpeeds.vyMetersPerSecond);
+
+    // More complex path with holonomic rotation. Non-zero starting velocity of 2 m/s. Max velocity of 4 m/s and max accel of 3 m/s^2
+    PathPlannerTrajectory traj = PathPlanner.generatePath(
+      new PathConstraints(4, 3), 
+      new PathPoint(currPose.getTranslation(), currHeading, currPose.getRotation(), currSpeed), // position, heading(direction of travel), holonomic rotation, velocity override
+      new PathPoint(desiredPose.getTranslation(), desiredPose.getRotation(), desiredPose.getRotation()) // position, heading(direction of travel), holonomic rotation
     );
 
+    return autoBuilder.followPath(traj);
   }
 
 }
