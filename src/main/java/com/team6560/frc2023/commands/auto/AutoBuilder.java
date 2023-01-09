@@ -74,7 +74,7 @@ public class AutoBuilder {
 
     double currSpeed = Math.sqrt(Math.pow(currChassisSpeeds.vxMetersPerSecond, 2) + Math.pow(currChassisSpeeds.vyMetersPerSecond, 2));
 
-    Rotation2d currHeading = new Rotation2d(currChassisSpeeds.vxMetersPerSecond, currChassisSpeeds.vyMetersPerSecond);
+    Rotation2d currHeading = currSpeed == 0.0 ? desiredPose.getRotation() : new Rotation2d(currChassisSpeeds.vxMetersPerSecond, currChassisSpeeds.vyMetersPerSecond);
 
     // More complex path with holonomic rotation. Non-zero starting velocity of 2 m/s. Max velocity of 4 m/s and max accel of 3 m/s^2
     PathPlannerTrajectory traj = PathPlanner.generatePath(
