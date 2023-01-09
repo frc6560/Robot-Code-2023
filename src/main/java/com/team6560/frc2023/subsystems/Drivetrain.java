@@ -65,9 +65,7 @@ public class Drivetrain extends SubsystemBase {
 
         private PhotonCameraWrapper pcw = new PhotonCameraWrapper();
 
-        private SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(Constants.m_kinematics,
-                        getGyroscopeRotation(), getModulePositions(), getPose());
-
+        private SwerveDrivePoseEstimator poseEstimator;
         /**
          * The offset to apply to the gyroscope readings to account for any drift.
          */
@@ -132,6 +130,11 @@ public class Drivetrain extends SubsystemBase {
 
                 modules = new SwerveModule[] { m_frontLeftModule, m_frontRightModule, m_backLeftModule,
                                 m_backRightModule };
+
+                // TODO: Update standard deviation so it's less jiggly
+                // TODO: Also investigate different AprilTag methods in PhotonCameraWrapper
+                poseEstimator = new SwerveDrivePoseEstimator(Constants.m_kinematics,
+                        getGyroscopeRotation(), getModulePositions(), new Pose2d());
 
                 SmartDashboard.putData("Field", field);
         }

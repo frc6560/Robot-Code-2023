@@ -78,7 +78,7 @@ public class PhotonCameraWrapper {
 
         double currentTime = Timer.getFPGATimestamp();
         Optional<Pair<Pose3d, Double>> result = robotPoseEstimator.update();
-        if (result.isPresent()) {
+        if (result.isPresent() && result.get().getFirst() != null) {
             return new Pair<Pose2d, Double>(
                     result.get().getFirst().toPose2d(), currentTime - result.get().getSecond());
         } else {
