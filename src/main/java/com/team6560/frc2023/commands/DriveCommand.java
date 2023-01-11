@@ -1,9 +1,11 @@
 package com.team6560.frc2023.commands;
 
+import com.team6560.frc2023.commands.auto.AutoBuilder;
 import com.team6560.frc2023.subsystems.Drivetrain;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class DriveCommand extends CommandBase {
@@ -20,9 +22,18 @@ public class DriveCommand extends CommandBase {
         double driveRotation();
 
         boolean driveResetYaw();
+
+        boolean GoToDoubleSubstation();
+
+        boolean driveResetGlobalPose();
     }
 
     private Controls controls;
+
+    private AutoBuilder autoBuilder;
+
+    private boolean goingToPose = false;
+    private Command goToPoseAutoCommand;
 
     /**
      * Creates a new `DriveCommand` instance.
@@ -30,8 +41,9 @@ public class DriveCommand extends CommandBase {
      * @param drivetrainSubsystem the `Drivetrain` subsystem used by the command
      * @param controls            the controls for the command
      */
-    public DriveCommand(Drivetrain drivetrainSubsystem, Controls controls) {
+    public DriveCommand(Drivetrain drivetrainSubsystem, AutoBuilder autoBuilder, Controls controls) {
         this.drivetrain = drivetrainSubsystem;
+        this.autoBuilder = autoBuilder;
         this.controls = controls;
 
         addRequirements(drivetrainSubsystem);
@@ -39,10 +51,21 @@ public class DriveCommand extends CommandBase {
 
     @Override
     public void initialize() {}
-
     
     @Override
     public void execute() {
+        if (controls.GoToDoubleSubstation() && !goingToPose) {
+            goToPoseAutoCommand = autoBuilder.goToPose(new Pose2d());
+            goToPoseAutoCommand.initialize();
+            goingToPose = true;
+
+        }
+        if (goingToPose && goToPoseAutoCommand != null && !goToPoseAutoCommand.isFinished()) {
+            goToPoseAutoCommand.execute();
+            return;
+        }
+        goingToPose=false;
+
         // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of
         // field-oriented movement
         drivetrain.drive(
@@ -55,6 +78,7 @@ public class DriveCommand extends CommandBase {
             drivetrain.zeroGyroscope();
         }
 
+        if (controls.driveResetGlobalPose()) drivetrain.resetOdometry(new Pose2d());
     }
 
     /**

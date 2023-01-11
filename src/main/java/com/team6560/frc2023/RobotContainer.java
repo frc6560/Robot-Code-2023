@@ -6,8 +6,8 @@ package com.team6560.frc2023;
 
 import java.io.File;
 
-import com.team6560.frc2023.auto.AutoBuilder;
 import com.team6560.frc2023.commands.DriveCommand;
+import com.team6560.frc2023.commands.auto.AutoBuilder;
 import com.team6560.frc2023.controls.ManualControls;
 import com.team6560.frc2023.subsystems.Drivetrain;
 
@@ -36,10 +36,11 @@ public class RobotContainer {
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
         public RobotContainer() {
-                driveCommand = new DriveCommand(drivetrain, manualControls);
+                autoBuilder = new AutoBuilder(drivetrain);
+
+                driveCommand = new DriveCommand(drivetrain, autoBuilder, manualControls);
                 drivetrain.setDefaultCommand(driveCommand);
 
-                autoBuilder = new AutoBuilder(drivetrain);
 
                 autoChooser = new SendableChooser<String>();
 
