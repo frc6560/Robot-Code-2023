@@ -1,14 +1,12 @@
 package com.team6560.frc2023.commands;
 
 import com.team6560.frc2023.commands.auto.AutoBuilder;
-import com.team6560.frc2023.commands.auto.GoToDoubleSubstationCommand;
-import com.team6560.frc2023.commands.auto.GoToSingleSubstationCommand;
 import com.team6560.frc2023.subsystems.Drivetrain;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class DriveCommand extends CommandBase {
     private final Drivetrain drivetrain;
@@ -27,14 +25,15 @@ public class DriveCommand extends CommandBase {
 
         boolean GoToDoubleSubstation();
 
-        boolean GoToSingleSubstation();
+        boolean driveResetGlobalPose();
     }
 
     private Controls controls;
 
     private AutoBuilder autoBuilder;
-    private GoToDoubleSubstationCommand goToDoubleSubstationCommand;
-    private GoToSingleSubstationCommand goToSingleSubstationCommand;
+
+    private boolean goingToPose = false;
+    private Command goToPoseAutoCommand;
 
     /**
      * Creates a new `DriveCommand` instance.
@@ -47,32 +46,26 @@ public class DriveCommand extends CommandBase {
         this.autoBuilder = autoBuilder;
         this.controls = controls;
 
-        this.goToDoubleSubstationCommand = new GoToDoubleSubstationCommand(autoBuilder);
-        this.goToSingleSubstationCommand = new GoToSingleSubstationCommand(autoBuilder);
-
         addRequirements(drivetrainSubsystem);
     }
 
     @Override
     public void initialize() {}
-
-    private boolean goingToDoubleSubstation = false;
-    private boolean goingToSingleSubstation = false;
+    
     @Override
     public void execute() {
-        if (controls.GoToDoubleSubstation() && !goingToDoubleSubstation) {
-            CommandScheduler.getInstance().schedule(goToDoubleSubstationCommand);
-            goingToDoubleSubstation = true;
-        }
-        if (!controls.GoToDoubleSubstation()) goingToDoubleSubstation = false;
+        if (controls.GoToDoubleSubstation() && !goingToPose) {
+            goToPoseAutoCommand = autoBuilder.goToPose(new Pose2d());
+            goToPoseAutoCommand.initialize();
+            goingToPose = true;
 
-        if (controls.GoToSingleSubstation() && !goingToSingleSubstation) {
-            CommandScheduler.getInstance().schedule(goToSingleSubstationCommand);
-            goingToSingleSubstation = true;
         }
-        if (!controls.GoToDoubleSubstation()) goingToSingleSubstation = false;
+        if (goingToPose && goToPoseAutoCommand != null && !goToPoseAutoCommand.isFinished()) {
+            goToPoseAutoCommand.execute();
+            return;
+        }
+        goingToPose=false;
 
-        
         // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of
         // field-oriented movement
         drivetrain.drive(
@@ -85,6 +78,7 @@ public class DriveCommand extends CommandBase {
             drivetrain.zeroGyroscope();
         }
 
+        if (controls.driveResetGlobalPose()) drivetrain.resetOdometry(new Pose2d());
     }
 
     /**

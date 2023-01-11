@@ -26,15 +26,15 @@ public class ManualControls implements DriveCommand.Controls {
     this.xbox = xbox;
 
     this.speed = new PovNumberStepper(
-        new NumberStepper(Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.4, 0.0,
-            Constants.MAX_VELOCITY_METERS_PER_SECOND, Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.05),
+        new NumberStepper(Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.2, 0.0,
+            Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.6, Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.05),
         xbox,
         PovNumberStepper.PovDirection.VERTICAL);
 
     this.turnSpeed = new PovNumberStepper(
-        new NumberStepper(Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.4, 0.0,
-            Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-            Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.05),
+        new NumberStepper(Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.1, 0.0,
+            Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.15,
+            Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.0025),
         xbox,
         PovNumberStepper.PovDirection.HORIZONTAL);
   }
@@ -53,7 +53,7 @@ public class ManualControls implements DriveCommand.Controls {
 
   private static double modifyAxis(double value) {
     // Deadband
-    value = deadband(value, 0.01);
+    value = deadband(value, 0.001);
 
     // Square the axis
     value = Math.copySign(value * value, value);
@@ -107,13 +107,12 @@ public class ManualControls implements DriveCommand.Controls {
 
   @Override
   public boolean GoToDoubleSubstation() {
-    // TODO Auto-generated method stub
     return xbox.getAButton();
   }
 
   @Override
-  public boolean GoToSingleSubstation() {
-    // TODO Auto-generated method stub
-    return false;
+  public boolean driveResetGlobalPose() {
+    return xbox.getBackButton();
   }
+
 }

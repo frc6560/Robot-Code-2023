@@ -14,6 +14,7 @@ import com.team6560.frc2023.utility.NetworkTable.NtValueDisplay;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -73,6 +74,10 @@ public class Drivetrain extends SubsystemBase {
 
 
         private final Field2d field = new Field2d();
+
+        private SlewRateLimiter xLimiter = new SlewRateLimiter(3.0);
+        private SlewRateLimiter yLimiter = new SlewRateLimiter(3.0);
+        private SlewRateLimiter rotLimiter = new SlewRateLimiter(6.0);
 
         /**
          * Constructs a new `Drivetrain` object and initializes the swerve modules.
@@ -178,7 +183,7 @@ public class Drivetrain extends SubsystemBase {
          *                      rotational speed
          */
         public void drive(ChassisSpeeds chassisSpeeds) {
-
+                
                 SwerveModuleState[] states = Constants.m_kinematics.toSwerveModuleStates(chassisSpeeds);
                 SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
 
@@ -186,6 +191,10 @@ public class Drivetrain extends SubsystemBase {
                         setChassisState(states);
                         return;
                 }
+
+                chassisSpeeds = new ChassisSpeeds(xLimiter.calculate(chassisSpeeds.vxMetersPerSecond),
+                                yLimiter.calculate(chassisSpeeds.vyMetersPerSecond), rotLimiter.calculate(chassisSpeeds.omegaRadiansPerSecond));
+
 
                 for (SwerveModuleState state : states) {
                         if (state.speedMetersPerSecond > 0.05) {

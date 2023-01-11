@@ -18,11 +18,9 @@ import com.team6560.frc2023.subsystems.Drivetrain;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class AutoBuilder {
 
@@ -43,7 +41,7 @@ public class AutoBuilder {
         () -> drivetrain.getPose(), // Pose2d supplier
         (pose) -> drivetrain.resetOdometry(pose), // Pose2d consumer, used to reset odometry at the beginning of auto
         Constants.m_kinematics, // SwerveDriveKinematics
-        new PIDConstants(5.0, 0.5, 0.0), // PID constants to correct for translation error (used to create the X and Y
+        new PIDConstants(5.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y
                                          // PID controllers)
         new PIDConstants(0.5, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation
                                          // controller)
@@ -72,15 +70,15 @@ public class AutoBuilder {
 
     ChassisSpeeds currChassisSpeeds = drivetrain.getChassisSpeeds();
 
-    double currSpeed = Math.sqrt(Math.pow(currChassisSpeeds.vxMetersPerSecond, 2) + Math.pow(currChassisSpeeds.vyMetersPerSecond, 2));
+    double currSpeed = Math.hypot(currChassisSpeeds.vxMetersPerSecond, currChassisSpeeds.vyMetersPerSecond);
+    
+    Rotation2d heading = desiredPose.getTranslation().minus(currPose.getTranslation()).getAngle();
 
-    Rotation2d currHeading = currSpeed == 0.0 ? desiredPose.getRotation() : new Rotation2d(currChassisSpeeds.vxMetersPerSecond, currChassisSpeeds.vyMetersPerSecond);
-
-    // More complex path with holonomic rotation. Non-zero starting velocity of 2 m/s. Max velocity of 4 m/s and max accel of 3 m/s^2
+    // More complex path with holonomic rotation. Non-zero starting velocity of currSpeed. Max velocity of 4 m/s and max accel of 3 m/s^2
     PathPlannerTrajectory traj = PathPlanner.generatePath(
-      new PathConstraints(4, 3), 
-      new PathPoint(currPose.getTranslation(), currHeading, currPose.getRotation(), currSpeed), // position, heading(direction of travel), holonomic rotation, velocity override
-      new PathPoint(desiredPose.getTranslation(), desiredPose.getRotation(), desiredPose.getRotation()) // position, heading(direction of travel), holonomic rotation
+      new PathConstraints(1, 0.5), 
+      new PathPoint(currPose.getTranslation(), heading, currPose.getRotation(), currSpeed), // position, heading(direction of travel), holonomic rotation, velocity override
+      new PathPoint(desiredPose.getTranslation(), heading, desiredPose.getRotation()) // position, heading(direction of travel), holonomic rotation
     );
 
     return autoBuilder.followPath(traj);
