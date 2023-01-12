@@ -5,13 +5,16 @@
 package com.team6560.frc2023.controls;
 
 import com.team6560.frc2023.Constants;
+import com.team6560.frc2023.subsystems.Limelight;
 import com.team6560.frc2023.commands.DriveCommand;
 import com.team6560.frc2023.utility.NumberStepper;
 import com.team6560.frc2023.utility.PovNumberStepper;
+import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab;
+
 
 import edu.wpi.first.wpilibj.XboxController;
 
-public class ManualControls implements DriveCommand.Controls {
+public class ManualControls implements DriveCommand.Controls, Limelight.Controls {
   private XboxController xbox;
 
   private final PovNumberStepper speed;
@@ -37,6 +40,11 @@ public class ManualControls implements DriveCommand.Controls {
             Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.0025),
         xbox,
         PovNumberStepper.PovDirection.HORIZONTAL);
+    
+    ntDispTab("Controls")
+      .add("Y Joystick", this::driveY)
+      .add("X Joystick", this::driveX)
+      .add("Rotation Joystick", this::driveRotation);
   }
 
   private static double deadband(double value, double deadband) {
@@ -113,6 +121,12 @@ public class ManualControls implements DriveCommand.Controls {
   @Override
   public boolean driveResetGlobalPose() {
     return xbox.getBackButton();
+  }
+
+  @Override
+  public int getLimelightPipeline() {
+    // TODO Auto-generated method stub
+    return 0;
   }
 
 }

@@ -68,7 +68,7 @@ public class Drivetrain extends SubsystemBase {
          */
         public SwerveModule[] modules;
 
-        private PhotonCameraWrapper pcw = new PhotonCameraWrapper();
+        private Limelight limelight;
 
         private SwerveDrivePoseEstimator poseEstimator;
         /**
@@ -86,7 +86,8 @@ public class Drivetrain extends SubsystemBase {
         /**
          * Constructs a new `Drivetrain` object and initializes the swerve modules.
          */
-        public Drivetrain() {
+        public Drivetrain(Limelight limelight) {
+                this.limelight = limelight;
 
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
@@ -156,7 +157,8 @@ public class Drivetrain extends SubsystemBase {
          * 'forwards' direction.
          */
         public void zeroGyroscope() {
-                m_navx.zeroYaw();
+                // m_navx.zeroYaw();
+                poseEstimator.resetPosition(getGyroscopeRotation(), getModulePositions(), new Pose2d(getPose().getTranslation(), new Rotation2d()));
         }
 
         /**
@@ -164,7 +166,7 @@ public class Drivetrain extends SubsystemBase {
          *
          * @return The rotation (yaw) of the robot
          **/
-        public Rotation2d getGyroscopeRotation() {
+        private Rotation2d getRawGyroRotation() {
                 // if (m_navx.isMagnetometerCalibrated()) {
                 // // We will only get valid fused headings if the magnetometer is calibrated
                 // return Rotation2d.fromDegrees(m_navx.getFusedHeading());
@@ -173,6 +175,10 @@ public class Drivetrain extends SubsystemBase {
                 // We have to invert the angle of the NavX so that rotating the robot
                 // counter-clockwise makes the angle increase.
                 return new Rotation2d(m_navx.getYaw() * -1 / 180 * Math.PI);
+        }
+
+        public Rotation2d getGyroscopeRotation() {
+                return poseEstimator.getEstimatedPosition().getRotation();
         }
 
         public SwerveModulePosition[] getModulePositions() {
@@ -274,7 +280,7 @@ public class Drivetrain extends SubsystemBase {
          * @param pose the new pose to use as the starting position for the pose estimator
          */
         public void resetOdometry(Pose2d pose) {
-                poseEstimator.resetPosition(getGyroscopeRotation(), getModulePositions(), pose);
+                poseEstimator.resetPosition(getRawGyroRotation(), getModulePositions(), pose);
         }
 
         /**
@@ -289,17 +295,19 @@ public class Drivetrain extends SubsystemBase {
 
         /** Updates the field-relative position. */
         private void updateOdometry() {
-                poseEstimator.update(getGyroscopeRotation(), getModulePositions());
+                poseEstimator.update(getRawGyroRotation(), getModulePositions());
+                
 
                 // Also apply vision measurements. We use 0.3 seconds in the past as an example
                 // -- on
                 // a real robot, this must be calculated based either on latency or timestamps.
-                Pair<Pose2d, Double> result = pcw.getEstimatedGlobalPose(poseEstimator.getEstimatedPosition());
+                Pair<Pose2d, Double> result = limelight.getBotPose();
+                if (result == null)
+                        return;
+
                 Pose2d camPose = result.getFirst();
-                var camPoseObsTime = result.getSecond();
-                if (camPose != null) {
-                        poseEstimator.addVisionMeasurement(camPose, camPoseObsTime);
-                }
+                double camPoseObsTime = result.getSecond();
+                poseEstimator.addVisionMeasurement(camPose, camPoseObsTime);
 
         }
 }

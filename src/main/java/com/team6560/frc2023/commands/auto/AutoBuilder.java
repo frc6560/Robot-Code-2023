@@ -70,7 +70,7 @@ public class AutoBuilder {
 
     ChassisSpeeds currChassisSpeeds = drivetrain.getChassisSpeeds();
 
-    double currSpeed = Math.hypot(currChassisSpeeds.vxMetersPerSecond, currChassisSpeeds.vyMetersPerSecond);
+    double currSpeed = Math.abs(Math.hypot(currChassisSpeeds.vxMetersPerSecond, currChassisSpeeds.vyMetersPerSecond));
     
     Rotation2d heading = desiredPose.getTranslation().minus(currPose.getTranslation()).getAngle();
 
