@@ -39,26 +39,50 @@ public final class Constants {
    */
   public static final double DRIVETRAIN_WHEELBASE_METERS = 0.57785;
 
+  // public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 22;
+  // public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 13;
+  // public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 2;
+  // public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(260.771 + 180.0);
+
+  // public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 8;
+  // public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 5;
+  // public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 3;
+  // public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(62.666 + 180.0);
+
+  // public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 27;
+  // public static final int BACK_LEFT_MODULE_STEER_MOTOR = 6;
+  // public static final int BACK_LEFT_MODULE_STEER_ENCODER = 1;
+  // public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(317.636 + 180.0);
+
+  // public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 11;
+  // public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 14;
+  // public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 4;
+  // public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(113.467 + 180.0);
+
   public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 22;
   public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 13;
   public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 2;
-  public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(356.923);
+  public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(260.859);
+  // public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(260.771);
 
   public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 8;
   public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 5;
   public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 3;
-  public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(359.912);
+  public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(62.402);
+  // public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(62.666+45.0);
 
   public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 27;
   public static final int BACK_LEFT_MODULE_STEER_MOTOR = 6;
   public static final int BACK_LEFT_MODULE_STEER_ENCODER = 1;
-  public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(359.385);
+  public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(315.791);
+  // public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(317.636);
 
   public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 11;
   public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 14;
   public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 4;
-  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(1.758);
-
+  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(111.094);
+  // public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(113.467);
+  
   // The formula for calculating the theoretical maximum velocity is:
   // <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> *
   // pi
@@ -133,6 +157,11 @@ public final class Constants {
 
     public static final String cameraName = "OV5647";
 
+  }
+
+  public static class FieldConstants {
+    public static final double length = Units.feetToMeters(54);
+    public static final double width = Units.feetToMeters(27);
   }
 
 }

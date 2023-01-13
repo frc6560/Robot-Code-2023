@@ -4,6 +4,8 @@ import com.team6560.frc2023.commands.auto.AutoBuilder;
 import com.team6560.frc2023.subsystems.Drivetrain;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -55,7 +57,7 @@ public class DriveCommand extends CommandBase {
     @Override
     public void execute() {
         if (controls.GoToDoubleSubstation() && !goingToPose) {
-            goToPoseAutoCommand = autoBuilder.goToPose(new Pose2d());
+            goToPoseAutoCommand = autoBuilder.goToPose(new Pose2d());//new Pose2d(new Translation2d(2, 1.2), Rotation2d.fromDegrees(90.0)));
             goToPoseAutoCommand.initialize();
             goingToPose = true;
 
@@ -73,7 +75,7 @@ public class DriveCommand extends CommandBase {
                         controls.driveX(),
                         controls.driveY(),
                         controls.driveRotation(),
-                        drivetrain.getGyroscopeRotation()));
+                        drivetrain.getRawGyroRotation())); // perhaps use getGyroscopeRotation() instead?
         if (controls.driveResetYaw()) {
             drivetrain.zeroGyroscope();
         }

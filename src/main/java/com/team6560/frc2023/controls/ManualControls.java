@@ -99,7 +99,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
    */
   @Override
   public double driveRotation() {
-    return modifyAxis(-xbox.getRightX() * turnSpeed.get());
+    return modifyAxis(xbox.getRightX() * turnSpeed.get());
   }
 
   /**

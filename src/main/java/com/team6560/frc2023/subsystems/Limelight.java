@@ -7,14 +7,21 @@ package com.team6560.frc2023.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab;
+
+import com.team6560.frc2023.Constants;
 
 public class Limelight extends SubsystemBase {
   /** Creates a new Limelight. */
@@ -29,6 +36,8 @@ public class Limelight extends SubsystemBase {
   private final NetworkTableEntry ntBotPose = NetworkTableInstance.getDefault().getTable("limelight").getEntry("botpose");
   private final NetworkTableEntry ntPipeline = NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline");
 
+  private final Field2d field = new Field2d();
+
   private final Controls controls;
   private boolean forceOff = true;
 
@@ -41,6 +50,9 @@ public class Limelight extends SubsystemBase {
     .add("Vertical Angle", this::getVertAngle)
     .add("Has Target", this::hasTarget);
     ;
+
+    SmartDashboard.putData("Field2", field);
+
   }
 
   public double getDistance() {
@@ -78,8 +90,19 @@ public class Limelight extends SubsystemBase {
     double currentTime = Timer.getFPGATimestamp() - getLatency();
     
     double[] da = ntBotPose.getDoubleArray(new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
-    Pose2d pose = new Pose3d(new Translation3d(da[0], da[1], da[2]), new Rotation3d(da[3], da[4], da[5])).toPose2d();
 
+    if (da == null || da.length < 6) return null;
+
+    Pose2d pose = new Pose3d(new Translation3d(da[0], da[1], da[2]), new Rotation3d(Math.toRadians(da[3]), Math.toRadians(da[4]), Math.toRadians(da[5]))).toPose2d();
+    
+    //transform pose from LL "field space" to pose2d
+    pose = new Pose2d(pose.getTranslation().plus(new Translation2d(Constants.FieldConstants.length/2.0, Constants.FieldConstants.width/2.0)), pose.getRotation());
+
+    // System.out.println("LL Field2d");
+    // System.out.println(pose);
+
+    field.setRobotPose(pose);
+    
     return new Pair<Pose2d, Double> (pose, currentTime);
   }
 

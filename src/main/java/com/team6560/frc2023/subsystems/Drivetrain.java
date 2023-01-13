@@ -16,7 +16,7 @@ import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.filter.SlewRateLimiter;
+// import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -76,12 +76,11 @@ public class Drivetrain extends SubsystemBase {
          */
         private static final double GYRO_OFFSET = 3600.0 / (3473.0);
 
-
         private final Field2d field = new Field2d();
 
-        private SlewRateLimiter xLimiter = new SlewRateLimiter(3.0);
-        private SlewRateLimiter yLimiter = new SlewRateLimiter(3.0);
-        private SlewRateLimiter rotLimiter = new SlewRateLimiter(6.0);
+        // private SlewRateLimiter xLimiter = new SlewRateLimiter(3.0);
+        // private SlewRateLimiter yLimiter = new SlewRateLimiter(3.0);
+        // private SlewRateLimiter rotLimiter = new SlewRateLimiter(6.0);
 
         /**
          * Constructs a new `Drivetrain` object and initializes the swerve modules.
@@ -144,9 +143,13 @@ public class Drivetrain extends SubsystemBase {
                 // TODO: Update standard deviation so it's less jiggly
                 // TODO: Also investigate different AprilTag methods in PhotonCameraWrapper
                 poseEstimator = new SwerveDrivePoseEstimator(m_kinematics,
-                        getGyroscopeRotation(), getModulePositions(), new Pose2d(),
-                        new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.1), // State measurement standard deviations. X, Y, theta.
-                        new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.9, 0.9, 0.9)); // Vision measurement standard deviations. X, Y, theta.
+                                getGyroscopeRotation(), getModulePositions(), new Pose2d(),
+                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.1), // State measurement
+                                                                                                // standard deviations.
+                                                                                                // X, Y, theta.
+                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(1.1, 1.1, 0.9)); // Vision measurement
+                                                                                                 // standard deviations.
+                                                                                                 // X, Y, theta.
 
                 SmartDashboard.putData("Field", field);
         }
@@ -157,8 +160,14 @@ public class Drivetrain extends SubsystemBase {
          * 'forwards' direction.
          */
         public void zeroGyroscope() {
-                // m_navx.zeroYaw();
-                poseEstimator.resetPosition(getGyroscopeRotation(), getModulePositions(), new Pose2d(getPose().getTranslation(), new Rotation2d()));
+                m_navx.zeroYaw();
+                // if (poseEstimator == null)
+                //         m_navx.zeroYaw();
+                resetOdometry(new Pose2d(getPose().getTranslation(), new Rotation2d()));
+        }
+
+        public Rotation2d getRawGyroRotation() {
+                return new Rotation2d(m_navx.getYaw() * -1 / 180 * Math.PI);
         }
 
         /**
@@ -166,7 +175,7 @@ public class Drivetrain extends SubsystemBase {
          *
          * @return The rotation (yaw) of the robot
          **/
-        private Rotation2d getRawGyroRotation() {
+        public Rotation2d getGyroscopeRotation() {
                 // if (m_navx.isMagnetometerCalibrated()) {
                 // // We will only get valid fused headings if the magnetometer is calibrated
                 // return Rotation2d.fromDegrees(m_navx.getFusedHeading());
@@ -174,16 +183,17 @@ public class Drivetrain extends SubsystemBase {
                 // We will only get valid fused headings if the magnetometer is calibrated
                 // We have to invert the angle of the NavX so that rotating the robot
                 // counter-clockwise makes the angle increase.
-                return new Rotation2d(m_navx.getYaw() * -1 / 180 * Math.PI);
-        }
 
-        public Rotation2d getGyroscopeRotation() {
+                //if pose estimator is null, default to the raw gyro rotation
+                if (poseEstimator == null)
+                        return new Rotation2d();
+
                 return poseEstimator.getEstimatedPosition().getRotation();
         }
 
         public SwerveModulePosition[] getModulePositions() {
                 return new SwerveModulePosition[] { m_frontLeftModule.getPosition(), m_frontRightModule.getPosition(),
-                                m_backLeftModule.getPosition(), m_backRightModule.getPosition() };
+                                        m_backLeftModule.getPosition(), m_backRightModule.getPosition() };
         }
 
         /**
@@ -195,7 +205,7 @@ public class Drivetrain extends SubsystemBase {
          *                      rotational speed
          */
         public void drive(ChassisSpeeds chassisSpeeds) {
-                
+
                 SwerveModuleState[] states = Constants.m_kinematics.toSwerveModuleStates(chassisSpeeds);
                 SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
 
@@ -204,9 +214,13 @@ public class Drivetrain extends SubsystemBase {
                         return;
                 }
 
-                chassisSpeeds = new ChassisSpeeds(xLimiter.calculate(chassisSpeeds.vxMetersPerSecond),
-                                yLimiter.calculate(chassisSpeeds.vyMetersPerSecond), rotLimiter.calculate(chassisSpeeds.omegaRadiansPerSecond));
+                // chassisSpeeds = new
+                // ChassisSpeeds(xLimiter.calculate(chassisSpeeds.vxMetersPerSecond),
+                // yLimiter.calculate(chassisSpeeds.vyMetersPerSecond),
+                // rotLimiter.calculate(chassisSpeeds.omegaRadiansPerSecond));
 
+                chassisSpeeds = new ChassisSpeeds(chassisSpeeds.vxMetersPerSecond,
+                                chassisSpeeds.vyMetersPerSecond, chassisSpeeds.omegaRadiansPerSecond);
 
                 for (SwerveModuleState state : states) {
                         if (state.speedMetersPerSecond > 0.05) {
@@ -247,20 +261,22 @@ public class Drivetrain extends SubsystemBase {
 
         public void setChassisState(double fLdeg, double fRdeg, double bLdeg, double bRdeg) {
                 setChassisState(
-                                new SwerveModuleState[] {
-                                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(fLdeg)),
-                                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(fRdeg)),
-                                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(bLdeg)),
-                                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(bRdeg))
-                                });
+                        new SwerveModuleState[] {
+                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(fLdeg)),
+                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(fRdeg)),
+                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(bLdeg)),
+                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(bRdeg))
+                        });
         }
 
         /**
-         * Gets the current pose of the robot according to the pose estimator calculations.
+         * Gets the current pose of the robot according to the pose estimator
+         * calculations.
          *
          * @return The pose of the robot.
          */
         public Pose2d getPose() {
+                // System.out.println(poseEstimator.getEstimatedPosition());
                 return poseEstimator.getEstimatedPosition();
         }
 
@@ -277,7 +293,8 @@ public class Drivetrain extends SubsystemBase {
          * 
          * This method is used to reset the position of the robot's pose estimator.
          * 
-         * @param pose the new pose to use as the starting position for the pose estimator
+         * @param pose the new pose to use as the starting position for the pose
+         *             estimator
          */
         public void resetOdometry(Pose2d pose) {
                 poseEstimator.resetPosition(getRawGyroRotation(), getModulePositions(), pose);
@@ -296,7 +313,6 @@ public class Drivetrain extends SubsystemBase {
         /** Updates the field-relative position. */
         private void updateOdometry() {
                 poseEstimator.update(getRawGyroRotation(), getModulePositions());
-                
 
                 // Also apply vision measurements. We use 0.3 seconds in the past as an example
                 // -- on
