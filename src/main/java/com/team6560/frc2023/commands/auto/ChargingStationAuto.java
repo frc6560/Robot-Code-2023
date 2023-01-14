@@ -4,25 +4,50 @@
 
 package com.team6560.frc2023.commands.auto;
 
+import com.kauailabs.navx.frc.AHRS;
+import com.team6560.frc2023.subsystems.Drivetrain;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class ChargingStationAuto extends CommandBase {
+
+  private final AHRS m_navx = new AHRS(Port.kMXP, (byte) 200);
+  private final Drivetrain drivetrain;
+  PIDController chargingStationPIDController;
+
   /** Creates a new ChargingStationAuto. */
-  public ChargingStationAuto() {
+  public ChargingStationAuto(Drivetrain drivetrain) {
     // Use addRequirements() here to declare subsystem dependencies.
+    this.drivetrain = drivetrain;
+    chargingStationPIDController = new PIDController(0, 0, 0);
+    chargingStationPIDController.reset();
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    drivetrain.drive(
+      ChassisSpeeds.fromFieldRelativeSpeeds(
+        chargingStationPIDController.calculate(m_navx.getYaw(), 0),
+        0,
+        0,
+        drivetrain.getGyroscopeRotation()
+      )
+    );
+  }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+  }
 
   // Returns true when the command should end.
   @Override
