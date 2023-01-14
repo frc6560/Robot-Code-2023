@@ -36,6 +36,7 @@ public class AutoBuilder {
     eventMap = new HashMap<>();
     eventMap.put("marker1", new PrintCommand("Passed marker 1"));
     eventMap.put("marker2", new PrintCommand("Passed marker 2"));
+    eventMap.put("ChargingStationAutoBegin", new PrintCommand("Charging Station Auto Begin"));
 
     autoBuilder = new SwerveAutoBuilder(
         () -> drivetrain.getPose(), // Pose2d supplier
