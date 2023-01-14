@@ -79,7 +79,7 @@ public class Limelight extends SubsystemBase {
   public double getLatency() {
     // 11 additional ms is recommended for image capture latency
     // divided by 1000.0 to convert ms to s
-    return (ntL.getDouble(0.0) + 11.0)/1000.0;
+    return (ntL.getDouble(0.0) + 15.0)/1000.0;
   }
 
 
