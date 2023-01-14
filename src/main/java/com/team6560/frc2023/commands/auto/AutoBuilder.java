@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import com.team6560.frc2023.commands.auto.ChargingStationAuto;
 
 public class AutoBuilder {
 
@@ -34,9 +35,10 @@ public class AutoBuilder {
     this.drivetrain = drivetrain;
 
     eventMap = new HashMap<>();
+
     eventMap.put("marker1", new PrintCommand("Passed marker 1"));
     eventMap.put("marker2", new PrintCommand("Passed marker 2"));
-    eventMap.put("ChargingStationAutoBegin", new PrintCommand("Charging Station Auto Begin"));
+    eventMap.put("ChargingStationAutoBegin", new ChargingStationAuto(drivetrain));
 
     autoBuilder = new SwerveAutoBuilder(
         () -> drivetrain.getPose(), // Pose2d supplier
