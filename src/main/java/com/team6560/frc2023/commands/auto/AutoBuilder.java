@@ -45,7 +45,7 @@ public class AutoBuilder {
                                          // PID controllers)
         new PIDConstants(0.5, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation
                                          // controller)
-        (state) -> drivetrain.setChassisState(state), // Module states consumer used to output to the drive subsystem
+        (state) -> drivetrain.autoSetChassisState(state), // Module states consumer used to output to the drive subsystem
         eventMap,
         drivetrain // The drive subsystem. Used to properly set the requirements of path following
                    // commands
@@ -76,7 +76,7 @@ public class AutoBuilder {
 
     // More complex path with holonomic rotation. Non-zero starting velocity of currSpeed. Max velocity of 4 m/s and max accel of 3 m/s^2
     PathPlannerTrajectory traj = PathPlanner.generatePath(
-      new PathConstraints(0.25, 0.2), 
+      new PathConstraints(1.0, 0.5), 
       new PathPoint(currPose.getTranslation(), heading, currPose.getRotation(), currSpeed), // position, heading(direction of travel), holonomic rotation, velocity override
       new PathPoint(desiredPose.getTranslation(), heading, desiredPose.getRotation()) // position, heading(direction of travel), holonomic rotation
     );

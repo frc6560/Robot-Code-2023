@@ -76,6 +76,8 @@ public class Drivetrain extends SubsystemBase {
          */
         private static final double GYRO_OFFSET = 3600.0 / (3473.0);
 
+        private Pose2d lastPose = new Pose2d();
+
         private final Field2d field = new Field2d();
 
         // private SlewRateLimiter xLimiter = new SlewRateLimiter(3.0);
@@ -91,9 +93,8 @@ public class Drivetrain extends SubsystemBase {
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
                 NtValueDisplay.ntDispTab("Drivetrain")
-                                .add("Yaw Function", () -> this.getGyroscopeRotation().getDegrees())
-                                .add("Raw Yaw", () -> m_navx.getYaw())
-                                .add("Continuous Yaw", () -> m_navx.getRotation2d().getDegrees() * GYRO_OFFSET);
+                                .add("GyroscopeRotation", () -> this.getGyroscopeRotation().getDegrees())
+                                .add("RawGyroRotation", () -> this.getRawGyroRotation().getDegrees());
 
                 m_frontLeftModule = Mk4iSwerveModuleHelper.createFalcon500Neo(
                                 // This parameter is optional, but will allow you to see the current state of
@@ -143,7 +144,7 @@ public class Drivetrain extends SubsystemBase {
                 // TODO: Update standard deviation so it's less jiggly
                 // TODO: Also investigate different AprilTag methods in PhotonCameraWrapper
                 poseEstimator = new SwerveDrivePoseEstimator(m_kinematics,
-                                getGyroscopeRotation(), getModulePositions(), new Pose2d(),
+                                getRawGyroRotation(), getModulePositions(), new Pose2d(),
                                 new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.1), // State measurement
                                                                                                 // standard deviations.
                                                                                                 // X, Y, theta.
@@ -160,14 +161,14 @@ public class Drivetrain extends SubsystemBase {
          * 'forwards' direction.
          */
         public void zeroGyroscope() {
-                m_navx.zeroYaw();
+                // m_navx.zeroYaw();
                 // if (poseEstimator == null)
                 //         m_navx.zeroYaw();
-                resetOdometry(new Pose2d(getPose().getTranslation(), new Rotation2d()));
+                resetOdometry(new Pose2d(getPose().getTranslation(), new Rotation2d(0.0)));
         }
 
         public Rotation2d getRawGyroRotation() {
-                return new Rotation2d(m_navx.getYaw() * -1 / 180 * Math.PI);
+                return new Rotation2d(GYRO_OFFSET * m_navx.getYaw() * -1 / 180 * Math.PI);
         }
 
         /**
@@ -185,15 +186,41 @@ public class Drivetrain extends SubsystemBase {
                 // counter-clockwise makes the angle increase.
 
                 //if pose estimator is null, default to the raw gyro rotation
-                if (poseEstimator == null)
-                        return new Rotation2d();
+                if (poseEstimator == null) {
+                        if (lastPose == null) {
+                                return new Rotation2d();
+                        }
+                        return lastPose.getRotation();
+                }
 
                 return poseEstimator.getEstimatedPosition().getRotation();
+                // return getRawGyroRotation();
         }
 
         public SwerveModulePosition[] getModulePositions() {
+                // return reverseModulePositionArray(new SwerveModulePosition[] { m_frontLeftModule.getPosition(), m_frontRightModule.getPosition(),
+                                        // m_backLeftModule.getPosition(), m_backRightModule.getPosition() });
+        
                 return new SwerveModulePosition[] { m_frontLeftModule.getPosition(), m_frontRightModule.getPosition(),
                                         m_backLeftModule.getPosition(), m_backRightModule.getPosition() };
+        
+        }
+
+        /**
+         * ONLY USE IN DEBUGGING!
+         * Used to reverse the distance read in a SwerveModulePosition array
+         * 
+         * @param array the SwerveModulePosition[] array you would like thre reversed values of
+         * @return the reversed SwerveModulePosition[] array
+         */
+        @Deprecated
+        public SwerveModulePosition[] reverseModulePositionArray(SwerveModulePosition[] array) {
+                SwerveModulePosition[] output = new SwerveModulePosition[array.length];
+
+                for (int i = 0; i < array.length; i++)
+                        output[i] = new SwerveModulePosition(-array[i].distanceMeters, array[i].angle);
+        
+                return output;
         }
 
         /**
@@ -237,6 +264,8 @@ public class Drivetrain extends SubsystemBase {
         public void periodic() {
                 updateOdometry();
 
+                lastPose = poseEstimator.getEstimatedPosition();
+
                 field.setRobotPose(getPose());
         }
 
@@ -257,6 +286,22 @@ public class Drivetrain extends SubsystemBase {
                 m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                                 states[3].angle.getRadians());
 
+        }
+
+        /**
+         * ONLY FOR AUTO!!: 
+         * Sets the speeds and orientations of each swerve module.
+         * array order: front left, front right, back left, back right
+         *
+         * This is likely required because of a bug in pathplannerlib, where angular speed is negative.
+         * 
+         * But hey, if it aint broke dont fix it?
+         * 
+         * @param moduleStates The desired states for each module.
+         */
+        public void autoSetChassisState(SwerveModuleState[] states) {
+                ChassisSpeeds speeds = m_kinematics.toChassisSpeeds(states);
+                setChassisState(m_kinematics.toSwerveModuleStates(new ChassisSpeeds(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, -speeds.omegaRadiansPerSecond)));
         }
 
         public void setChassisState(double fLdeg, double fRdeg, double bLdeg, double bRdeg) {
@@ -324,6 +369,5 @@ public class Drivetrain extends SubsystemBase {
                 Pose2d camPose = result.getFirst();
                 double camPoseObsTime = result.getSecond();
                 poseEstimator.addVisionMeasurement(camPose, camPoseObsTime);
-
         }
 }

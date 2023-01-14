@@ -77,7 +77,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
    */
   @Override
   public double driveX() {
-    return modifyAxis(-xbox.getLeftX() * speed.get());
+    return modifyAxis(xbox.getLeftX() * speed.get());
   }
 
   /**
@@ -88,7 +88,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
    */
   @Override
   public double driveY() {
-    return modifyAxis(xbox.getLeftY() * speed.get());
+    return modifyAxis(-xbox.getLeftY() * speed.get());
   }
 
   /**

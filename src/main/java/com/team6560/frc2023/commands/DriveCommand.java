@@ -57,7 +57,7 @@ public class DriveCommand extends CommandBase {
     @Override
     public void execute() {
         if (controls.GoToDoubleSubstation() && !goingToPose) {
-            goToPoseAutoCommand = autoBuilder.goToPose(new Pose2d());//new Pose2d(new Translation2d(2, 1.2), Rotation2d.fromDegrees(90.0)));
+            goToPoseAutoCommand = autoBuilder.goToPose(new Pose2d(new Translation2d(2, 1.2), Rotation2d.fromDegrees(90.0)));
             goToPoseAutoCommand.initialize();
             goingToPose = true;
 
@@ -75,7 +75,7 @@ public class DriveCommand extends CommandBase {
                         controls.driveX(),
                         controls.driveY(),
                         controls.driveRotation(),
-                        drivetrain.getRawGyroRotation())); // perhaps use getGyroscopeRotation() instead?
+                        drivetrain.getGyroscopeRotation())); // perhaps use getRawGyroRotation() instead?
         if (controls.driveResetYaw()) {
             drivetrain.zeroGyroscope();
         }
