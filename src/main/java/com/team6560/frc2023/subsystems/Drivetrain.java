@@ -6,7 +6,7 @@ package com.team6560.frc2023.subsystems;
 
 import static com.team6560.frc2023.Constants.*;
 
-import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.kauailabs.navx.frc.AHRS;
 import com.swervedrivespecialties.swervelib.Mk4iSwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
@@ -46,7 +46,7 @@ public class Drivetrain extends SubsystemBase {
         /**
          * The AHRS object used to get the current orientation of the robot.
          */
-        private final Pigeon2 m_navx = new Pigeon2(0);
+        private final WPI_Pigeon2 pigeon = new WPI_Pigeon2(12);
 
         // These are our swerve modules. We initialize them in the constructor.
         private SwerveModule m_frontLeftModule;
@@ -72,10 +72,6 @@ public class Drivetrain extends SubsystemBase {
         private Limelight limelight;
 
         private SwerveDrivePoseEstimator poseEstimator;
-        /**
-         * The offset to apply to the gyroscope readings to account for any drift.
-         */
-        private static final double GYRO_OFFSET = 3600.0 / (3473.0);
 
         private Pose2d lastPose = new Pose2d();
 
@@ -171,7 +167,7 @@ public class Drivetrain extends SubsystemBase {
         }
 
         public Rotation2d getRawGyroRotation() {
-                return new Rotation2d(GYRO_OFFSET * m_navx.getYaw() * -1 / 180 * Math.PI);
+                return Rotation2d.fromDegrees(pigeon.getYaw());
         }
 
         /**
