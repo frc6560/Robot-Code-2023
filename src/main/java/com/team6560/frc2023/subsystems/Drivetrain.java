@@ -6,6 +6,7 @@ package com.team6560.frc2023.subsystems;
 
 import static com.team6560.frc2023.Constants.*;
 
+import com.ctre.phoenix.sensors.Pigeon2;
 import com.kauailabs.navx.frc.AHRS;
 import com.swervedrivespecialties.swervelib.Mk4iSwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
@@ -45,7 +46,7 @@ public class Drivetrain extends SubsystemBase {
         /**
          * The AHRS object used to get the current orientation of the robot.
          */
-        private final AHRS m_navx = new AHRS(Port.kMXP, (byte) 200);
+        private final Pigeon2 m_navx = new Pigeon2(0);
 
         // These are our swerve modules. We initialize them in the constructor.
         private SwerveModule m_frontLeftModule;
