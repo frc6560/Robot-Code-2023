@@ -80,6 +80,8 @@ public class Drivetrain extends SubsystemBase {
 
         private final Field2d field = new Field2d();
 
+        private boolean overrideMaxVisionPoseCorrection;
+
         // private SlewRateLimiter xLimiter = new SlewRateLimiter(3.0);
         // private SlewRateLimiter yLimiter = new SlewRateLimiter(3.0);
         // private SlewRateLimiter rotLimiter = new SlewRateLimiter(6.0);
@@ -148,7 +150,7 @@ public class Drivetrain extends SubsystemBase {
                                 new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.1), // State measurement
                                                                                                 // standard deviations.
                                                                                                 // X, Y, theta.
-                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(1.1, 1.1, 0.9)); // Vision measurement
+                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(1.25, 1.25, 1.25)); // Vision measurement
                                                                                                  // standard deviations.
                                                                                                  // X, Y, theta.
 
@@ -355,6 +357,10 @@ public class Drivetrain extends SubsystemBase {
                 }
         }
 
+        public void setOverrideMaxVisionPoseCorrection(boolean overided) {
+                this.overrideMaxVisionPoseCorrection = overided;
+        }
+
         /** Updates the field-relative position. */
         private void updateOdometry() {
                 poseEstimator.update(getRawGyroRotation(), getModulePositions());
@@ -367,6 +373,11 @@ public class Drivetrain extends SubsystemBase {
                         return;
 
                 Pose2d camPose = result.getFirst();
+
+                if (camPose.minus(getPose()).getTranslation().getNorm() > 1.5 && !overrideMaxVisionPoseCorrection)
+                        return;
+
+
                 double camPoseObsTime = result.getSecond();
                 poseEstimator.addVisionMeasurement(camPose, camPoseObsTime);
         }

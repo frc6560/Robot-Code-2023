@@ -129,4 +129,9 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     return 0;
   }
 
+  @Override
+  public boolean overrideMaxVisionPoseCorrection() {
+    return xbox.getYButton();
+  }
+
 }

@@ -28,6 +28,8 @@ public class DriveCommand extends CommandBase {
         boolean GoToDoubleSubstation();
 
         boolean driveResetGlobalPose();
+
+        boolean overrideMaxVisionPoseCorrection();
     }
 
     private Controls controls;
@@ -81,6 +83,8 @@ public class DriveCommand extends CommandBase {
         }
 
         if (controls.driveResetGlobalPose()) drivetrain.resetOdometry(new Pose2d());
+
+        drivetrain.setOverrideMaxVisionPoseCorrection(controls.overrideMaxVisionPoseCorrection());
     }
 
     /**
