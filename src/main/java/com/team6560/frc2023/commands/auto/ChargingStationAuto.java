@@ -6,17 +6,13 @@ package com.team6560.frc2023.commands.auto;
 
 import com.team6560.frc2023.subsystems.Drivetrain;
 
-import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class ChargingStationAuto extends CommandBase {
 
   private final Drivetrain drivetrain;
-  private boolean finished = false;
-
-  private Debouncer debouncer = new Debouncer(3.0, DebounceType.kBoth);
 
   /** Creates a new ChargingStationAuto. */
   public ChargingStationAuto(Drivetrain drivetrain) {
@@ -44,7 +40,6 @@ public class ChargingStationAuto extends CommandBase {
     // );
 
     if (drivetrain.getCalculatedGyroPitchRoll().getDegrees() < -3.5) {
-      finished = false;
       drivetrain.drive(
           ChassisSpeeds.fromFieldRelativeSpeeds(
               -0.3,
@@ -52,7 +47,6 @@ public class ChargingStationAuto extends CommandBase {
               0,
               drivetrain.getGyroscopeRotation()));
     } else if (drivetrain.getCalculatedGyroPitchRoll().getDegrees() > 3.5) {
-      finished = false;
       drivetrain.drive(
           ChassisSpeeds.fromFieldRelativeSpeeds(
               0.3,
@@ -60,7 +54,12 @@ public class ChargingStationAuto extends CommandBase {
               0,
               drivetrain.getGyroscopeRotation()));
     } else {
-      finished = true;
+      drivetrain.drive(
+          ChassisSpeeds.fromFieldRelativeSpeeds(
+              0,
+              0,
+              0,
+              drivetrain.getGyroscopeRotation()));
     }
   }
 
@@ -79,6 +78,6 @@ public class ChargingStationAuto extends CommandBase {
   @Override
   public boolean isFinished() {
 
-    return debouncer.calculate(finished);
+    return !DriverStation.isAutonomousEnabled();
   }
 }
