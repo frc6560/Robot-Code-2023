@@ -180,7 +180,7 @@ public class Drivetrain extends SubsystemBase {
         }
 
         public Rotation2d getCalculatedGyroPitchRoll() {
-                return Rotation2d.fromDegrees(Math.copySign(Math.hypot(zeroPitch - pigeon.getPitch(), zeroRoll - pigeon.getRoll()), pigeon.getRoll() - zeroRoll) + pigeon.getPitch() - zeroPitch);
+                return Rotation2d.fromDegrees(Math.copySign(Math.hypot(zeroPitch - pigeon.getPitch(), zeroRoll - pigeon.getRoll()), pigeon.getRoll() - zeroRoll + pigeon.getPitch() - zeroPitch));
         }
 
         /**

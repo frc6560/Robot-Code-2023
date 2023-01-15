@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 public class ChargingStationAuto extends CommandBase {
 
   private final Drivetrain drivetrain;
+  private static final double k = 0.035;
 
   /** Creates a new ChargingStationAuto. */
   public ChargingStationAuto(Drivetrain drivetrain) {
@@ -39,28 +40,39 @@ public class ChargingStationAuto extends CommandBase {
     // )
     // );
 
-    if (drivetrain.getCalculatedGyroPitchRoll().getDegrees() < -3.5) {
-      drivetrain.drive(
-          ChassisSpeeds.fromFieldRelativeSpeeds(
-              -0.3,
-              0,
-              0,
-              drivetrain.getGyroscopeRotation()));
-    } else if (drivetrain.getCalculatedGyroPitchRoll().getDegrees() > 3.5) {
-      drivetrain.drive(
-          ChassisSpeeds.fromFieldRelativeSpeeds(
-              0.3,
-              0,
-              0,
-              drivetrain.getGyroscopeRotation()));
-    } else {
-      drivetrain.drive(
-          ChassisSpeeds.fromFieldRelativeSpeeds(
-              0,
-              0,
-              0,
-              drivetrain.getGyroscopeRotation()));
+    // if (drivetrain.getCalculatedGyroPitchRoll().getDegrees() < -3.5) {
+    //   drivetrain.drive(
+    //       ChassisSpeeds.fromFieldRelativeSpeeds(
+    //           0.225,
+    //           0,
+    //           0,
+    //           drivetrain.getGyroscopeRotation()));
+    // } else if (drivetrain.getCalculatedGyroPitchRoll().getDegrees() > 3.5) {
+    //   drivetrain.drive(
+    //       ChassisSpeeds.fromFieldRelativeSpeeds(
+    //           -0.225,
+    //           0,
+    //           0,
+    //           drivetrain.getGyroscopeRotation()));
+    // } else {
+    //   drivetrain.drive(
+    //       ChassisSpeeds.fromFieldRelativeSpeeds(
+    //           0,
+    //           0,
+    //           0,
+    //           drivetrain.getGyroscopeRotation()));
+    // }
+    double speed = 0.0;
+    if (Math.abs(drivetrain.getCalculatedGyroPitchRoll().getDegrees()) > 1.5) {
+      speed = -(drivetrain.getCalculatedGyroPitchRoll().getDegrees())* k;
     }
+
+    drivetrain.drive(
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+            speed,
+            0,
+            0,
+            drivetrain.getGyroscopeRotation()));
   }
 
   // Called once the command ends or is interrupted.
