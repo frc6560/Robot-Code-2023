@@ -79,6 +79,10 @@ public class Drivetrain extends SubsystemBase {
 
         private boolean overrideMaxVisionPoseCorrection;
 
+        private double zeroRoll;
+
+        private double zeroPitch;
+
         // private SlewRateLimiter xLimiter = new SlewRateLimiter(3.0);
         // private SlewRateLimiter yLimiter = new SlewRateLimiter(3.0);
         // private SlewRateLimiter rotLimiter = new SlewRateLimiter(6.0);
@@ -168,6 +172,15 @@ public class Drivetrain extends SubsystemBase {
 
         public Rotation2d getRawGyroRotation() {
                 return Rotation2d.fromDegrees(pigeon.getYaw());
+        }
+
+        public void resetGyroPitchRoll() {
+                this.zeroRoll = pigeon.getRoll();
+                this.zeroPitch = pigeon.getPitch();
+        }
+
+        public Rotation2d getCalculatedGyroPitchRoll() {
+                return Rotation2d.fromDegrees(Math.hypot(zeroPitch - pigeon.getPitch(), zeroRoll - pigeon.getRoll()));
         }
 
         /**

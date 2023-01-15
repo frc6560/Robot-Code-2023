@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.9061935554426666,
-        "y": 3.13337959141196
+        "x": 2.612602923122513,
+        "y": 3.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.906193555442666,
-        "y": 3.13337959141196
+        "x": 3.612602923122513,
+        "y": 3.0
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -24,12 +24,12 @@
     },
     {
       "anchorPoint": {
-        "x": 4.340006358832162,
-        "y": 3.098876753309062
+        "x": 3.8848008477266958,
+        "y": 3.0
       },
       "prevControl": {
-        "x": 3.340006358832162,
-        "y": 3.098876753309062
+        "x": 2.8848008477266958,
+        "y": 3.0
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -45,12 +45,5 @@
       }
     }
   ],
-  "markers": [
-    {
-      "position": 1.0,
-      "names": [
-        "ChargingStationAutoBegin"
-      ]
-    }
-  ]
+  "markers": []
 }

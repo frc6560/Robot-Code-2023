@@ -20,7 +20,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+
 import com.team6560.frc2023.commands.auto.ChargingStationAuto;
 
 public class AutoBuilder {
@@ -38,7 +41,6 @@ public class AutoBuilder {
 
     eventMap.put("marker1", new PrintCommand("Passed marker 1"));
     eventMap.put("marker2", new PrintCommand("Passed marker 2"));
-    eventMap.put("ChargingStationAutoBegin", new ChargingStationAuto(drivetrain));
 
     autoBuilder = new SwerveAutoBuilder(
         () -> drivetrain.getPose(), // Pose2d supplier
@@ -63,8 +65,25 @@ public class AutoBuilder {
 
     drivetrain.resetOdometry(pathGroup.get(0).getInitialHolonomicPose());
 
+    if (pathName.equals("ChargingStationAuto"))
+      return getAutoBalanceCommand();
+
     return autoBuilder.fullAuto(pathGroup);
 
+  }
+
+  public Command getAutoBalanceCommand() {
+    // This will load the file "FullAuto.path" and generate it with a max velocity
+    // of 2.0 m/s and a max acceleration of 1.0 m/s^2 for every path in the group
+    pathGroup = PathPlanner.loadPathGroup("ChargingStationAuto", new PathConstraints(1.5, 0.75));
+
+    drivetrain.resetOdometry(pathGroup.get(0).getInitialHolonomicPose());
+
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> drivetrain.resetGyroPitchRoll()),
+      autoBuilder.fullAuto(pathGroup),
+      new ChargingStationAuto(drivetrain)
+    );
   }
 
   public Command goToPose(Pose2d desiredPose) {
