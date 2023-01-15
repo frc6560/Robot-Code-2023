@@ -10,6 +10,7 @@ import com.team6560.frc2023.commands.DriveCommand;
 import com.team6560.frc2023.commands.auto.AutoBuilder;
 import com.team6560.frc2023.controls.ManualControls;
 import com.team6560.frc2023.subsystems.Drivetrain;
+import com.team6560.frc2023.subsystems.Limelight;
 
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
@@ -20,7 +21,9 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 
 public class RobotContainer {
         // The robot's subsystems and commands are defined here...
-        private final Drivetrain drivetrain = new Drivetrain();
+        private final Drivetrain drivetrain;
+
+        private final Limelight limelight;
 
         private final DriveCommand driveCommand;
 
@@ -36,6 +39,10 @@ public class RobotContainer {
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
         public RobotContainer() {
+                limelight = new Limelight(manualControls);
+
+                drivetrain = new Drivetrain(limelight);
+                
                 autoBuilder = new AutoBuilder(drivetrain);
 
                 driveCommand = new DriveCommand(drivetrain, autoBuilder, manualControls);
