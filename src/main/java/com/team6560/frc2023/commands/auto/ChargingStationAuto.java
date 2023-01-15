@@ -21,7 +21,9 @@ public class ChargingStationAuto extends CommandBase {
 
   /** Creates a new ChargingStationAuto. */
   public ChargingStationAuto(Drivetrain drivetrain) {
-    // Use addRequirements() here to declare subsystem dependencies.
+
+
+    addRequirements(drivetrain);
     this.drivetrain = drivetrain;
     chargingStationPIDController = new PIDController(0, 0, 0);
     chargingStationPIDController.reset();
@@ -35,14 +37,41 @@ public class ChargingStationAuto extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    drivetrain.drive(
-      ChassisSpeeds.fromFieldRelativeSpeeds(
-        chargingStationPIDController.calculate(m_navx.getYaw(), 0),
-        0,
-        0,
-        drivetrain.getGyroscopeRotation()
-      )
-    );
+    // drivetrain.drive(
+    //   ChassisSpeeds.fromFieldRelativeSpeeds(
+    //     chargingStationPIDController.calculate(m_navx.getPitch(), 0),
+    //     0,
+    //     0,
+    //     drivetrain.getGyroscopeRotation()
+    //   )
+    // );
+    if (m_navx.getPitch() < 2.5) {
+      drivetrain.drive(
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+          0.5,
+          0,
+          0,
+          drivetrain.getGyroscopeRotation()
+        )
+      );
+    } else if (m_navx.getPitch() > 2.5) {
+      drivetrain.drive(
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+          -0.5,
+          0,
+          0,
+          drivetrain.getGyroscopeRotation()
+        )
+      );
+    } else {
+      drivetrain.drive(
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+          0,
+          0,
+          0,
+          drivetrain.getGyroscopeRotation()
+        )
+      );}
   }
 
   // Called once the command ends or is interrupted.
