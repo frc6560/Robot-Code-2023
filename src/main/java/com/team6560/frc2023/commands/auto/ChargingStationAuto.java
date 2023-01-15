@@ -4,28 +4,25 @@
 
 package com.team6560.frc2023.commands.auto;
 
-import com.kauailabs.navx.frc.AHRS;
 import com.team6560.frc2023.subsystems.Drivetrain;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class ChargingStationAuto extends CommandBase {
 
   private final Drivetrain drivetrain;
-  PIDController chargingStationPIDController;
+  private boolean finished = false;
+
+  private Debouncer debouncer = new Debouncer(3.0, DebounceType.kBoth);
 
   /** Creates a new ChargingStationAuto. */
   public ChargingStationAuto(Drivetrain drivetrain) {
 
-
     addRequirements(drivetrain);
     this.drivetrain = drivetrain;
-    chargingStationPIDController = new PIDController(0, 0, 0);
-    chargingStationPIDController.reset();
   }
 
   // Called when the command is initially scheduled.
@@ -33,57 +30,55 @@ public class ChargingStationAuto extends CommandBase {
   public void initialize() {
   }
 
-
-
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     // drivetrain.drive(
-    //   ChassisSpeeds.fromFieldRelativeSpeeds(
-    //     chargingStationPIDController.calculate(drivetrain.getCalculatedGyroPitchRoll().getDegrees(), 0),
-    //     0,
-    //     0,
-    //     drivetrain.getGyroscopeRotation()
-    //   )
+    // ChassisSpeeds.fromFieldRelativeSpeeds(
+    // chargingStationPIDController.calculate(drivetrain.getCalculatedGyroPitchRoll().getDegrees(),
+    // 0),
+    // 0,
+    // 0,
+    // drivetrain.getGyroscopeRotation()
+    // )
     // );
-    if (drivetrain.getCalculatedGyroPitchRoll().getDegrees() < 2.5) {
+
+    if (drivetrain.getCalculatedGyroPitchRoll().getDegrees() < -3.5) {
+      finished = false;
       drivetrain.drive(
-        ChassisSpeeds.fromFieldRelativeSpeeds(
-          -0.5,
-          0,
-          0,
-          drivetrain.getGyroscopeRotation()
-        )
-      );
-    } else if (drivetrain.getCalculatedGyroPitchRoll().getDegrees() > 2.5) {
+          ChassisSpeeds.fromFieldRelativeSpeeds(
+              -0.3,
+              0,
+              0,
+              drivetrain.getGyroscopeRotation()));
+    } else if (drivetrain.getCalculatedGyroPitchRoll().getDegrees() > 3.5) {
+      finished = false;
       drivetrain.drive(
-        ChassisSpeeds.fromFieldRelativeSpeeds(
-          0.5,
-          0,
-          0,
-          drivetrain.getGyroscopeRotation()
-        )
-      );
+          ChassisSpeeds.fromFieldRelativeSpeeds(
+              0.3,
+              0,
+              0,
+              drivetrain.getGyroscopeRotation()));
     } else {
-      drivetrain.drive(
-        ChassisSpeeds.fromFieldRelativeSpeeds(
-          0,
-          0,
-          0,
-          drivetrain.getGyroscopeRotation()
-        )
-      );}
+      finished = true;
+    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    drivetrain.drive(
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+            0,
+            0,
+            0,
+            drivetrain.getGyroscopeRotation()));
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    
-    return !DriverStation.isAutonomousEnabled();
+
+    return debouncer.calculate(finished);
   }
 }
