@@ -6,7 +6,11 @@ package com.team6560.frc2023.subsystems;
 
 import static com.team6560.frc2023.Constants.*;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.swervedrivespecialties.swervelib.MkModuleConfiguration;
 import com.swervedrivespecialties.swervelib.MkSwerveModuleBuilder;
 import com.swervedrivespecialties.swervelib.MotorType;
@@ -43,7 +47,6 @@ public class Drivetrain extends SubsystemBase {
          * useful during initial testing of the robot.
          */
         public static final double MAX_VOLTAGE = 12.0;
-
 
         private final WPI_Pigeon2 pigeon = new WPI_Pigeon2(12);
 
@@ -88,8 +91,8 @@ public class Drivetrain extends SubsystemBase {
 
                 m_frontLeftModule = new MkSwerveModuleBuilder(MkModuleConfiguration.getDefaultSteerNEO())
                                 .withLayout(tab.getLayout("Front Left Module", BuiltInLayouts.kList)
-                                        .withSize(2, 4)
-                                        .withPosition(0, 0))
+                                                .withSize(2, 4)
+                                                .withPosition(0, 0))
                                 .withGearRatio(SdsModuleConfigurations.MK4I_L2)
                                 .withDriveMotor(MotorType.FALCON, FRONT_LEFT_MODULE_DRIVE_MOTOR)
                                 .withSteerMotor(MotorType.NEO, FRONT_LEFT_MODULE_STEER_MOTOR)
@@ -99,8 +102,8 @@ public class Drivetrain extends SubsystemBase {
 
                 m_frontRightModule = new MkSwerveModuleBuilder(MkModuleConfiguration.getDefaultSteerNEO())
                                 .withLayout(tab.getLayout("Front Right Module", BuiltInLayouts.kList)
-                                        .withSize(2, 4)
-                                        .withPosition(2, 0))
+                                                .withSize(2, 4)
+                                                .withPosition(2, 0))
                                 .withGearRatio(SdsModuleConfigurations.MK4I_L2)
                                 .withDriveMotor(MotorType.FALCON, FRONT_RIGHT_MODULE_DRIVE_MOTOR)
                                 .withSteerMotor(MotorType.NEO, FRONT_RIGHT_MODULE_STEER_MOTOR)
@@ -110,8 +113,8 @@ public class Drivetrain extends SubsystemBase {
 
                 m_backLeftModule = new MkSwerveModuleBuilder(MkModuleConfiguration.getDefaultSteerNEO())
                                 .withLayout(tab.getLayout("Back Left Module", BuiltInLayouts.kList)
-                                        .withSize(2, 4)
-                                        .withPosition(4, 0))
+                                                .withSize(2, 4)
+                                                .withPosition(4, 0))
                                 .withGearRatio(SdsModuleConfigurations.MK4I_L2)
                                 .withDriveMotor(MotorType.FALCON, BACK_LEFT_MODULE_DRIVE_MOTOR)
                                 .withSteerMotor(MotorType.NEO, BACK_LEFT_MODULE_STEER_MOTOR)
@@ -121,8 +124,8 @@ public class Drivetrain extends SubsystemBase {
 
                 m_backRightModule = new MkSwerveModuleBuilder(MkModuleConfiguration.getDefaultSteerNEO())
                                 .withLayout(tab.getLayout("Back Right Module", BuiltInLayouts.kList)
-                                        .withSize(2, 4)
-                                        .withPosition(6, 0))
+                                                .withSize(2, 4)
+                                                .withPosition(6, 0))
                                 .withGearRatio(SdsModuleConfigurations.MK4I_L2)
                                 .withDriveMotor(MotorType.NEO, BACK_RIGHT_MODULE_DRIVE_MOTOR)
                                 .withSteerMotor(MotorType.NEO, BACK_RIGHT_MODULE_STEER_MOTOR)
@@ -138,9 +141,11 @@ public class Drivetrain extends SubsystemBase {
                                 new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.1), // State measurement
                                                                                                 // standard deviations.
                                                                                                 // X, Y, theta.
-                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(1.25, 1.25, 1.25)); // Vision measurement
-                                                                                                 // standard deviations.
-                                                                                                 // X, Y, theta.
+                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(1.25, 1.25, 1.25)); // Vision
+                                                                                                    // measurement
+                                                                                                    // standard
+                                                                                                    // deviations.
+                                                                                                    // X, Y, theta.
 
                 SmartDashboard.putData("Field", field);
         }
@@ -153,7 +158,7 @@ public class Drivetrain extends SubsystemBase {
         public void zeroGyroscope() {
                 // m_navx.zeroYaw();
                 // if (poseEstimator == null)
-                //         m_navx.zeroYaw();
+                // m_navx.zeroYaw();
                 resetOdometry(new Pose2d(getPose().getTranslation(), new Rotation2d(0.0)));
         }
 
@@ -175,7 +180,7 @@ public class Drivetrain extends SubsystemBase {
                 // We have to invert the angle of the NavX so that rotating the robot
                 // counter-clockwise makes the angle increase.
 
-                //if pose estimator is null, default to the raw gyro rotation
+                // if pose estimator is null, default to the raw gyro rotation
                 if (poseEstimator == null) {
                         if (lastPose == null) {
                                 return new Rotation2d();
@@ -188,19 +193,45 @@ public class Drivetrain extends SubsystemBase {
         }
 
         public SwerveModulePosition[] getModulePositions() {
-                // return reverseModulePositionArray(new SwerveModulePosition[] { m_frontLeftModule.getPosition(), m_frontRightModule.getPosition(),
-                                        // m_backLeftModule.getPosition(), m_backRightModule.getPosition() });
-        
+                // return reverseModulePositionArray(new SwerveModulePosition[] {
+                // m_frontLeftModule.getPosition(), m_frontRightModule.getPosition(),
+                // m_backLeftModule.getPosition(), m_backRightModule.getPosition() });
+
                 return new SwerveModulePosition[] { m_frontLeftModule.getPosition(), m_frontRightModule.getPosition(),
-                                        m_backLeftModule.getPosition(), m_backRightModule.getPosition() };
-        
+                                m_backLeftModule.getPosition(), m_backRightModule.getPosition() };
+
+        }
+
+        /**
+         * Sets drive motor idle mode to be either brake mode or coast mode.
+         * 
+         * @param brake If true, sets brake mode, otherwise sets coast mode
+         */
+        public void setDriveMotorBrakeMode(boolean brake) {
+                IdleMode sparkMaxMode = brake ? IdleMode.kBrake : IdleMode.kCoast;
+                NeutralMode phoenixMode = brake ? NeutralMode.Brake : NeutralMode.Coast;
+
+                for (SwerveModule i : modules) {
+                        if (i.getSteerMotor() instanceof CANSparkMax)
+                                ((CANSparkMax) i.getSteerMotor()).setIdleMode(IdleMode.kCoast);
+                        else
+                                ((TalonFX) i.getSteerMotor()).setNeutralMode(NeutralMode.Coast);
+                        
+                        if (i.getDriveMotor() instanceof CANSparkMax)
+                                ((CANSparkMax) i.getDriveMotor()).setIdleMode(sparkMaxMode);
+                        else
+                                ((TalonFX) i.getDriveMotor()).setNeutralMode(phoenixMode);
+
+                }
+
         }
 
         /**
          * ONLY USE IN DEBUGGING!
          * Used to reverse the distance read in a SwerveModulePosition array
          * 
-         * @param array the SwerveModulePosition[] array you would like thre reversed values of
+         * @param array the SwerveModulePosition[] array you would like thre reversed
+         *              values of
          * @return the reversed SwerveModulePosition[] array
          */
         @Deprecated
@@ -209,7 +240,7 @@ public class Drivetrain extends SubsystemBase {
 
                 for (int i = 0; i < array.length; i++)
                         output[i] = new SwerveModulePosition(-array[i].distanceMeters, array[i].angle);
-        
+
                 return output;
         }
 
@@ -279,11 +310,12 @@ public class Drivetrain extends SubsystemBase {
         }
 
         /**
-         * ONLY FOR AUTO!!: 
+         * ONLY FOR AUTO!!:
          * Sets the speeds and orientations of each swerve module.
          * array order: front left, front right, back left, back right
          *
-         * This is likely required because of a bug in pathplannerlib, where angular speed is negative.
+         * This is likely required because of a bug in pathplannerlib, where angular
+         * speed is negative.
          * 
          * But hey, if it aint broke dont fix it?
          * 
@@ -291,17 +323,18 @@ public class Drivetrain extends SubsystemBase {
          */
         public void autoSetChassisState(SwerveModuleState[] states) {
                 ChassisSpeeds speeds = m_kinematics.toChassisSpeeds(states);
-                setChassisState(m_kinematics.toSwerveModuleStates(new ChassisSpeeds(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, -speeds.omegaRadiansPerSecond)));
+                setChassisState(m_kinematics.toSwerveModuleStates(new ChassisSpeeds(speeds.vxMetersPerSecond,
+                                speeds.vyMetersPerSecond, -speeds.omegaRadiansPerSecond)));
         }
 
         public void setChassisState(double fLdeg, double fRdeg, double bLdeg, double bRdeg) {
                 setChassisState(
-                        new SwerveModuleState[] {
-                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(fLdeg)),
-                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(fRdeg)),
-                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(bLdeg)),
-                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(bRdeg))
-                        });
+                                new SwerveModuleState[] {
+                                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(fLdeg)),
+                                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(fRdeg)),
+                                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(bLdeg)),
+                                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(bRdeg))
+                                });
         }
 
         /**
@@ -364,7 +397,6 @@ public class Drivetrain extends SubsystemBase {
 
                 if (camPose.minus(getPose()).getTranslation().getNorm() > 1.5 && !overrideMaxVisionPoseCorrection)
                         return;
-
 
                 double camPoseObsTime = result.getSecond();
                 poseEstimator.addVisionMeasurement(camPose, camPoseObsTime);

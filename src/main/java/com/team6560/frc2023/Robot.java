@@ -4,9 +4,12 @@
 
 package com.team6560.frc2023;
 
+import com.team6560.frc2023.utility.AlwaysRunInstantCommand;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -28,6 +31,15 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+
+    // Turn brake mode off shortly after the robot is disabled
+    new Trigger(this::isEnabled)
+      .negate()
+      .debounce(3)
+      .onTrue(new AlwaysRunInstantCommand(() -> m_robotContainer.drivetrain.setDriveMotorBrakeMode(false)));
+
+    new Trigger(this::isEnabled)
+    .onTrue(new AlwaysRunInstantCommand(() -> m_robotContainer.drivetrain.setDriveMotorBrakeMode(true)));
   }
 
   /**
