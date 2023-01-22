@@ -7,6 +7,7 @@ package com.team6560.frc2023.subsystems;
 import static com.team6560.frc2023.Constants.*;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
+import com.swervedrivespecialties.swervelib.MkModuleConfiguration;
 import com.swervedrivespecialties.swervelib.MkSwerveModuleBuilder;
 import com.swervedrivespecialties.swervelib.MotorType;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
@@ -43,12 +44,9 @@ public class Drivetrain extends SubsystemBase {
          */
         public static final double MAX_VOLTAGE = 12.0;
 
-        /**
-         * The AHRS object used to get the current orientation of the robot.
-         */
+
         private final WPI_Pigeon2 pigeon = new WPI_Pigeon2(12);
 
-        // These are our swerve modules. We initialize them in the constructor.
         private SwerveModule m_frontLeftModule;
         private SwerveModule m_frontRightModule;
         private SwerveModule m_backLeftModule;
@@ -79,13 +77,6 @@ public class Drivetrain extends SubsystemBase {
 
         private boolean overrideMaxVisionPoseCorrection;
 
-        // private SlewRateLimiter xLimiter = new SlewRateLimiter(3.0);
-        // private SlewRateLimiter yLimiter = new SlewRateLimiter(3.0);
-        // private SlewRateLimiter rotLimiter = new SlewRateLimiter(6.0);
-
-        /**
-         * Constructs a new `Drivetrain` object and initializes the swerve modules.
-         */
         public Drivetrain(Limelight limelight) {
                 this.limelight = limelight;
 
@@ -95,7 +86,7 @@ public class Drivetrain extends SubsystemBase {
                                 .add("GyroscopeRotation", () -> this.getGyroscopeRotation().getDegrees())
                                 .add("RawGyroRotation", () -> this.getRawGyroRotation().getDegrees());
 
-                m_frontLeftModule = new MkSwerveModuleBuilder()
+                m_frontLeftModule = new MkSwerveModuleBuilder(MkModuleConfiguration.getDefaultSteerNEO())
                                 .withLayout(tab.getLayout("Front Left Module", BuiltInLayouts.kList)
                                         .withSize(2, 4)
                                         .withPosition(0, 0))
@@ -106,10 +97,10 @@ public class Drivetrain extends SubsystemBase {
                                 .withSteerOffset(FRONT_LEFT_MODULE_STEER_OFFSET)
                                 .build();
 
-                m_frontRightModule = new MkSwerveModuleBuilder()
-                                .withLayout(tab.getLayout("Front Left Module", BuiltInLayouts.kList)
+                m_frontRightModule = new MkSwerveModuleBuilder(MkModuleConfiguration.getDefaultSteerNEO())
+                                .withLayout(tab.getLayout("Front Right Module", BuiltInLayouts.kList)
                                         .withSize(2, 4)
-                                        .withPosition(0, 0))
+                                        .withPosition(2, 0))
                                 .withGearRatio(SdsModuleConfigurations.MK4I_L2)
                                 .withDriveMotor(MotorType.FALCON, FRONT_RIGHT_MODULE_DRIVE_MOTOR)
                                 .withSteerMotor(MotorType.NEO, FRONT_RIGHT_MODULE_STEER_MOTOR)
@@ -117,10 +108,10 @@ public class Drivetrain extends SubsystemBase {
                                 .withSteerOffset(FRONT_RIGHT_MODULE_STEER_OFFSET)
                                 .build();
 
-                m_backLeftModule = new MkSwerveModuleBuilder()
-                                .withLayout(tab.getLayout("Front Left Module", BuiltInLayouts.kList)
+                m_backLeftModule = new MkSwerveModuleBuilder(MkModuleConfiguration.getDefaultSteerNEO())
+                                .withLayout(tab.getLayout("Back Left Module", BuiltInLayouts.kList)
                                         .withSize(2, 4)
-                                        .withPosition(0, 0))
+                                        .withPosition(4, 0))
                                 .withGearRatio(SdsModuleConfigurations.MK4I_L2)
                                 .withDriveMotor(MotorType.FALCON, BACK_LEFT_MODULE_DRIVE_MOTOR)
                                 .withSteerMotor(MotorType.NEO, BACK_LEFT_MODULE_STEER_MOTOR)
@@ -128,12 +119,12 @@ public class Drivetrain extends SubsystemBase {
                                 .withSteerOffset(BACK_LEFT_MODULE_STEER_OFFSET)
                                 .build();
 
-                m_backRightModule = new MkSwerveModuleBuilder()
-                                .withLayout(tab.getLayout("Front Left Module", BuiltInLayouts.kList)
+                m_backRightModule = new MkSwerveModuleBuilder(MkModuleConfiguration.getDefaultSteerNEO())
+                                .withLayout(tab.getLayout("Back Right Module", BuiltInLayouts.kList)
                                         .withSize(2, 4)
-                                        .withPosition(0, 0))
+                                        .withPosition(6, 0))
                                 .withGearRatio(SdsModuleConfigurations.MK4I_L2)
-                                .withDriveMotor(MotorType.FALCON, BACK_RIGHT_MODULE_DRIVE_MOTOR)
+                                .withDriveMotor(MotorType.NEO, BACK_RIGHT_MODULE_DRIVE_MOTOR)
                                 .withSteerMotor(MotorType.NEO, BACK_RIGHT_MODULE_STEER_MOTOR)
                                 .withSteerEncoderPort(BACK_RIGHT_MODULE_STEER_ENCODER)
                                 .withSteerOffset(BACK_RIGHT_MODULE_STEER_OFFSET)
@@ -142,8 +133,6 @@ public class Drivetrain extends SubsystemBase {
                 modules = new SwerveModule[] { m_frontLeftModule, m_frontRightModule, m_backLeftModule,
                                 m_backRightModule };
 
-                // TODO: Update standard deviation so it's less jiggly
-                // TODO: Also investigate different AprilTag methods in PhotonCameraWrapper
                 poseEstimator = new SwerveDrivePoseEstimator(m_kinematics,
                                 getRawGyroRotation(), getModulePositions(), new Pose2d(),
                                 new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.1), // State measurement

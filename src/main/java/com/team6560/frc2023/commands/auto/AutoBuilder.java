@@ -22,14 +22,47 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 
+/**
+ * 
+ * The AutoBuilder class generates commands for autonomous actions using a
+ * Drivetrain and path planning.
+ * 
+ * It uses a HashMap to store "marker" events and corresponding actions, as well
+ * as a SwerveAutoBuilder for generating path following commands.
+ */
 public class AutoBuilder {
 
+  /**
+   * 
+   * A HashMap containing "marker" events and corresponding actions.
+   */
   private HashMap<String, Command> eventMap;
+  
+  /**
+   * 
+   * A list of PathPlannerTrajectory objects that represent the group of paths for
+   * autonomous action.
+   */
   private List<PathPlannerTrajectory> pathGroup;
 
+  /**
+   * 
+   * An instance of SwerveAutoBuilder used to generate path following commands.
+   */
   private SwerveAutoBuilder autoBuilder;
+
+  /**
+   * 
+   * An instance of Drivetrain that represents the drive subsystem.
+   */
   private Drivetrain drivetrain;
 
+  /**
+   * 
+   * Constructor for AutoBuilder class. Initializes eventMap, autoBuilder, and drivetrain.
+   * 
+   * @param drivetrain An instance of Drivetrain that represents the drive ubsystem.
+   */
   public AutoBuilder(Drivetrain drivetrain) {
     this.drivetrain = drivetrain;
 
@@ -41,18 +74,23 @@ public class AutoBuilder {
         () -> drivetrain.getPose(), // Pose2d supplier
         (pose) -> drivetrain.resetOdometry(pose), // Pose2d consumer, used to reset odometry at the beginning of auto
         Constants.m_kinematics, // SwerveDriveKinematics
-        new PIDConstants(5.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y
-                                         // PID controllers)
-        new PIDConstants(0.5, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation
-                                         // controller)
+        new PIDConstants(5.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y ID controllers)
+        new PIDConstants(0.5, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
         (state) -> drivetrain.autoSetChassisState(state), // Module states consumer used to output to the drive subsystem
         eventMap,
-        drivetrain // The drive subsystem. Used to properly set the requirements of path following
-                   // commands
+        drivetrain // The drive subsystem. Used to properly set the requirements of path following commands
     );
 
   }
 
+  /**
+   * 
+   * Returns a command for autonomous action based on the specified path name.
+   * 
+   * @param pathName The name of the path file to be loaded and followed.
+   * 
+   * @return Command for autonomous action based on the specified path.
+   */
   public Command getAutoCommand(String pathName) {
     // This will load the file "FullAuto.path" and generate it with a max velocity
     // of 2.0 m/s and a max acceleration of 1.0 m/s^2 for every path in the group
@@ -64,6 +102,14 @@ public class AutoBuilder {
 
   }
 
+  /**
+   * 
+   * Returns a command for autonomous action to go to a specified Pose2d.
+   * 
+   * @param desiredPose The desired final position and orientation for the robot to reach.
+   * 
+   * @return Command for autonomous action to go to the specified Pose2d.
+   */
   public Command goToPose(Pose2d desiredPose) {
 
     Pose2d currPose = drivetrain.getPose();
@@ -71,14 +117,16 @@ public class AutoBuilder {
     ChassisSpeeds currChassisSpeeds = drivetrain.getChassisSpeeds();
 
     double currSpeed = Math.abs(Math.hypot(currChassisSpeeds.vxMetersPerSecond, currChassisSpeeds.vyMetersPerSecond));
-    
+
     Rotation2d heading = desiredPose.getTranslation().minus(currPose.getTranslation()).getAngle();
 
-    // More complex path with holonomic rotation. Non-zero starting velocity of currSpeed. Max velocity of 4 m/s and max accel of 3 m/s^2
+    // More complex path with holonomic rotation. Non-zero starting velocity of
+    // currSpeed. Max velocity of 4 m/s and max accel of 3 m/s^2
     PathPlannerTrajectory traj = PathPlanner.generatePath(
-      new PathConstraints(1.0, 0.5), 
-      new PathPoint(currPose.getTranslation(), heading, currPose.getRotation(), currSpeed), // position, heading(direction of travel), holonomic rotation, velocity override
-      new PathPoint(desiredPose.getTranslation(), heading, desiredPose.getRotation()) // position, heading(direction of travel), holonomic rotation
+        new PathConstraints(1.0, 0.5),
+        // position, heading(direction of travel), holonomic rotation, velocity verride
+        new PathPoint(currPose.getTranslation(), heading, currPose.getRotation(), currSpeed),
+        new PathPoint(desiredPose.getTranslation(), heading, desiredPose.getRotation())
     );
 
     return autoBuilder.followPath(traj);
