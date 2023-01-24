@@ -267,9 +267,6 @@ public class Drivetrain extends SubsystemBase {
                 // yLimiter.calculate(chassisSpeeds.vyMetersPerSecond),
                 // rotLimiter.calculate(chassisSpeeds.omegaRadiansPerSecond));
 
-                chassisSpeeds = new ChassisSpeeds(chassisSpeeds.vxMetersPerSecond,
-                                chassisSpeeds.vyMetersPerSecond, chassisSpeeds.omegaRadiansPerSecond);
-
                 for (SwerveModuleState state : states) {
                         if (state.speedMetersPerSecond > 0.05) {
                                 setChassisState(states);
