@@ -50,10 +50,10 @@ public class Drivetrain extends SubsystemBase {
 
         private final WPI_Pigeon2 pigeon = new WPI_Pigeon2(12);
 
-        private SwerveModule m_frontLeftModule;
-        private SwerveModule m_frontRightModule;
-        private SwerveModule m_backLeftModule;
-        private SwerveModule m_backRightModule;
+        private final SwerveModule m_frontLeftModule;
+        private final SwerveModule m_frontRightModule;
+        private final SwerveModule m_backLeftModule;
+        private final SwerveModule m_backRightModule;
 
         /**
          * The default states for each module, corresponding to an X shape.
@@ -70,9 +70,9 @@ public class Drivetrain extends SubsystemBase {
          */
         public SwerveModule[] modules;
 
-        private Limelight limelight;
+        private final Limelight limelight;
 
-        private SwerveDrivePoseEstimator poseEstimator;
+        private final SwerveDrivePoseEstimator poseEstimator;
 
         private Pose2d lastPose = new Pose2d();
 
