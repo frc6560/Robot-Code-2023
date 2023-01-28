@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
@@ -26,13 +27,15 @@ public class Limelight extends SubsystemBase {
   public static interface Controls {
     int getLimelightPipeline();
   }
+
+  private final NetworkTable networkTable = NetworkTableInstance.getDefault().getTable("limelight");
     
-  private final NetworkTableEntry ntX = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx");
-  private final NetworkTableEntry ntY = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty");
-  private final NetworkTableEntry ntV = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv");
-  private final NetworkTableEntry ntL = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tl");
-  private final NetworkTableEntry ntBotPose = NetworkTableInstance.getDefault().getTable("limelight").getEntry("botpose");
-  private final NetworkTableEntry ntPipeline = NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline");
+  private final NetworkTableEntry ntX = networkTable.getEntry("tx");
+  private final NetworkTableEntry ntY = networkTable.getEntry("ty");
+  private final NetworkTableEntry ntV = networkTable.getEntry("tv");
+  private final NetworkTableEntry ntL = networkTable.getEntry("tl");
+  private final NetworkTableEntry ntBotPose = networkTable.getEntry("botpose");
+  private final NetworkTableEntry ntPipeline = networkTable.getEntry("pipeline");
 
   private final Field2d field = new Field2d();
 
@@ -54,7 +57,6 @@ public class Limelight extends SubsystemBase {
   }
 
   public double getDistance() {
-    // return -0.376023*ntY.getDouble(0.0) + 11.0681;
     return ntY.getDouble(0.0);
   }
 
@@ -87,12 +89,14 @@ public class Limelight extends SubsystemBase {
 
     double currentTime = Timer.getFPGATimestamp() - getLatency();
     
-    double[] da = ntBotPose.getDoubleArray(new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+    double[] limelightBotPoseArray = ntBotPose.getDoubleArray(new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
 
-    if (da == null || da.length < 6) return null;
+    if (limelightBotPoseArray == null || limelightBotPoseArray.length < 6) return null;
 
-    Pose2d pose = new Pose3d(new Translation3d(da[0], da[1], da[2]), new Rotation3d(Math.toRadians(da[3]), Math.toRadians(da[4]), Math.toRadians(da[5]))).toPose2d();
+    Pose2d pose = new Pose3d(new Translation3d(limelightBotPoseArray[0], limelightBotPoseArray[1], limelightBotPoseArray[2]), new Rotation3d(Math.toRadians(limelightBotPoseArray[3]), Math.toRadians(limelightBotPoseArray[4]), Math.toRadians(limelightBotPoseArray[5]))).toPose2d();
     
+    if (pose == null) return null;
+
     //transform pose from LL "field space" to pose2d
     pose = new Pose2d(pose.getTranslation().plus(new Translation2d(Constants.FieldConstants.length/2.0, Constants.FieldConstants.width/2.0)), pose.getRotation());
 

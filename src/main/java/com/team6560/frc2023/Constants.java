@@ -6,10 +6,10 @@ package com.team6560.frc2023;
 
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
+// import edu.wpi.first.math.geometry.Rotation3d;
+// import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
+// import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 
@@ -128,16 +128,14 @@ public final class Constants {
     public static final int XBOX_A_BUTTON = 1;
   }
 
-  public static class VisionConstants {
+  // public static class VisionConstants {
     
-    // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
-    public static final Transform3d robotToCam = new Transform3d(
-        new Translation3d(0.5, 0.0, 0.28),
-        new Rotation3d(0, 0, 0));
+  //   // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+  //   public static final Transform3d robotToCam = new Transform3d(
+  //       new Translation3d(0.5, 0.0, 0.28),
+  //       new Rotation3d(0, 0, 0));
 
-    public static final String cameraName = "OV5647";
-
-  }
+  // }
 
   public static class FieldConstants {
     public static final double length = Units.feetToMeters(54);
