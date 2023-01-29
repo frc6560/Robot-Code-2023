@@ -83,10 +83,11 @@ public final class Constants {
       SdsModuleConfigurations.MK4I_L2.getWheelDiameter() * Math.PI;
 
   
-  public static final int ROTOR_ID = 0;
-  public static final int BREAK_ID = 0;
-  public static final int CLAW_ID = 0;
+  public static final int ROTOR_ID = 17;
+  public static final int BREAK_ID = 16;
+  public static final int CLAW_ID = 3;
   public static final int EXTENTION_SOLENOID_ID = 0;
+  public static final int BATTERY_SOLENOID_ID = 1;
 
   public static final double ROTOR_TO_ARM = 38.1;
   public static final double BREAK_TO_ARM = 350;

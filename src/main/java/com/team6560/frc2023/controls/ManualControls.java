@@ -116,7 +116,8 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public boolean GoToDoubleSubstation() {
-    return xbox.getAButton();
+    // return xbox.getAButton();
+    return false;
   }
 
   @Override
@@ -148,6 +149,11 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   @Override
   public boolean runClaw(){
     return xbox.getAButton();
+  }
+  
+  @Override
+  public boolean pullBattery(){
+    return xbox.getBButton();
   }
 
 }

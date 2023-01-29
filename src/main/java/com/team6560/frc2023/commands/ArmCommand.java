@@ -22,10 +22,15 @@ public class ArmCommand extends CommandBase {
       boolean armExtention();
 
       boolean runClaw();
+
+      boolean pullBattery();
   }
 
   Arm arm;
   Controls controls;
+
+  boolean prevControlArmExt = false;
+  boolean prevControlBatteryExt = false;
 
   NetworkTable ntTable = NetworkTableInstance.getDefault().getTable("Arm");
   NetworkTableEntry rotationSpeed;
@@ -56,9 +61,18 @@ public class ArmCommand extends CommandBase {
   public void execute() {
     arm.setArmRotation(controls.armRotation() * rotationSpeed.getDouble(0.0));
 
-    arm.setArmExtention(controls.armExtention());
+    if(controls.armExtention() && !prevControlArmExt){
+      arm.setArmExtention(!arm.getExtentionStatus());
+    }
+
+    if(controls.pullBattery() && !prevControlBatteryExt){
+      arm.setBatteryExtention(!arm.getBatteryStatus());
+    }
 
     arm.setGripperRollers(controls.runClaw() ? clawSpeed.getDouble(0.0) : 0.0);
+
+    prevControlArmExt = controls.armExtention();
+    prevControlBatteryExt = controls.armExtention();
   }
 
   // Called once the command ends or is interrupted.

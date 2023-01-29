@@ -42,16 +42,26 @@ public class Arm extends SubsystemBase {
   CANSparkMax gripperMotor = new CANSparkMax(CLAW_ID, MotorType.kBrushless);
   
   Solenoid extentionPiston = new Solenoid(PneumaticsModuleType.CTREPCM, EXTENTION_SOLENOID_ID);
+  Solenoid batteryPiston = new Solenoid(PneumaticsModuleType.CTREPCM, BATTERY_SOLENOID_ID);
 
   NetworkTable ntTable = NetworkTableInstance.getDefault().getTable("Arm");
 
   NetworkTableEntry breakMultiplyer;
 
+  NetworkTableEntry ntTopLimit;
+  NetworkTableEntry ntBottomLimit;
+
+  NetworkTableEntry invertClaw;
+
+  private double topLimit = 0;
+  private double bottomLimit = 0;
   /** Creates a new Arm. */
   public Arm() {
     rotorMotor.restoreFactoryDefaults();
     rotorMotor.setInverted(true);
     rotorMotor.setIdleMode(IdleMode.kBrake);
+
+    rotorMotor.getEncoder().setPosition(0.0);
 
     breakMotor.restoreFactoryDefaults();
     breakMotor.setIdleMode(IdleMode.kBrake);
@@ -63,19 +73,34 @@ public class Arm extends SubsystemBase {
     .add("Rotor Speed", this::getRotorSpeed)
     .add("Break Motor Speed", this::getRotorSpeed)
     .add("Claw Speed", this::getRotorSpeed)
-    .add("Extention Status", this::getRotorSpeed);
+    .add("Extention Status", this::getRotorSpeed)
+    .add("Arm Position", this::getArmPosition);
 
     breakMultiplyer = ntTable.getEntry("Break Motor Multiplyer");
     breakMultiplyer.setDouble(1.0);
+
+    ntTopLimit = ntTable.getEntry("Top Soft Limit");
+    ntTopLimit.setDouble(180.0);
+    ntBottomLimit = ntTable.getEntry("Top Soft Limit");
+    ntBottomLimit.setDouble(10.0);
+
+    invertClaw = ntTable.getEntry("Invert Claw?");
+    invertClaw.setBoolean(false);
   }
 
   @Override
   public void periodic() {
+    topLimit = ntTopLimit.getDouble(0.0);
+    bottomLimit = ntBottomLimit.getDouble(0.0);
     // This method will be called once per scheduler run
   }
 
   public void setArmExtention(boolean status){
     extentionPiston.set(status);
+  }
+  
+  public void setBatteryExtention(boolean status){
+    batteryPiston.set(status);
   }
 
   /** Sets arm rotor velocity in RPM */
@@ -90,13 +115,21 @@ public class Arm extends SubsystemBase {
   }
 
   public void setGripperRollers(double output){
-    gripperMotor.set(output);
+    gripperMotor.set(output * (invertClaw.getBoolean(false) ? -1 : 1));
   }
 
   public void setArmRotation(double output){
+    if (getArmPositionDegrees() < bottomLimit) {
+      output = Math.min(0, output);
+
+    } else if(getArmPositionDegrees() > topLimit) {
+      output = Math.max(0, output);
+    }
+
     setRotors(output * ROTOR_TO_ARM);
     setBreakMotor(output * BREAK_TO_ARM);
   }
+
 
   public double getRotorSpeed(){
     return rotorMotor.getEncoder().getVelocity();
@@ -110,7 +143,23 @@ public class Arm extends SubsystemBase {
     return extentionPiston.get();
   }
 
+  public boolean getBatteryStatus(){
+    return batteryPiston.get();
+  }
+
   public double getClawSpeed(){
     return gripperMotor.getEncoder().getVelocity();
+  }
+
+  public double getArmPosition(){
+    return rotorMotor.getEncoder().getPosition() / ROTOR_TO_ARM;
+  }
+  public double getArmPositionDegrees(){
+    return rotToDeg(getArmPosition());
+  }
+
+  // gives rotation to degrees cuz im too lazy
+  private double rotToDeg(double rotation){
+    return rotation * 360;
   }
 }
