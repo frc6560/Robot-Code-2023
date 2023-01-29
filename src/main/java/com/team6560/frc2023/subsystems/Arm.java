@@ -58,13 +58,15 @@ public class Arm extends SubsystemBase {
   /** Creates a new Arm. */
   public Arm() {
     rotorMotor.restoreFactoryDefaults();
-    rotorMotor.setInverted(true);
+    rotorMotor.setInverted(false);
     rotorMotor.setIdleMode(IdleMode.kBrake);
+    // rotorMotor.getPIDController().setP(0.5);
 
     rotorMotor.getEncoder().setPosition(0.0);
 
     breakMotor.restoreFactoryDefaults();
     breakMotor.setIdleMode(IdleMode.kBrake);
+    // breakMotor.getPIDController().setP(0.5);
 
     gripperMotor.restoreFactoryDefaults();
     gripperMotor.setIdleMode(IdleMode.kCoast);
@@ -77,11 +79,11 @@ public class Arm extends SubsystemBase {
     .add("Arm Position", this::getArmPosition);
 
     breakMultiplyer = ntTable.getEntry("Break Motor Multiplyer");
-    breakMultiplyer.setDouble(1.0);
+    breakMultiplyer.setDouble(0.1);
 
     ntTopLimit = ntTable.getEntry("Top Soft Limit");
     ntTopLimit.setDouble(180.0);
-    ntBottomLimit = ntTable.getEntry("Top Soft Limit");
+    ntBottomLimit = ntTable.getEntry("Bottom Soft Limit");
     ntBottomLimit.setDouble(10.0);
 
     invertClaw = ntTable.getEntry("Invert Claw?");
@@ -96,35 +98,43 @@ public class Arm extends SubsystemBase {
   }
 
   public void setArmExtention(boolean status){
+    System.out.println("Arm extended " + (status ? "Out." : "In."));
     extentionPiston.set(status);
   }
   
   public void setBatteryExtention(boolean status){
+    System.out.println("Battery extended " + (status ? "Out." : "In."));
     batteryPiston.set(status);
   }
 
   /** Sets arm rotor velocity in RPM */
   public void setRotors(double rpm){
-    rotorMotor.getPIDController().setReference(rpm, ControlType.kVelocity);
+    if(rpm != 0) System.out.println("rotor is running at " + rpm);
+    // rotorMotor.getPIDController().setReference(rpm, ControlType.kVelocity);
+    rotorMotor.set(rpm);
   }
   
   /** Sets arm break velocity in RPM */
   public void setBreakMotor(double rpm){
     double speed = rpm * breakMultiplyer.getDouble(1.0) * BREAK_MOTOR_MULTIPLIER;
-    breakMotor.getPIDController().setReference(speed, ControlType.kVelocity);
+    if(speed != 0) System.out.println("break is running at " + speed);
+    // breakMotor.getPIDController().setReference(speed, ControlType.kVelocity);
+    breakMotor.set(speed);
   }
 
   public void setGripperRollers(double output){
+    if(output != 0) System.out.println("climb is running at " + output);
     gripperMotor.set(output * (invertClaw.getBoolean(false) ? -1 : 1));
   }
 
   public void setArmRotation(double output){
-    if (getArmPositionDegrees() < bottomLimit) {
-      output = Math.min(0, output);
+    System.out.println("Tryna rotate arm at " + output);
+    // if (getArmPositionDegrees() < bottomLimit) {
+    //   output = Math.min(0, output);
 
-    } else if(getArmPositionDegrees() > topLimit) {
-      output = Math.max(0, output);
-    }
+    // } else if(getArmPositionDegrees() > topLimit) {
+    //   output = Math.max(0, output);
+    // }
 
     setRotors(output * ROTOR_TO_ARM);
     setBreakMotor(output * BREAK_TO_ARM);

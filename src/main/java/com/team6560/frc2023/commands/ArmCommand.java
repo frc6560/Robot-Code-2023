@@ -43,7 +43,7 @@ public class ArmCommand extends CommandBase {
     addRequirements(arm);
     
     rotationSpeed = ntTable.getEntry("Rotation Speed (ARM RPM)");
-    rotationSpeed.setDouble(0.5);
+    rotationSpeed.setDouble(0.01);
 
     clawSpeed = ntTable.getEntry("Claw Speed (MOTOR RPM)");
     clawSpeed.setDouble(6560);
@@ -59,17 +59,21 @@ public class ArmCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    if(controls.armRotation() != 0) System.out.println("rotating arm at " + controls.armRotation() * rotationSpeed.getDouble(0.0));
     arm.setArmRotation(controls.armRotation() * rotationSpeed.getDouble(0.0));
 
     if(controls.armExtention() && !prevControlArmExt){
+      System.out.println("Setting extention piston " + (!arm.getExtentionStatus() ? "out." : "in."));
       arm.setArmExtention(!arm.getExtentionStatus());
     }
 
     if(controls.pullBattery() && !prevControlBatteryExt){
+      System.out.println("Setting battery piston " + (!arm.getExtentionStatus() ? "out." : "in."));
       arm.setBatteryExtention(!arm.getBatteryStatus());
     }
 
     arm.setGripperRollers(controls.runClaw() ? clawSpeed.getDouble(0.0) : 0.0);
+    if(controls.runClaw()) System.out.println("driving climb at " + clawSpeed.getDouble(0.0));
 
     prevControlArmExt = controls.armExtention();
     prevControlBatteryExt = controls.armExtention();
