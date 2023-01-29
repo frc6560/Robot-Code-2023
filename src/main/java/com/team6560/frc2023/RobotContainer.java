@@ -4,11 +4,14 @@
 
 package com.team6560.frc2023;
 
+import com.team6560.frc2023.commands.ArmCommand;
+
 // import java.io.File;
 
 import com.team6560.frc2023.commands.DriveCommand;
 import com.team6560.frc2023.commands.auto.AutoBuilder;
 import com.team6560.frc2023.controls.ManualControls;
+import com.team6560.frc2023.subsystems.Arm;
 import com.team6560.frc2023.subsystems.Drivetrain;
 import com.team6560.frc2023.subsystems.Limelight;
 
@@ -29,6 +32,8 @@ public class RobotContainer {
 
         private final DriveCommand driveCommand;
 
+        private final Arm arm;
+
         private final ManualControls manualControls = new ManualControls(new XboxController(0));
 
         // A chooser for autonomous commands
@@ -45,6 +50,9 @@ public class RobotContainer {
 
                 drivetrain = new Drivetrain(limelight);
                 
+                arm = new Arm();
+                arm.setDefaultCommand(new ArmCommand(arm, manualControls));
+
                 autoBuilder = new AutoBuilder(drivetrain);
 
                 driveCommand = new DriveCommand(drivetrain, autoBuilder, manualControls);

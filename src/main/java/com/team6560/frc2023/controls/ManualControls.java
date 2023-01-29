@@ -8,13 +8,14 @@ import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.subsystems.Limelight;
 import com.team6560.frc2023.commands.DriveCommand;
 import com.team6560.frc2023.utility.NumberStepper;
+import com.team6560.frc2023.commands.ArmCommand;
 import com.team6560.frc2023.utility.PovNumberStepper;
 import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab;
 
 
 import edu.wpi.first.wpilibj.XboxController;
 
-public class ManualControls implements DriveCommand.Controls, Limelight.Controls {
+public class ManualControls implements DriveCommand.Controls, Limelight.Controls, ArmCommand.Controls {
   private XboxController xbox;
 
   private final PovNumberStepper speed;
@@ -132,6 +133,21 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   @Override
   public boolean overrideMaxVisionPoseCorrection() {
     return xbox.getYButton();
+  }
+
+  @Override
+  public double armRotation(){
+    return xbox.getRightTriggerAxis() - xbox.getLeftTriggerAxis();
+  }
+
+  @Override
+  public boolean armExtention(){
+    return xbox.getXButton();
+  }
+
+  @Override
+  public boolean runClaw(){
+    return xbox.getAButton();
   }
 
 }
