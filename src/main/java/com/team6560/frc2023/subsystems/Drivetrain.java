@@ -127,7 +127,7 @@ public class Drivetrain extends SubsystemBase {
                                                 .withSize(2, 4)
                                                 .withPosition(6, 0))
                                 .withGearRatio(SdsModuleConfigurations.MK4I_L2)
-                                .withDriveMotor(MotorType.NEO, BACK_RIGHT_MODULE_DRIVE_MOTOR)
+                                .withDriveMotor(MotorType.FALCON, BACK_RIGHT_MODULE_DRIVE_MOTOR)
                                 .withSteerMotor(MotorType.NEO, BACK_RIGHT_MODULE_STEER_MOTOR)
                                 .withSteerEncoderPort(BACK_RIGHT_MODULE_STEER_ENCODER)
                                 .withSteerOffset(BACK_RIGHT_MODULE_STEER_OFFSET)
