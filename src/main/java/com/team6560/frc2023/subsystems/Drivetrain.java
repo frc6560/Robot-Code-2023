@@ -147,6 +147,8 @@ public class Drivetrain extends SubsystemBase {
                                                                                                     // deviations.
                                                                                                     // X, Y, theta.
 
+                resetOdometry(new Pose2d());
+                
                 SmartDashboard.putData("Field", field);
         }
 
@@ -362,7 +364,7 @@ public class Drivetrain extends SubsystemBase {
          *             estimator
          */
         public void resetOdometry(Pose2d pose) {
-                poseEstimator.resetPosition(getRawGyroRotation(), getModulePositions(), pose);
+                poseEstimator.resetPosition(getRawGyroRotation().plus(Rotation2d.fromDegrees(-90.0)), getModulePositions(), pose);
         }
 
         /**
