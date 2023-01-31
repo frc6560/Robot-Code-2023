@@ -26,6 +26,11 @@ import edu.wpi.first.math.util.Units;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+
+  public static final double GYRO_OFFSET_DEGREES = -90;
+
+
   /**
    * The left-to-right distance between the drivetrain wheels
    *
