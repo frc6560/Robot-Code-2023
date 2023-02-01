@@ -321,9 +321,10 @@ public class Drivetrain extends SubsystemBase {
          * @param moduleStates The desired states for each module.
          */
         public void autoSetChassisState(SwerveModuleState[] states) {
-                ChassisSpeeds speeds = m_kinematics.toChassisSpeeds(states);
-                setChassisState(m_kinematics.toSwerveModuleStates(new ChassisSpeeds(speeds.vxMetersPerSecond,
-                                speeds.vyMetersPerSecond, -speeds.omegaRadiansPerSecond)));
+                setChassisState(states);                
+                // ChassisSpeeds speeds = m_kinematics.toChassisSpeeds(states);
+                // setChassisState(m_kinematics.toSwerveModuleStates(new ChassisSpeeds(speeds.vxMetersPerSecond,
+                //                 speeds.vyMetersPerSecond, -speeds.omegaRadiansPerSecond)));
         }
 
         public void setChassisState(double fLdeg, double fRdeg, double bLdeg, double bRdeg) {
