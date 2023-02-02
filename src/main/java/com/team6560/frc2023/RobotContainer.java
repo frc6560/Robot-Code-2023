@@ -4,7 +4,7 @@
 
 package com.team6560.frc2023;
 
-import java.io.File;
+// import java.io.File;
 
 import com.team6560.frc2023.commands.DriveCommand;
 import com.team6560.frc2023.commands.auto.AutoBuilder;
@@ -12,16 +12,18 @@ import com.team6560.frc2023.controls.ManualControls;
 import com.team6560.frc2023.subsystems.Drivetrain;
 import com.team6560.frc2023.subsystems.Limelight;
 
-import edu.wpi.first.wpilibj.Filesystem;
+// import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
+// import edu.wpi.first.wpilibj2.command.PrintCommand;
 
 public class RobotContainer {
         // The robot's subsystems and commands are defined here...
-        private final Drivetrain drivetrain;
+
+        // just final, not public or private so Robot.java has access to it.
+        final Drivetrain drivetrain;
 
         private final Limelight limelight;
 

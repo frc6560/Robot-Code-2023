@@ -39,7 +39,7 @@ fiducial_denoise:0.000000
 fiducial_idfilters:
 fiducial_locfilters:
 fiducial_resdiv:0
-fiducial_size:203.2
+fiducial_size:152.4
 fiducial_skip3d:0
 fiducial_type:aprilClassic16h5
 fiducial_vis_mode:3dbotposefieldspace

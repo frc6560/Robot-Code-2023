@@ -11,7 +11,8 @@ import com.team6560.frc2023.utility.NumberStepper;
 import com.team6560.frc2023.utility.PovNumberStepper;
 import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab;
 
-
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.XboxController;
 
 public class ManualControls implements DriveCommand.Controls, Limelight.Controls {
@@ -19,6 +20,8 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   private final PovNumberStepper speed;
   private final PovNumberStepper turnSpeed;
+
+  private NetworkTable climbTable;
 
   /**
    * Creates a new `ManualControls` instance.
@@ -45,6 +48,15 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
       .add("Y Joystick", this::driveY)
       .add("X Joystick", this::driveX)
       .add("Rotation Joystick", this::driveRotation);
+    
+    climbTable = NetworkTableInstance.getDefault().getTable("Climb");
+
+    climbTable.getEntry("isClimbing").setBoolean(false);
+
+    climbTable.getEntry("climbVelocityL").setDouble(0.0);
+
+    climbTable.getEntry("climbVelocityR").setDouble(0.0);
+
   }
 
   private static double deadband(double value, double deadband) {
@@ -99,7 +111,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
    */
   @Override
   public double driveRotation() {
-    return modifyAxis(xbox.getRightX() * turnSpeed.get());
+    return modifyAxis(-xbox.getRightX() * turnSpeed.get());
   }
 
   /**
@@ -125,13 +137,28 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public int getLimelightPipeline() {
-    // TODO Auto-generated method stub
     return 0;
   }
 
   @Override
   public boolean overrideMaxVisionPoseCorrection() {
     return xbox.getYButton();
+  }
+
+  @Override
+  public boolean driveIsClimbing() {
+    return this.climbTable.getEntry("isClimbing").getBoolean(false);
+  }
+
+  @Override
+  public double climbVelocityL() {
+    return this.climbTable.getEntry("climbVelocityL").getDouble(0.0);
+  }
+
+
+  @Override
+  public double climbVelocityR() {
+    return this.climbTable.getEntry("climbVelocityR").getDouble(0.0);
   }
 
 }

@@ -6,12 +6,21 @@ package com.team6560.frc2023.subsystems;
 
 import static com.team6560.frc2023.Constants.*;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
-import com.kauailabs.navx.frc.AHRS;
-import com.swervedrivespecialties.swervelib.Mk4iSwerveModuleHelper;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.swervedrivespecialties.swervelib.MkModuleConfiguration;
+import com.swervedrivespecialties.swervelib.MkSwerveModuleBuilder;
+import com.swervedrivespecialties.swervelib.MotorType;
+import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.utility.NetworkTable.NtValueDisplay;
+
+import com.revrobotics.CANSparkMaxLowLevel;
 
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Nat;
@@ -26,8 +35,12 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.SPI.Port;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -43,16 +56,12 @@ public class Drivetrain extends SubsystemBase {
          */
         public static final double MAX_VOLTAGE = 12.0;
 
-        /**
-         * The AHRS object used to get the current orientation of the robot.
-         */
         private final WPI_Pigeon2 pigeon = new WPI_Pigeon2(12);
 
-        // These are our swerve modules. We initialize them in the constructor.
-        private SwerveModule m_frontLeftModule;
-        private SwerveModule m_frontRightModule;
-        private SwerveModule m_backLeftModule;
-        private SwerveModule m_backRightModule;
+        private final SwerveModule m_frontLeftModule;
+        private final SwerveModule m_frontRightModule;
+        private final SwerveModule m_backLeftModule;
+        private final SwerveModule m_backRightModule;
 
         /**
          * The default states for each module, corresponding to an X shape.
@@ -69,9 +78,9 @@ public class Drivetrain extends SubsystemBase {
          */
         public SwerveModule[] modules;
 
-        private Limelight limelight;
+        private final Limelight limelight;
 
-        private SwerveDrivePoseEstimator poseEstimator;
+        private final SwerveDrivePoseEstimator poseEstimator;
 
         private Pose2d lastPose = new Pose2d();
 
@@ -79,17 +88,14 @@ public class Drivetrain extends SubsystemBase {
 
         private boolean overrideMaxVisionPoseCorrection;
 
-        private double zeroRoll;
+        private final CANSparkMax climbExtensionMotorLeft;
 
-        private double zeroPitch;
+        private final CANSparkMax climbExtensionMotorRight;
 
-        // private SlewRateLimiter xLimiter = new SlewRateLimiter(3.0);
-        // private SlewRateLimiter yLimiter = new SlewRateLimiter(3.0);
-        // private SlewRateLimiter rotLimiter = new SlewRateLimiter(6.0);
+        private final Solenoid batteryBullshit;
 
-        /**
-         * Constructs a new `Drivetrain` object and initializes the swerve modules.
-         */
+        private final CANSparkMax climbDriveMotor;
+
         public Drivetrain(Limelight limelight) {
                 this.limelight = limelight;
 
@@ -99,63 +105,145 @@ public class Drivetrain extends SubsystemBase {
                                 .add("GyroscopeRotation", () -> this.getGyroscopeRotation().getDegrees())
                                 .add("RawGyroRotation", () -> this.getRawGyroRotation().getDegrees());
 
-                m_frontLeftModule = Mk4iSwerveModuleHelper.createFalcon500Neo(
-                                // This parameter is optional, but will allow you to see the current state of
-                                // the module on the dashboard.
-                                tab.getLayout("Front Left Module", BuiltInLayouts.kList)
+                m_frontLeftModule = new MkSwerveModuleBuilder(MkModuleConfiguration.getDefaultSteerNEO())
+                                .withLayout(tab.getLayout("Front Left Module", BuiltInLayouts.kList)
                                                 .withSize(2, 4)
-                                                .withPosition(0, 0),
-                                Mk4iSwerveModuleHelper.GearRatio.L2,
-                                FRONT_LEFT_MODULE_DRIVE_MOTOR,
-                                FRONT_LEFT_MODULE_STEER_MOTOR,
-                                FRONT_LEFT_MODULE_STEER_ENCODER,
-                                FRONT_LEFT_MODULE_STEER_OFFSET);
+                                                .withPosition(0, 0))
+                                .withGearRatio(SdsModuleConfigurations.MK4I_L2)
+                                .withDriveMotor(MotorType.FALCON, FRONT_LEFT_MODULE_DRIVE_MOTOR)
+                                .withSteerMotor(MotorType.NEO, FRONT_LEFT_MODULE_STEER_MOTOR)
+                                .withSteerEncoderPort(FRONT_LEFT_MODULE_STEER_ENCODER)
+                                .withSteerOffset(FRONT_LEFT_MODULE_STEER_OFFSET)
+                                .build();
 
-                m_frontRightModule = Mk4iSwerveModuleHelper.createFalcon500Neo(
-                                tab.getLayout("Front Right Module", BuiltInLayouts.kList)
+                m_frontRightModule = new MkSwerveModuleBuilder(MkModuleConfiguration.getDefaultSteerNEO())
+                                .withLayout(tab.getLayout("Front Right Module", BuiltInLayouts.kList)
                                                 .withSize(2, 4)
-                                                .withPosition(2, 0),
-                                Mk4iSwerveModuleHelper.GearRatio.L2,
-                                FRONT_RIGHT_MODULE_DRIVE_MOTOR,
-                                FRONT_RIGHT_MODULE_STEER_MOTOR,
-                                FRONT_RIGHT_MODULE_STEER_ENCODER,
-                                FRONT_RIGHT_MODULE_STEER_OFFSET);
+                                                .withPosition(2, 0))
+                                .withGearRatio(SdsModuleConfigurations.MK4I_L2)
+                                .withDriveMotor(MotorType.FALCON, FRONT_RIGHT_MODULE_DRIVE_MOTOR)
+                                .withSteerMotor(MotorType.NEO, FRONT_RIGHT_MODULE_STEER_MOTOR)
+                                .withSteerEncoderPort(FRONT_RIGHT_MODULE_STEER_ENCODER)
+                                .withSteerOffset(FRONT_RIGHT_MODULE_STEER_OFFSET)
+                                .build();
 
-                m_backLeftModule = Mk4iSwerveModuleHelper.createFalcon500Neo(
-                                tab.getLayout("Back Left Module", BuiltInLayouts.kList)
+                m_backLeftModule = new MkSwerveModuleBuilder(MkModuleConfiguration.getDefaultSteerNEO())
+                                .withLayout(tab.getLayout("Back Left Module", BuiltInLayouts.kList)
                                                 .withSize(2, 4)
-                                                .withPosition(4, 0),
-                                Mk4iSwerveModuleHelper.GearRatio.L2,
-                                BACK_LEFT_MODULE_DRIVE_MOTOR,
-                                BACK_LEFT_MODULE_STEER_MOTOR,
-                                BACK_LEFT_MODULE_STEER_ENCODER,
-                                BACK_LEFT_MODULE_STEER_OFFSET);
+                                                .withPosition(4, 0))
+                                .withGearRatio(SdsModuleConfigurations.MK4I_L2)
+                                .withDriveMotor(MotorType.FALCON, BACK_LEFT_MODULE_DRIVE_MOTOR)
+                                .withSteerMotor(MotorType.NEO, BACK_LEFT_MODULE_STEER_MOTOR)
+                                .withSteerEncoderPort(BACK_LEFT_MODULE_STEER_ENCODER)
+                                .withSteerOffset(BACK_LEFT_MODULE_STEER_OFFSET)
+                                .build();
 
-                m_backRightModule = Mk4iSwerveModuleHelper.createFalcon500Neo(
-                                tab.getLayout("Back Right Module", BuiltInLayouts.kList)
+                m_backRightModule = new MkSwerveModuleBuilder(MkModuleConfiguration.getDefaultSteerNEO())
+                                .withLayout(tab.getLayout("Back Right Module", BuiltInLayouts.kList)
                                                 .withSize(2, 4)
-                                                .withPosition(6, 0),
-                                Mk4iSwerveModuleHelper.GearRatio.L2,
-                                BACK_RIGHT_MODULE_DRIVE_MOTOR,
-                                BACK_RIGHT_MODULE_STEER_MOTOR,
-                                BACK_RIGHT_MODULE_STEER_ENCODER,
-                                BACK_RIGHT_MODULE_STEER_OFFSET);
+                                                .withPosition(6, 0))
+                                .withGearRatio(SdsModuleConfigurations.MK4I_L2)
+                                .withDriveMotor(MotorType.FALCON, BACK_RIGHT_MODULE_DRIVE_MOTOR)
+                                .withSteerMotor(MotorType.NEO, BACK_RIGHT_MODULE_STEER_MOTOR)
+                                .withSteerEncoderPort(BACK_RIGHT_MODULE_STEER_ENCODER)
+                                .withSteerOffset(BACK_RIGHT_MODULE_STEER_OFFSET)
+                                .build();
 
                 modules = new SwerveModule[] { m_frontLeftModule, m_frontRightModule, m_backLeftModule,
                                 m_backRightModule };
 
-                // TODO: Update standard deviation so it's less jiggly
-                // TODO: Also investigate different AprilTag methods in PhotonCameraWrapper
                 poseEstimator = new SwerveDrivePoseEstimator(m_kinematics,
                                 getRawGyroRotation(), getModulePositions(), new Pose2d(),
                                 new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.1), // State measurement
                                                                                                 // standard deviations.
                                                                                                 // X, Y, theta.
-                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(1.25, 1.25, 1.25)); // Vision measurement
-                                                                                                 // standard deviations.
-                                                                                                 // X, Y, theta.
+                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(1.25, 1.25, 1.25)); // Vision
+                                                                                                    // measurement
+                                                                                                    // standard
+                                                                                                    // deviations.
+                                                                                                    // X, Y, theta.
+
+                climbExtensionMotorLeft = new CANSparkMax(15, CANSparkMaxLowLevel.MotorType.kBrushless);
+                climbExtensionMotorLeft.setInverted(true);
+
+                climbExtensionMotorRight = new CANSparkMax(7, CANSparkMaxLowLevel.MotorType.kBrushless);
+                climbExtensionMotorRight.setInverted(true);
+
+                climbDriveMotor = new CANSparkMax(3, CANSparkMaxLowLevel.MotorType.kBrushless);
+
+                // for (CANSparkMax i : new CANSparkMax[] {climbExtensionMotorLeft,
+                //                 climbExtensionMotorRight }) {
+                //         i.getPIDController().setP(0.005);
+                //         i.getPIDController().setI(0.00005);
+                //         i.getPIDController().setD(0.0);
+
+                //         i.getPIDController().setIZone(0.0);
+                // }
+
+                climbDriveMotor.setInverted(true);
+                climbDriveMotor.getPIDController().setFF(0.001);
+                climbDriveMotor.getPIDController().setP(0.0);
+                climbDriveMotor.getPIDController().setI(0.0);
+                climbDriveMotor.getPIDController().setD(0.0);
+
+                climbDriveMotor.getPIDController().setIZone(0.0);
+
+                batteryBullshit = new Solenoid(PneumaticsModuleType.CTREPCM, 0); //TODO: CHANGE
+
+                resetOdometry(new Pose2d());
 
                 SmartDashboard.putData("Field", field);
+
+                NtValueDisplay.ntDispTab("Climb")
+                                .add("isClimbExtended", () -> isClimbExtended())
+                                .add("leftClimbPosition", () -> getLeftClimbPosition())
+                                .add("rightClimbPosition", () -> getRightClimbPosition())
+                                .add("climbMotorVelocityRPM", () -> getClimbDriveMotorVelocityRPM())
+                                .add("batteryBullshitExtended", () -> isBatteryBullshitExtended());
+        }
+
+        public boolean isClimbExtended() {
+                return Math.abs(climbExtensionMotorLeft.getEncoder().getPosition()) > 0.0;
+        }
+
+        public double getLeftClimbPosition() {
+                return climbExtensionMotorLeft.getEncoder().getPosition();
+        }
+
+        public double getRightClimbPosition() {
+                return climbExtensionMotorRight.getEncoder().getPosition();
+        }
+
+        public void setLeftClimbExtensionVelocity(double velocityPercentOutput) {
+                climbExtensionMotorLeft.set(velocityPercentOutput);
+        }
+
+        public void setRightClimbExtensionVelocity(double velocityPercentOutput) {
+                climbExtensionMotorRight.set(velocityPercentOutput);
+        }
+
+        public void setClimbDriveMotorVelocity(double velocityRPM) {
+                climbDriveMotor.getPIDController().setReference(velocityRPM, ControlType.kVelocity);
+        }
+
+        public double getClimbDriveMotorVelocityRPM() {
+                return climbDriveMotor.getEncoder().getVelocity();
+        }
+
+        public void setBatteryBullshit(boolean isClimbing) {
+                batteryBullshit.set(isClimbing);
+        }
+
+        public boolean isBatteryBullshitExtended() {
+                return batteryBullshit.get();
+        }
+
+        public double getAverageModuleDriveAngularTangentialSpeed() {
+                double sum = 0;
+                for (SwerveModule i : modules) {
+                        sum += Math.abs(i.getDriveVelocity());
+                }
+                return sum / modules.length;
         }
 
         /**
@@ -166,21 +254,12 @@ public class Drivetrain extends SubsystemBase {
         public void zeroGyroscope() {
                 // m_navx.zeroYaw();
                 // if (poseEstimator == null)
-                //         m_navx.zeroYaw();
+                // m_navx.zeroYaw();
                 resetOdometry(new Pose2d(getPose().getTranslation(), new Rotation2d(0.0)));
         }
 
         public Rotation2d getRawGyroRotation() {
                 return Rotation2d.fromDegrees(pigeon.getYaw());
-        }
-
-        public void resetGyroPitchRoll() {
-                this.zeroRoll = pigeon.getRoll();
-                this.zeroPitch = pigeon.getPitch();
-        }
-
-        public Rotation2d getCalculatedGyroPitchRoll() {
-                return Rotation2d.fromDegrees(Math.copySign(Math.hypot(zeroPitch - pigeon.getPitch(), zeroRoll - pigeon.getRoll()), pigeon.getRoll() - zeroRoll + pigeon.getPitch() - zeroPitch));
         }
 
         /**
@@ -197,7 +276,7 @@ public class Drivetrain extends SubsystemBase {
                 // We have to invert the angle of the NavX so that rotating the robot
                 // counter-clockwise makes the angle increase.
 
-                //if pose estimator is null, default to the raw gyro rotation
+                // if pose estimator is null, default to the raw gyro rotation
                 if (poseEstimator == null) {
                         if (lastPose == null) {
                                 return new Rotation2d();
@@ -210,19 +289,53 @@ public class Drivetrain extends SubsystemBase {
         }
 
         public SwerveModulePosition[] getModulePositions() {
-                // return reverseModulePositionArray(new SwerveModulePosition[] { m_frontLeftModule.getPosition(), m_frontRightModule.getPosition(),
-                                        // m_backLeftModule.getPosition(), m_backRightModule.getPosition() });
-        
+                // return reverseModulePositionArray(new SwerveModulePosition[] {
+                // m_frontLeftModule.getPosition(), m_frontRightModule.getPosition(),
+                // m_backLeftModule.getPosition(), m_backRightModule.getPosition() });
+
                 return new SwerveModulePosition[] { m_frontLeftModule.getPosition(), m_frontRightModule.getPosition(),
-                                        m_backLeftModule.getPosition(), m_backRightModule.getPosition() };
-        
+                                m_backLeftModule.getPosition(), m_backRightModule.getPosition() };
+
+        }
+
+        /**
+         * Sets drive motor idle mode to be either brake mode or coast mode.
+         * 
+         * @param brake If true, sets brake mode, otherwise sets coast mode
+         */
+        public void setDriveMotorBrakeMode(boolean brake) {
+                IdleMode sparkMaxMode = brake ? IdleMode.kBrake : IdleMode.kCoast;
+                NeutralMode phoenixMode = brake ? NeutralMode.Brake : NeutralMode.Coast;
+
+                for (SwerveModule i : modules) {
+                        if (i.getSteerMotor() instanceof CANSparkMax)
+                                ((CANSparkMax) i.getSteerMotor()).setIdleMode(IdleMode.kCoast);
+                        else
+                                ((TalonFX) i.getSteerMotor()).setNeutralMode(NeutralMode.Coast);
+
+                        if (i.getDriveMotor() instanceof CANSparkMax)
+                                ((CANSparkMax) i.getDriveMotor()).setIdleMode(sparkMaxMode);
+                        else
+                                ((TalonFX) i.getDriveMotor()).setNeutralMode(phoenixMode);
+
+                }
+
+        }
+
+        public Rotation2d getPitch() {
+                return Rotation2d.fromDegrees(pigeon.getPitch());
+        }
+
+        public Rotation2d getRoll() {
+                return Rotation2d.fromDegrees(pigeon.getRoll());
         }
 
         /**
          * ONLY USE IN DEBUGGING!
          * Used to reverse the distance read in a SwerveModulePosition array
          * 
-         * @param array the SwerveModulePosition[] array you would like thre reversed values of
+         * @param array the SwerveModulePosition[] array you would like thre reversed
+         *              values of
          * @return the reversed SwerveModulePosition[] array
          */
         @Deprecated
@@ -231,7 +344,7 @@ public class Drivetrain extends SubsystemBase {
 
                 for (int i = 0; i < array.length; i++)
                         output[i] = new SwerveModulePosition(-array[i].distanceMeters, array[i].angle);
-        
+
                 return output;
         }
 
@@ -257,9 +370,6 @@ public class Drivetrain extends SubsystemBase {
                 // ChassisSpeeds(xLimiter.calculate(chassisSpeeds.vxMetersPerSecond),
                 // yLimiter.calculate(chassisSpeeds.vyMetersPerSecond),
                 // rotLimiter.calculate(chassisSpeeds.omegaRadiansPerSecond));
-
-                chassisSpeeds = new ChassisSpeeds(chassisSpeeds.vxMetersPerSecond,
-                                chassisSpeeds.vyMetersPerSecond, chassisSpeeds.omegaRadiansPerSecond);
 
                 for (SwerveModuleState state : states) {
                         if (state.speedMetersPerSecond > 0.05) {
@@ -301,29 +411,33 @@ public class Drivetrain extends SubsystemBase {
         }
 
         /**
-         * ONLY FOR AUTO!!: 
+         * ONLY FOR AUTO!!:
          * Sets the speeds and orientations of each swerve module.
          * array order: front left, front right, back left, back right
          *
-         * This is likely required because of a bug in pathplannerlib, where angular speed is negative.
+         * This is likely required because of a bug in pathplannerlib, where angular
+         * speed is negative.
          * 
          * But hey, if it aint broke dont fix it?
          * 
          * @param moduleStates The desired states for each module.
          */
         public void autoSetChassisState(SwerveModuleState[] states) {
-                ChassisSpeeds speeds = m_kinematics.toChassisSpeeds(states);
-                setChassisState(m_kinematics.toSwerveModuleStates(new ChassisSpeeds(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, -speeds.omegaRadiansPerSecond)));
+                setChassisState(states);
+                // ChassisSpeeds speeds = m_kinematics.toChassisSpeeds(states);
+                // setChassisState(m_kinematics.toSwerveModuleStates(new
+                // ChassisSpeeds(speeds.vxMetersPerSecond,
+                // speeds.vyMetersPerSecond, -speeds.omegaRadiansPerSecond)));
         }
 
         public void setChassisState(double fLdeg, double fRdeg, double bLdeg, double bRdeg) {
                 setChassisState(
-                        new SwerveModuleState[] {
-                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(fLdeg)),
-                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(fRdeg)),
-                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(bLdeg)),
-                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(bRdeg))
-                        });
+                                new SwerveModuleState[] {
+                                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(fLdeg)),
+                                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(fRdeg)),
+                                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(bLdeg)),
+                                                new SwerveModuleState(0.0, Rotation2d.fromDegrees(bRdeg))
+                                });
         }
 
         /**
@@ -354,7 +468,9 @@ public class Drivetrain extends SubsystemBase {
          *             estimator
          */
         public void resetOdometry(Pose2d pose) {
-                poseEstimator.resetPosition(getRawGyroRotation(), getModulePositions(), pose);
+                poseEstimator.resetPosition(
+                                getRawGyroRotation().plus(Rotation2d.fromDegrees(Constants.GYRO_OFFSET_DEGREES)),
+                                getModulePositions(), pose);
         }
 
         /**
@@ -386,7 +502,6 @@ public class Drivetrain extends SubsystemBase {
 
                 if (camPose.minus(getPose()).getTranslation().getNorm() > 1.5 && !overrideMaxVisionPoseCorrection)
                         return;
-
 
                 double camPoseObsTime = result.getSecond();
                 poseEstimator.addVisionMeasurement(camPose, camPoseObsTime);
