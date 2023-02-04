@@ -90,9 +90,9 @@ public final class Constants {
       SdsModuleConfigurations.MK4I_L2.getWheelDiameter() * Math.PI;
 
   
-  public static final int BREAK_ID = 16; // ARC motor
+  public static final int BREAK_ID = 25; // ARC motor
   public static final int CLAW_MOTOR_LEFT_ID = 26;
-  public static final int CLAW_MOTOR_RIGHT_ID = 18;
+  public static final int CLAW_MOTOR_RIGHT_ID = 27;
   public static final int EXTENTION_SOLENOID_ID = 0;
 
   // public static final double ROTOR_TO_ARM = 38.1;
