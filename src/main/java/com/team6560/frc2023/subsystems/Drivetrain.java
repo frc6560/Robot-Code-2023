@@ -50,10 +50,10 @@ public class Drivetrain extends SubsystemBase {
 
         private final WPI_Pigeon2 pigeon = new WPI_Pigeon2(12);
 
-        private SwerveModule m_frontLeftModule;
-        private SwerveModule m_frontRightModule;
-        private SwerveModule m_backLeftModule;
-        private SwerveModule m_backRightModule;
+        private final SwerveModule m_frontLeftModule;
+        private final SwerveModule m_frontRightModule;
+        private final SwerveModule m_backLeftModule;
+        private final SwerveModule m_backRightModule;
 
         /**
          * The default states for each module, corresponding to an X shape.
@@ -70,9 +70,9 @@ public class Drivetrain extends SubsystemBase {
          */
         public SwerveModule[] modules;
 
-        private Limelight limelight;
+        private final Limelight limelight;
 
-        private SwerveDrivePoseEstimator poseEstimator;
+        private final SwerveDrivePoseEstimator poseEstimator;
 
         private Pose2d lastPose = new Pose2d();
 
@@ -146,6 +146,8 @@ public class Drivetrain extends SubsystemBase {
                                                                                                     // standard
                                                                                                     // deviations.
                                                                                                     // X, Y, theta.
+
+                resetOdometry(new Pose2d());
 
                 SmartDashboard.putData("Field", field);
         }
@@ -267,9 +269,6 @@ public class Drivetrain extends SubsystemBase {
                 // yLimiter.calculate(chassisSpeeds.vyMetersPerSecond),
                 // rotLimiter.calculate(chassisSpeeds.omegaRadiansPerSecond));
 
-                chassisSpeeds = new ChassisSpeeds(chassisSpeeds.vxMetersPerSecond,
-                                chassisSpeeds.vyMetersPerSecond, chassisSpeeds.omegaRadiansPerSecond);
-
                 for (SwerveModuleState state : states) {
                         if (state.speedMetersPerSecond > 0.05) {
                                 setChassisState(states);
@@ -322,9 +321,10 @@ public class Drivetrain extends SubsystemBase {
          * @param moduleStates The desired states for each module.
          */
         public void autoSetChassisState(SwerveModuleState[] states) {
-                ChassisSpeeds speeds = m_kinematics.toChassisSpeeds(states);
-                setChassisState(m_kinematics.toSwerveModuleStates(new ChassisSpeeds(speeds.vxMetersPerSecond,
-                                speeds.vyMetersPerSecond, -speeds.omegaRadiansPerSecond)));
+                setChassisState(states);                
+                // ChassisSpeeds speeds = m_kinematics.toChassisSpeeds(states);
+                // setChassisState(m_kinematics.toSwerveModuleStates(new ChassisSpeeds(speeds.vxMetersPerSecond,
+                //                 speeds.vyMetersPerSecond, -speeds.omegaRadiansPerSecond)));
         }
 
         public void setChassisState(double fLdeg, double fRdeg, double bLdeg, double bRdeg) {
@@ -365,7 +365,7 @@ public class Drivetrain extends SubsystemBase {
          *             estimator
          */
         public void resetOdometry(Pose2d pose) {
-                poseEstimator.resetPosition(getRawGyroRotation(), getModulePositions(), pose);
+                poseEstimator.resetPosition(getRawGyroRotation().plus(Rotation2d.fromDegrees(Constants.GYRO_OFFSET_DEGREES)), getModulePositions(), pose);
         }
 
         /**

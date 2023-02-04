@@ -6,10 +6,10 @@ package com.team6560.frc2023;
 
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
+// import edu.wpi.first.math.geometry.Rotation3d;
+// import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
+// import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 
@@ -26,6 +26,11 @@ import edu.wpi.first.math.util.Units;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+
+  public static final double GYRO_OFFSET_DEGREES = -90.0;
+
+
   /**
    * The left-to-right distance between the drivetrain wheels
    *
@@ -42,25 +47,25 @@ public final class Constants {
   public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 22;
   public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 13;
   public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 2;
-  public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(260.771);
+  public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(163.828 + 90.0 + 45.0 + 45.0 + 180.0 - 90.0);
   // public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(0.0);
 
   public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 8;
   public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 5;
   public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 3;
-  public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(61.963);
+  public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(77.168 + 90.0 + 45.0 - 45.0 + 180.0);
   // public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(0.0);
 
   public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 27;
   public static final int BACK_LEFT_MODULE_STEER_MOTOR = 6;
   public static final int BACK_LEFT_MODULE_STEER_ENCODER = 1;
-  public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(226.318);
+  public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(316.758 + 45.0 + 45.0 + 90.0);
   // public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(0.0);
 
   public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 7;
   public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 14;
   public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 4;
-  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(113.379);
+  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(302.959 + 90.0 + 45.0 - 45.0 + 90.0 - 90.0 - 180.0);
   // public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(0.0);
   
   // The formula for calculating the theoretical maximum velocity is:
@@ -140,16 +145,14 @@ public final class Constants {
     public static final int XBOX_A_BUTTON = 1;
   }
 
-  public static class VisionConstants {
+  // public static class VisionConstants {
     
-    // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
-    public static final Transform3d robotToCam = new Transform3d(
-        new Translation3d(0.5, 0.0, 0.28),
-        new Rotation3d(0, 0, 0));
+  //   // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+  //   public static final Transform3d robotToCam = new Transform3d(
+  //       new Translation3d(0.5, 0.0, 0.28),
+  //       new Rotation3d(0, 0, 0));
 
-    public static final String cameraName = "OV5647";
-
-  }
+  // }
 
   public static class FieldConstants {
     public static final double length = Units.feetToMeters(54);

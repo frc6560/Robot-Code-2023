@@ -123,7 +123,7 @@ public class AutoBuilder {
     // More complex path with holonomic rotation. Non-zero starting velocity of
     // currSpeed. Max velocity of 4 m/s and max accel of 3 m/s^2
     PathPlannerTrajectory traj = PathPlanner.generatePath(
-        new PathConstraints(1.0, 0.5),
+        new PathConstraints(0.5, 0.25),
         // position, heading(direction of travel), holonomic rotation, velocity verride
         new PathPoint(currPose.getTranslation(), heading, currPose.getRotation(), currSpeed),
         new PathPoint(desiredPose.getTranslation(), heading, desiredPose.getRotation())
