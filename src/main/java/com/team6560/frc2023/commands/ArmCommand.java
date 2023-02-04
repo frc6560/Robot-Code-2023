@@ -22,8 +22,6 @@ public class ArmCommand extends CommandBase {
       boolean armExtention();
 
       boolean runClaw();
-
-      boolean pullBattery();
   }
 
   Arm arm;
