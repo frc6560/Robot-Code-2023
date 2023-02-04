@@ -142,12 +142,12 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public boolean armExtention(){
-    return xbox.getLeftBumper();
+    return xbox.getYButton();
   }
 
   @Override
-  public boolean runClaw(){
-    return xbox.getRightBumper();
+  public double runClaw(){
+    return (xbox.getRightBumper() ? 1 : (xbox.getLeftBumper() ? -1 : 0));
   }
 
 }

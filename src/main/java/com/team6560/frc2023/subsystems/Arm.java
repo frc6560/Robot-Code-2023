@@ -37,7 +37,6 @@ public class Arm extends SubsystemBase {
     * run claw
     */
 
-  CANSparkMax rotorMotor = new CANSparkMax(ROTOR_ID, MotorType.kBrushless);
   CANSparkMax breakMotor = new CANSparkMax(BREAK_ID, MotorType.kBrushless);
   CANSparkMax clawMotorL = new CANSparkMax(CLAW_MOTOR_LEFT_ID, MotorType.kBrushless);
   CANSparkMax clawMotorR = new CANSparkMax(CLAW_MOTOR_RIGHT_ID, MotorType.kBrushless);
@@ -57,31 +56,23 @@ public class Arm extends SubsystemBase {
   private double bottomLimit = 0;
   /** Creates a new Arm. */
   public Arm() {
-    rotorMotor.restoreFactoryDefaults();
-    rotorMotor.setInverted(false);
-    rotorMotor.setIdleMode(IdleMode.kBrake);
-    // rotorMotor.getPIDController().setP(0.5);
-
-    rotorMotor.getEncoder().setPosition(0.0);
-
     breakMotor.restoreFactoryDefaults();
+    breakMotor.setInverted(true);
     breakMotor.setIdleMode(IdleMode.kBrake);
     // breakMotor.getPIDController().setP(0.5);
 
     clawMotorL.restoreFactoryDefaults();
     clawMotorL.setIdleMode(IdleMode.kCoast);
-    clawMotorL.setInverted(true);
     
     clawMotorR.restoreFactoryDefaults();
     clawMotorR.setIdleMode(IdleMode.kCoast);
+    clawMotorR.setInverted(true);
 
     ntDispTab("Arm")
-    .add("Rotor Speed", this::getRotorSpeed)
     .add("Break Motor Speed", this::getBreakMotorSpeed)
     .add("Claw Speed Left", this::getClawSpeedL)
     .add("Claw Speed Right", this::getClawSpeedR)
-    .add("Extention Status", this::getExtentionStatus)
-    .add("Arm Position", this::getArmPosition);
+    .add("Extention Status", this::getExtentionStatus);
 
     breakMultiplyer = ntTable.getEntry("Break Motor Multiplyer");
     breakMultiplyer.setDouble(0.1);
@@ -107,13 +98,6 @@ public class Arm extends SubsystemBase {
 
     extentionPiston.set(status);
   }
-
-  /** Sets arm rotor velocity in RPM */
-  public void setRotors(double rpm){
-    if(rpm != 0) System.out.println("rotor is running at " + rpm);
-
-    rotorMotor.set(rpm);
-  }
   
   /** Sets arm break velocity in RPM */
   public void setBreakMotor(double rpm){
@@ -127,12 +111,11 @@ public class Arm extends SubsystemBase {
   public void setClawSpeed(double output){
     if(output != 0) System.out.println("Claw is running at " + output);
 
-    clawMotorL.set(output * (invertClaw.getBoolean(false) ? -1 : 1));
-    clawMotorR.set(output * (invertClaw.getBoolean(false) ? -1 : 1));
+    clawMotorL.set(output);
+    clawMotorR.set(output);
   }
 
   public void setArmRotation(double output){
-    System.out.println("Tryna rotate arm at " + output);
 
     // if (getArmPositionDegrees() < bottomLimit) {
     //   output = Math.min(0, output);
@@ -141,14 +124,9 @@ public class Arm extends SubsystemBase {
     //   output = Math.max(0, output);
     // }
 
-    setRotors(output * ROTOR_TO_ARM);
     setBreakMotor(output * BREAK_TO_ARM);
   }
 
-
-  public double getRotorSpeed(){
-    return rotorMotor.getEncoder().getVelocity();
-  }
 
   public double getBreakMotorSpeed(){
     return breakMotor.getEncoder().getVelocity();
@@ -169,12 +147,6 @@ public class Arm extends SubsystemBase {
     return (getClawSpeedL() + getClawSpeedR()) / 2.0;
   }
 
-  public double getArmPosition(){
-    return rotorMotor.getEncoder().getPosition() / ROTOR_TO_ARM;
-  }
-  public double getArmPositionDegrees(){
-    return rotToDeg(getArmPosition());
-  }
 
   // gives rotation to degrees cuz im too lazy
   private double rotToDeg(double rotation){

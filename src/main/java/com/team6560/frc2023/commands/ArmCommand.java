@@ -21,7 +21,7 @@ public class ArmCommand extends CommandBase {
 
       boolean armExtention();
 
-      boolean runClaw();
+      double runClaw();
   }
 
   Arm arm;
@@ -58,15 +58,18 @@ public class ArmCommand extends CommandBase {
   @Override
   public void execute() {
     if(controls.armRotation() != 0) System.out.println("rotating arm at " + controls.armRotation() * rotationSpeed.getDouble(0.0));
+
     arm.setArmRotation(controls.armRotation() * rotationSpeed.getDouble(0.0));
 
     if(controls.armExtention() && !prevControlArmExt){
       System.out.println("Setting extention piston " + (!arm.getExtentionStatus() ? "out." : "in."));
+
       arm.setArmExtention(!arm.getExtentionStatus());
     }
 
-    arm.setClawSpeed(controls.runClaw() ? clawSpeed.getDouble(0.0) : 0.0);
-    if(controls.runClaw()) System.out.println("Running claw at " + clawSpeed.getDouble(0.0));
+    arm.setClawSpeed(controls.runClaw() * clawSpeed.getDouble(0.0));
+
+    if(controls.runClaw() != 0) System.out.println("Running claw at " + clawSpeed.getDouble(0.0));
 
     prevControlArmExt = controls.armExtention();
     prevControlBatteryExt = controls.armExtention();
