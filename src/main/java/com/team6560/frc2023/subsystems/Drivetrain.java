@@ -365,7 +365,7 @@ public class Drivetrain extends SubsystemBase {
          *             estimator
          */
         public void resetOdometry(Pose2d pose) {
-                poseEstimator.resetPosition(getRawGyroRotation().plus(Rotation2d.fromDegrees(Constants.GYRO_OFFSET_DEGREES)), getModulePositions(), pose);
+                poseEstimator.resetPosition(getRawGyroRotation(), getModulePositions(), pose);
         }
 
         /**
