@@ -70,6 +70,7 @@ public class Arm extends SubsystemBase {
 
     clawMotorL.restoreFactoryDefaults();
     clawMotorL.setIdleMode(IdleMode.kCoast);
+    clawMotorL.setInverted(true);
     
     clawMotorR.restoreFactoryDefaults();
     clawMotorR.setIdleMode(IdleMode.kCoast);
