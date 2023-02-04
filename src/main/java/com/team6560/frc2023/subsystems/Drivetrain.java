@@ -48,7 +48,7 @@ public class Drivetrain extends SubsystemBase {
          */
         public static final double MAX_VOLTAGE = 12.0;
 
-        private final WPI_Pigeon2 pigeon = new WPI_Pigeon2(12);
+        private final WPI_Pigeon2 pigeon = new WPI_Pigeon2(GYRO_ID);
 
         private final SwerveModule m_frontLeftModule;
         private final SwerveModule m_frontRightModule;
