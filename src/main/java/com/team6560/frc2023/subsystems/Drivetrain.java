@@ -67,10 +67,10 @@ public class Drivetrain extends SubsystemBase {
          * The default states for each module, corresponding to an X shape.
          */
         public static final SwerveModuleState[] DEFAULT_MODULE_STATES = new SwerveModuleState[] {
-                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(45)),
-                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45)),
-                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45)),
-                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(45))
+                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45.0)),
+                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(45.0)),
+                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(45.0)),
+                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45.0))
         };
 
         /**
@@ -163,13 +163,13 @@ public class Drivetrain extends SubsystemBase {
                                                                                                     // deviations.
                                                                                                     // X, Y, theta.
 
-                climbExtensionMotorLeft = new CANSparkMax(15, CANSparkMaxLowLevel.MotorType.kBrushless);
+                climbExtensionMotorLeft = new CANSparkMax(23, CANSparkMaxLowLevel.MotorType.kBrushless);
                 climbExtensionMotorLeft.setInverted(true);
 
-                climbExtensionMotorRight = new CANSparkMax(7, CANSparkMaxLowLevel.MotorType.kBrushless);
+                climbExtensionMotorRight = new CANSparkMax(22, CANSparkMaxLowLevel.MotorType.kBrushless);
                 climbExtensionMotorRight.setInverted(true);
 
-                climbDriveMotor = new CANSparkMax(3, CANSparkMaxLowLevel.MotorType.kBrushless);
+                climbDriveMotor = new CANSparkMax(21, CANSparkMaxLowLevel.MotorType.kBrushless);
 
                 // for (CANSparkMax i : new CANSparkMax[] {climbExtensionMotorLeft,
                 //                 climbExtensionMotorRight }) {
@@ -188,7 +188,7 @@ public class Drivetrain extends SubsystemBase {
 
                 climbDriveMotor.getPIDController().setIZone(0.0);
 
-                batteryBullshit = new Solenoid(PneumaticsModuleType.CTREPCM, 0); //TODO: CHANGE
+                batteryBullshit = new Solenoid(PneumaticsModuleType.CTREPCM, 1); //TODO: CHANGE
 
                 resetOdometry(new Pose2d());
 
@@ -469,7 +469,7 @@ public class Drivetrain extends SubsystemBase {
          */
         public void resetOdometry(Pose2d pose) {
                 poseEstimator.resetPosition(
-                                getRawGyroRotation().plus(Rotation2d.fromDegrees(Constants.GYRO_OFFSET_DEGREES)),
+                                getRawGyroRotation(),
                                 getModulePositions(), pose);
         }
 

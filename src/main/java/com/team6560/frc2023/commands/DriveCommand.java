@@ -120,7 +120,7 @@ public class DriveCommand extends CommandBase {
         double leftCurrPose = drivetrain.getLeftClimbPosition();
         double rightCurrPose = drivetrain.getRightClimbPosition();
 
-        double target = extended ? 135.0 : 0.0;
+        double target = extended ? 100.0 : 0.0;
 
         
         if (Math.abs(leftCurrPose - target) > 5.0)
