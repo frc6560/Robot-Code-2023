@@ -67,13 +67,8 @@ public class ArmCommand extends CommandBase {
       arm.setArmExtention(!arm.getExtentionStatus());
     }
 
-    if(controls.pullBattery() && !prevControlBatteryExt){
-      System.out.println("Setting battery piston " + (!arm.getExtentionStatus() ? "out." : "in."));
-      arm.setBatteryExtention(!arm.getBatteryStatus());
-    }
-
-    arm.setGripperRollers(controls.runClaw() ? clawSpeed.getDouble(0.0) : 0.0);
-    if(controls.runClaw()) System.out.println("driving climb at " + clawSpeed.getDouble(0.0));
+    arm.setClawSpeed(controls.runClaw() ? clawSpeed.getDouble(0.0) : 0.0);
+    if(controls.runClaw()) System.out.println("Running claw at " + clawSpeed.getDouble(0.0));
 
     prevControlArmExt = controls.armExtention();
     prevControlBatteryExt = controls.armExtention();

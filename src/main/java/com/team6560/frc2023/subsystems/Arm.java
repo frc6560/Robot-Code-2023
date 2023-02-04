@@ -39,10 +39,10 @@ public class Arm extends SubsystemBase {
 
   CANSparkMax rotorMotor = new CANSparkMax(ROTOR_ID, MotorType.kBrushless);
   CANSparkMax breakMotor = new CANSparkMax(BREAK_ID, MotorType.kBrushless);
-  CANSparkMax gripperMotor = new CANSparkMax(CLAW_ID, MotorType.kBrushless);
+  CANSparkMax clawMotorL = new CANSparkMax(CLAW_MOTOR_LEFT_ID, MotorType.kBrushless);
+  CANSparkMax clawMotorR = new CANSparkMax(CLAW_MOTOR_RIGHT_ID, MotorType.kBrushless);
   
   Solenoid extentionPiston = new Solenoid(PneumaticsModuleType.CTREPCM, EXTENTION_SOLENOID_ID);
-  Solenoid batteryPiston = new Solenoid(PneumaticsModuleType.CTREPCM, BATTERY_SOLENOID_ID);
 
   NetworkTable ntTable = NetworkTableInstance.getDefault().getTable("Arm");
 
@@ -68,14 +68,18 @@ public class Arm extends SubsystemBase {
     breakMotor.setIdleMode(IdleMode.kBrake);
     // breakMotor.getPIDController().setP(0.5);
 
-    gripperMotor.restoreFactoryDefaults();
-    gripperMotor.setIdleMode(IdleMode.kCoast);
+    clawMotorL.restoreFactoryDefaults();
+    clawMotorL.setIdleMode(IdleMode.kCoast);
+    
+    clawMotorR.restoreFactoryDefaults();
+    clawMotorR.setIdleMode(IdleMode.kCoast);
 
     ntDispTab("Arm")
     .add("Rotor Speed", this::getRotorSpeed)
-    .add("Break Motor Speed", this::getRotorSpeed)
-    .add("Claw Speed", this::getRotorSpeed)
-    .add("Extention Status", this::getRotorSpeed)
+    .add("Break Motor Speed", this::getBreakMotorSpeed)
+    .add("Claw Speed Left", this::getClawSpeedL)
+    .add("Claw Speed Right", this::getClawSpeedR)
+    .add("Extention Status", this::getExtentionStatus)
     .add("Arm Position", this::getArmPosition);
 
     breakMultiplyer = ntTable.getEntry("Break Motor Multiplyer");
@@ -99,36 +103,36 @@ public class Arm extends SubsystemBase {
 
   public void setArmExtention(boolean status){
     System.out.println("Arm extended " + (status ? "Out." : "In."));
+
     extentionPiston.set(status);
-  }
-  
-  public void setBatteryExtention(boolean status){
-    System.out.println("Battery extended " + (status ? "Out." : "In."));
-    batteryPiston.set(status);
   }
 
   /** Sets arm rotor velocity in RPM */
   public void setRotors(double rpm){
     if(rpm != 0) System.out.println("rotor is running at " + rpm);
-    // rotorMotor.getPIDController().setReference(rpm, ControlType.kVelocity);
+
     rotorMotor.set(rpm);
   }
   
   /** Sets arm break velocity in RPM */
   public void setBreakMotor(double rpm){
     double speed = rpm * breakMultiplyer.getDouble(1.0) * BREAK_MOTOR_MULTIPLIER;
+
     if(speed != 0) System.out.println("break is running at " + speed);
-    // breakMotor.getPIDController().setReference(speed, ControlType.kVelocity);
+    
     breakMotor.set(speed);
   }
 
-  public void setGripperRollers(double output){
-    if(output != 0) System.out.println("climb is running at " + output);
-    gripperMotor.set(output * (invertClaw.getBoolean(false) ? -1 : 1));
+  public void setClawSpeed(double output){
+    if(output != 0) System.out.println("Claw is running at " + output);
+
+    clawMotorL.set(output * (invertClaw.getBoolean(false) ? -1 : 1));
+    clawMotorR.set(output * (invertClaw.getBoolean(false) ? -1 : 1));
   }
 
   public void setArmRotation(double output){
     System.out.println("Tryna rotate arm at " + output);
+
     // if (getArmPositionDegrees() < bottomLimit) {
     //   output = Math.min(0, output);
 
@@ -153,12 +157,15 @@ public class Arm extends SubsystemBase {
     return extentionPiston.get();
   }
 
-  public boolean getBatteryStatus(){
-    return batteryPiston.get();
+  public double getClawSpeedL(){
+    return Math.abs(clawMotorL.getEncoder().getVelocity());
   }
-
+  public double getClawSpeedR(){
+    return Math.abs(clawMotorR.getEncoder().getVelocity());
+  }
   public double getClawSpeed(){
-    return gripperMotor.getEncoder().getVelocity();
+    // average of two claws
+    return (getClawSpeedL() + getClawSpeedR()) / 2.0;
   }
 
   public double getArmPosition(){
