@@ -11,7 +11,8 @@ import com.team6560.frc2023.utility.NumberStepper;
 import com.team6560.frc2023.utility.PovNumberStepper;
 import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab;
 
-
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.XboxController;
 
 public class ManualControls implements DriveCommand.Controls, Limelight.Controls {
@@ -19,6 +20,8 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   private final PovNumberStepper speed;
   private final PovNumberStepper turnSpeed;
+
+  private NetworkTable limelightTable;
 
   /**
    * Creates a new `ManualControls` instance.
@@ -45,6 +48,11 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
       .add("Y Joystick", this::driveY)
       .add("X Joystick", this::driveX)
       .add("Rotation Joystick", this::driveRotation);
+
+    
+    limelightTable = NetworkTableInstance.getDefault().getTable("Limelight");
+
+    limelightTable.getEntry("limelightPipeline").setInteger( (long) 0);
   }
 
   private static double deadband(double value, double deadband) {
@@ -125,8 +133,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public int getLimelightPipeline() {
-    // TODO Auto-generated method stub
-    return 0;
+    return (int) limelightTable.getEntry("limelightPipeline").getInteger( (long) 0);
   }
 
   @Override

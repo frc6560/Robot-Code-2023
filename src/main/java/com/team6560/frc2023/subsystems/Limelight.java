@@ -7,6 +7,7 @@ package com.team6560.frc2023.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -14,11 +15,14 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab;
+
+import java.util.function.Supplier;
 
 import com.team6560.frc2023.Constants;
 
@@ -37,34 +41,43 @@ public class Limelight extends SubsystemBase {
   private final NetworkTableEntry ntBotPose = networkTable.getEntry("botpose");
   private final NetworkTableEntry ntPipeline = networkTable.getEntry("pipeline");
 
-  private final Field2d field = new Field2d();
+  private final Field2d aprilTagField = new Field2d();
+
+  // private final Field2d reflectiveTapeField = new Field2d();
 
   private final Controls controls;
   private boolean forceOff = true;
 
-  public Limelight(Controls controls) {
+  private Supplier<Pose2d> predictedPose;
+
+  public Limelight(Controls controls, Supplier<Pose2d> predictedPose) {
     this.controls = controls;
+    this.predictedPose = predictedPose;
+    
     setForceOff(false);
 
     ntDispTab("Limelight")
     .add("Horizontal Angle", this::getHorizontalAngle)
-    .add("Vertical Angle", this::getVertAngle)
-    .add("Has Target", this::hasTarget);
-    ;
+    .add("Vertical Angle", this::getVerticalAngle)
+    .add("Has Target", this::hasTarget)
+    .add("Predicted X Distance From Target", this::getEstimatedRobotXDistanceFromTargetMeters)
+    .add("Predicted Z Distance From Target", this::getEstimatedRobotZDistanceFromTargetMeters);
 
-    SmartDashboard.putData("Field2", field);
+    SmartDashboard.putData("aprilTagField", aprilTagField);
+    // SmartDashboard.putData("reflectiveTapeField", reflectiveTapeField);
 
   }
 
-  public double getDistance() {
-    return ntY.getDouble(0.0);
+
+  public int getPipeline() {
+    return controls.getLimelightPipeline();
   }
 
   public double getHorizontalAngle() {
     return ntX.getDouble(0.0);
   }
 
-  public double getVertAngle() {
+  public double getVerticalAngle() {
     return ntY.getDouble(0.0);
   }
 
@@ -76,10 +89,49 @@ public class Limelight extends SubsystemBase {
     forceOff = value;
   }
 
+  public double getEstimatedRobotXDistanceFromTargetMeters() {
+    return convertAngleToHorizontalDistMeters(getHorizontalAngle());
+  }
+
+  public double getEstimatedRobotZDistanceFromTargetMeters() {
+    return convertAngleToZDistMeters(getVerticalAngle());
+  }
+
+  public static double convertAngleToHorizontalDistMeters(double angleXDegrees) {
+    return (Constants.FieldConstants.TOP_CONE_MARKER_TO_EDGE_Z_METERS / Math.tan(Math.toRadians(angleXDegrees))) - Constants.VisionConstants.LIMELIGHT_TO_ROBOT_X;
+  }
+
+  public static double convertAngleToZDistMeters(double angleYDegrees) {
+
+    double LIMELIGHT_TO_TOP_CONE_MARKER_DISTANCE_METERS = Constants.FieldConstants.TOP_CONE_MARKER_TO_FLOOR_DISTANCE_METERS - Constants.VisionConstants.LIMELIGHT_TO_FLOOR_DISTANCE_METERS;
+
+    return LIMELIGHT_TO_TOP_CONE_MARKER_DISTANCE_METERS / Math.tan(Math.toRadians(angleYDegrees));
+  }
+
   public double getLatency() {
     // 11 additional ms is recommended for image capture latency
     // divided by 1000.0 to convert ms to s
     return (ntL.getDouble(0.0) + 15.0)/1000.0;
+  }
+
+
+  public void addMarker() {
+
+    Pose2d robotPose = predictedPose.get();
+
+    if (robotPose == null || Math.abs(robotPose.getRotation().getDegrees() % 360.0) > 10.0) return;
+
+    Translation2d robotTranslation = robotPose.getTranslation();
+
+    Translation2d markerLocation;
+    
+    if (DriverStation.getAlliance() == DriverStation.Alliance.Blue)
+      markerLocation = robotTranslation.plus(new Translation2d(-getEstimatedRobotZDistanceFromTargetMeters(), getEstimatedRobotXDistanceFromTargetMeters()));
+    else
+      markerLocation = robotTranslation.plus(new Translation2d(getEstimatedRobotZDistanceFromTargetMeters(), getEstimatedRobotXDistanceFromTargetMeters()));
+
+    
+    aprilTagField.getObject("marker").setPose(new Pose2d(markerLocation, new Rotation2d()));
   }
 
 
@@ -103,7 +155,7 @@ public class Limelight extends SubsystemBase {
     // System.out.println("LL Field2d");
     // System.out.println(pose);
 
-    field.setRobotPose(pose);
+    aprilTagField.setRobotPose(pose);
     
     return new Pair<Pose2d, Double> (pose, currentTime);
   }
