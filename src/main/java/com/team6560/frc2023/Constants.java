@@ -27,10 +27,7 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
-
   public static final int GYRO_ID = 13;
-
-
 
   /**
    * The left-to-right distance between the drivetrain wheels
@@ -48,32 +45,39 @@ public final class Constants {
   public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 8;
   public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 10;
   public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 4;
-  // public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(163.828 + 90.0 + 45.0 + 45.0 + 180.0 - 90.0);
+  // public static final double FRONT_LEFT_MODULE_STEER_OFFSET =
+  // -Math.toRadians(163.828 + 90.0 + 45.0 + 45.0 + 180.0 - 90.0);
   public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(254.707 + 90.0);
-  // public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(0.0);
+  // public static final double FRONT_LEFT_MODULE_STEER_OFFSET =
+  // -Math.toRadians(0.0);
 
   public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 5;
   public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 9;
   public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 1;
-  // public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(77.168 + 90.0 + 45.0 - 45.0 + 180.0);
+  // public static final double FRONT_RIGHT_MODULE_STEER_OFFSET =
+  // -Math.toRadians(77.168 + 90.0 + 45.0 - 45.0 + 180.0);
   public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(166.566 + 90.0);
-  // public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(0.0);
+  // public static final double FRONT_RIGHT_MODULE_STEER_OFFSET =
+  // -Math.toRadians(0.0);
 
   public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 7;
   public static final int BACK_LEFT_MODULE_STEER_MOTOR = 12;
   public static final int BACK_LEFT_MODULE_STEER_ENCODER = 3;
-  // public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(316.758 + 45.0 + 45.0 + 90.0);
+  // public static final double BACK_LEFT_MODULE_STEER_OFFSET =
+  // -Math.toRadians(316.758 + 45.0 + 45.0 + 90.0);
   public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(226.758 - 180.0 + 90.0);
-  // public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(0.0);
-  
+  // public static final double BACK_LEFT_MODULE_STEER_OFFSET =
+  // -Math.toRadians(0.0);
 
   public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 6;
   public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 11;
   public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 2;
-  // public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(302.959 + 90.0 + 45.0 - 45.0 + 90.0 - 90.0 - 180.0);
+  // public static final double BACK_RIGHT_MODULE_STEER_OFFSET =
+  // -Math.toRadians(302.959 + 90.0 + 45.0 - 45.0 + 90.0 - 90.0 - 180.0);
   public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(63.809 + 90.0);
-  // public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(0.0);
-  
+  // public static final double BACK_RIGHT_MODULE_STEER_OFFSET =
+  // -Math.toRadians(0.0);
+
   // The formula for calculating the theoretical maximum velocity is:
   // <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> *
   // pi
@@ -116,7 +120,15 @@ public final class Constants {
       // Back right
       new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0));
 
+  public static final int BREAK_ID = 25; // ARC motor
+  public static final int CLAW_MOTOR_LEFT_ID = 26;
+  public static final int CLAW_MOTOR_RIGHT_ID = 27;
+  public static final int EXTENTION_SOLENOID_ID = 0;
 
+  // public static final double ROTOR_TO_ARM = 38.1;
+
+  public static final double BREAK_TO_ARM = 350;
+  public static final double BREAK_MOTOR_MULTIPLIER = 1.0;
 
   public static final class VisionConstants {
     public static final double LIMELIGHT_TO_ROBOT_X = -0.1966595;
@@ -147,11 +159,12 @@ public final class Constants {
   }
 
   // public static class VisionConstants {
-    
-  //   // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
-  //   public static final Transform3d robotToCam = new Transform3d(
-  //       new Translation3d(0.5, 0.0, 0.28),
-  //       new Rotation3d(0, 0, 0));
+
+  // // Cam mounted facing forward, half a meter forward of center, half a meter
+  // up from center.
+  // public static final Transform3d robotToCam = new Transform3d(
+  // new Translation3d(0.5, 0.0, 0.28),
+  // new Rotation3d(0, 0, 0));
 
   // }
 

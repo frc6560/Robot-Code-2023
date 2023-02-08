@@ -160,7 +160,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public boolean armExtention(){
-    return xbox.getYButton();
+    return xbox.getXButton();
   }
 
   @Override
