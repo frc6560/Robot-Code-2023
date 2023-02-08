@@ -61,10 +61,10 @@ public class Drivetrain extends SubsystemBase {
          * The default states for each module, corresponding to an X shape.
          */
         public static final SwerveModuleState[] DEFAULT_MODULE_STATES = new SwerveModuleState[] {
+                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(45)),
                         new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45)),
-                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(45)),
-                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(45)),
-                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45))
+                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45)),
+                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(45))
         };
 
         /**

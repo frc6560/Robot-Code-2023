@@ -38,7 +38,7 @@ public class Limelight extends SubsystemBase {
   private final NetworkTableEntry ntY = networkTable.getEntry("ty");
   private final NetworkTableEntry ntV = networkTable.getEntry("tv");
   private final NetworkTableEntry ntL = networkTable.getEntry("tl");
-  private final NetworkTableEntry ntBotPose = networkTable.getEntry("botpose");
+  private final NetworkTableEntry ntBotPose = networkTable.getEntry("botpose_wpiblue");
   private final NetworkTableEntry ntPipeline = networkTable.getEntry("pipeline");
 
   private final Field2d aprilTagField = new Field2d();
@@ -150,7 +150,7 @@ public class Limelight extends SubsystemBase {
     if (pose == null) return null;
 
     //transform pose from LL "field space" to pose2d
-    pose = new Pose2d(pose.getTranslation().plus(new Translation2d(Constants.FieldConstants.length/2.0, Constants.FieldConstants.width/2.0)), pose.getRotation());
+    // pose = new Pose2d(pose.getTranslation().plus(new Translation2d(Constants.FieldConstants.length/2.0, Constants.FieldConstants.width/2.0)), pose.getRotation());
 
     // System.out.println("LL Field2d");
     // System.out.println(pose);
