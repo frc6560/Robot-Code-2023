@@ -6,6 +6,8 @@ package com.team6560.frc2023.subsystems;
 
 import static com.team6560.frc2023.Constants.*;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
@@ -78,7 +80,7 @@ public class Drivetrain extends SubsystemBase {
          */
         public SwerveModule[] modules;
 
-        private final Limelight limelight;
+        private final Supplier<Pair<Pose2d, Double>> poseSupplier;
 
         private final SwerveDrivePoseEstimator poseEstimator;
 
@@ -96,8 +98,8 @@ public class Drivetrain extends SubsystemBase {
 
         private final CANSparkMax climbDriveMotor;
 
-        public Drivetrain(Limelight limelight) {
-                this.limelight = limelight;
+        public Drivetrain(Supplier<Pair<Pose2d, Double>> poseSupplier) {
+                this.poseSupplier = poseSupplier;
 
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
@@ -494,7 +496,7 @@ public class Drivetrain extends SubsystemBase {
                 // Also apply vision measurements. We use 0.3 seconds in the past as an example
                 // -- on
                 // a real robot, this must be calculated based either on latency or timestamps.
-                Pair<Pose2d, Double> result = limelight.getBotPose();
+                Pair<Pose2d, Double> result = poseSupplier.get();
                 if (result == null)
                         return;
 

@@ -22,6 +22,8 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   private final PovNumberStepper speed;
   private final PovNumberStepper turnSpeed;
 
+  private NetworkTable limelightTable;
+
   private NetworkTable climbTable;
 
   /**
@@ -49,6 +51,11 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
       .add("Y Joystick", this::driveY)
       .add("X Joystick", this::driveX)
       .add("Rotation Joystick", this::driveRotation);
+
+    
+    limelightTable = NetworkTableInstance.getDefault().getTable("Limelight");
+
+    limelightTable.getEntry("limelightPipeline").setInteger( (long) 0);
     
     climbTable = NetworkTableInstance.getDefault().getTable("Climb");
 
@@ -90,7 +97,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
    */
   @Override
   public double driveX() {
-    return modifyAxis(xbox.getLeftX() * speed.get());
+    return modifyAxis(-xbox.getLeftY() * speed.get());
   }
 
   /**
@@ -101,7 +108,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
    */
   @Override
   public double driveY() {
-    return modifyAxis(-xbox.getLeftY() * speed.get());
+    return modifyAxis(-xbox.getLeftX() * speed.get());
   }
 
   /**
@@ -138,7 +145,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public int getLimelightPipeline() {
-    return 0;
+    return (int) limelightTable.getEntry("limelightPipeline").getInteger( (long) 0);
   }
 
   @Override

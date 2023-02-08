@@ -25,8 +25,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class RobotContainer {
         // The robot's subsystems and commands are defined here...
 
-        // just final, not public or private so Robot.java has access to it.
-        final Drivetrain drivetrain;
+        // not public or private so Robot.java has access to it.
+        Drivetrain drivetrain = null;
 
         private final Limelight limelight;
 
@@ -46,9 +46,9 @@ public class RobotContainer {
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
         public RobotContainer() {
-                limelight = new Limelight(manualControls);
+                limelight = new Limelight(manualControls, () -> drivetrain == null ? null : drivetrain.getPose());
 
-                drivetrain = new Drivetrain(limelight);
+                drivetrain = new Drivetrain(() -> limelight.getBotPose());
                 
                 arm = new Arm();
                 arm.setDefaultCommand(new ArmCommand(arm, manualControls));
