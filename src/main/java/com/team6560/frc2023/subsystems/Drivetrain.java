@@ -359,13 +359,17 @@ public class Drivetrain extends SubsystemBase {
          *                      rotational speed
          */
         public void drive(ChassisSpeeds chassisSpeeds) {
+                if (driveNoX(chassisSpeeds))
+                        setChassisState(DEFAULT_MODULE_STATES);
+        }
 
+        public boolean driveNoX(ChassisSpeeds chassisSpeeds) {
                 SwerveModuleState[] states = Constants.m_kinematics.toSwerveModuleStates(chassisSpeeds);
                 SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
 
                 if (DriverStation.isAutonomous()) {
                         setChassisState(states);
-                        return;
+                        return false;
                 }
 
                 // chassisSpeeds = new
@@ -376,12 +380,11 @@ public class Drivetrain extends SubsystemBase {
                 for (SwerveModuleState state : states) {
                         if (state.speedMetersPerSecond > 0.05) {
                                 setChassisState(states);
-                                return;
+                                return false;
                         }
                 }
 
-                setChassisState(DEFAULT_MODULE_STATES);
-
+                return true;
         }
 
         @Override
