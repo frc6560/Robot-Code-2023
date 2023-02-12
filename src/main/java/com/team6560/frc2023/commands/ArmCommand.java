@@ -51,7 +51,7 @@ public class ArmCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    arm.setArmRotation(0.0);
+    arm.setArmRotationVelocity(0.0);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -59,7 +59,7 @@ public class ArmCommand extends CommandBase {
   public void execute() {
     if(controls.armRotation() != 0) System.out.println("rotating arm at " + controls.armRotation() * rotationSpeed.getDouble(0.0));
 
-    arm.setArmRotation(controls.armRotation() * rotationSpeed.getDouble(0.0));
+    arm.setArmRotationVelocity(controls.armRotation() * rotationSpeed.getDouble(0.0));
 
     if(controls.armExtention() && !prevControlArmExt){
       System.out.println("Setting extention piston " + (!arm.getExtentionStatus() ? "out." : "in."));
@@ -79,7 +79,7 @@ public class ArmCommand extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     arm.setArmExtention(false);
-    arm.setArmRotation(0);
+    arm.setArmRotationVelocity(0);
   }
 
   // Returns true when the command should end.

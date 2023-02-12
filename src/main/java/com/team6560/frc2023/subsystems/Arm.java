@@ -52,8 +52,11 @@ public class Arm extends SubsystemBase {
 
   NetworkTableEntry invertClaw;
 
-  private double topLimit = 0;
-  private double bottomLimit = 0;
+
+  public enum ArmPose {
+    LOW, MEDIUM_CONE, HIGH_CONE, MEDIUM_CUBE, HIGH_CUBE, HUMAN_PLAYER
+  }
+
   /** Creates a new Arm. */
   public Arm() {
     breakMotor.restoreFactoryDefaults();
@@ -72,15 +75,18 @@ public class Arm extends SubsystemBase {
     .add("Break Motor Speed", this::getBreakMotorSpeed)
     .add("Claw Speed Left", this::getClawSpeedL)
     .add("Claw Speed Right", this::getClawSpeedR)
-    .add("Extention Status", this::getExtentionStatus);
+    .add("Extention Status", this::getExtentionStatus)
+    .add("raw arm pos", this::getRawArmPose)
+    .add("armPose", this::getArmPose)
+    ;
 
     breakMultiplyer = ntTable.getEntry("Break Motor Multiplyer");
     breakMultiplyer.setDouble(0.1);
 
     ntTopLimit = ntTable.getEntry("Top Soft Limit");
-    ntTopLimit.setDouble(180.0);
+    ntTopLimit.setDouble(120.0);
     ntBottomLimit = ntTable.getEntry("Bottom Soft Limit");
-    ntBottomLimit.setDouble(10.0);
+    ntBottomLimit.setDouble(0.0);
 
     invertClaw = ntTable.getEntry("Invert Claw?");
     invertClaw.setBoolean(false);
@@ -88,15 +94,27 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    topLimit = ntTopLimit.getDouble(0.0);
-    bottomLimit = ntBottomLimit.getDouble(0.0);
-    // This method will be called once per scheduler run
   }
 
   public void setArmExtention(boolean status){
     System.out.println("Arm extended " + (status ? "Out." : "In."));
 
     extentionPiston.set(status);
+  }
+
+  public double getRawArmPose() {
+    return -breakMotor.getEncoder().getPosition();
+  }
+
+  public double getArmPose() {
+    double currPos = getRawArmPose();
+    double low = ntBottomLimit.getDouble(0.0);
+    double high = ntTopLimit.getDouble(120.0);
+
+    if (currPos < low) return 0.0;
+    if (currPos > high) return 1.0;
+
+    return (currPos - low) / (high - low);
   }
   
   /** Sets arm break velocity in RPM */
@@ -115,16 +133,21 @@ public class Arm extends SubsystemBase {
     clawMotorR.set(output);
   }
 
-  public void setArmRotation(double output){
+  public void setArmRotationVelocity(double output){
 
-    // if (getArmPositionDegrees() < bottomLimit) {
-    //   output = Math.min(0, output);
+    if (getArmPose() < 0) {
+      output = Math.min(0, output);
 
-    // } else if(getArmPositionDegrees() > topLimit) {
-    //   output = Math.max(0, output);
-    // }
+    } else if(getArmPose() > 1.0) {
+      output = Math.max(0, output);
+    }
 
     setBreakMotor(output * BREAK_TO_ARM);
+  }
+
+
+  public void setArmRotation(ArmPose armPose) {
+
   }
 
 
@@ -147,9 +170,4 @@ public class Arm extends SubsystemBase {
     return (getClawSpeedL() + getClawSpeedR()) / 2.0;
   }
 
-
-  // gives rotation to degrees cuz im too lazy
-  private double rotToDeg(double rotation){
-    return rotation * 360;
-  }
 }

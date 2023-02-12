@@ -155,7 +155,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public double armRotation(){
-    return xbox.getRightTriggerAxis() - xbox.getLeftTriggerAxis();
+    return xbox.getLeftTriggerAxis() - xbox.getRightTriggerAxis();
   }
 
   @Override
