@@ -5,14 +5,13 @@
 package com.team6560.frc2023.subsystems;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab;
 
-import javax.swing.text.StyledEditorKit.BoldAction;
+import java.util.HashMap;
 
-import edu.wpi.first.math.estimator.ExtendedKalmanFilter;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -54,8 +53,13 @@ public class Arm extends SubsystemBase {
 
 
   public enum ArmPose {
-    LOW, MEDIUM_CONE, HIGH_CONE, MEDIUM_CUBE, HIGH_CUBE, HUMAN_PLAYER
+    ZERO, LOW, MEDIUM_CONE, HIGH_CONE, MEDIUM_CUBE, HIGH_CUBE, HUMAN_PLAYER
   }
+
+  private HashMap<ArmPose, Double> armPoseMap = new HashMap<ArmPose, Double>();
+
+
+  private PIDController armPidController = new PIDController(0.0, 0.0, 0.0);
 
   /** Creates a new Arm. */
   public Arm() {
@@ -90,6 +94,23 @@ public class Arm extends SubsystemBase {
 
     invertClaw = ntTable.getEntry("Invert Claw?");
     invertClaw.setBoolean(false);
+
+
+    armPoseMap.put(ArmPose.ZERO, 0.0);
+    armPoseMap.put(ArmPose.LOW, 0.1);
+
+    armPoseMap.put(ArmPose.MEDIUM_CONE, 0.1);
+    armPoseMap.put(ArmPose.HIGH_CONE, 0.1);
+
+    armPoseMap.put(ArmPose.MEDIUM_CUBE, 0.1);
+    armPoseMap.put(ArmPose.HIGH_CUBE, 0.1);
+
+    armPoseMap.put(ArmPose.HUMAN_PLAYER, 1.0);
+
+
+    armPidController.disableContinuousInput();
+    // armPidController.setIntegratorRange(0.0, 0.0);
+    armPidController.setTolerance(0.0);
   }
 
   @Override
@@ -126,6 +147,10 @@ public class Arm extends SubsystemBase {
     breakMotor.set(speed);
   }
 
+  public void setBreakMotorVolts(double volts) {
+    breakMotor.setVoltage(volts);
+  }
+
   public void setClawSpeed(double output){
     if(output != 0) System.out.println("Claw is running at " + output);
 
@@ -147,9 +172,12 @@ public class Arm extends SubsystemBase {
 
 
   public void setArmRotation(ArmPose armPose) {
-
+    setArmRotation(armPoseMap.get(armPose));
   }
 
+  public void setArmRotation(double pose) {
+    setBreakMotorVolts(armPidController.calculate(getArmPose(), pose));
+  }
 
   public double getBreakMotorSpeed(){
     return breakMotor.getEncoder().getVelocity();
