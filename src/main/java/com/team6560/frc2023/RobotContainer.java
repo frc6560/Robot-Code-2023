@@ -15,6 +15,7 @@ import com.team6560.frc2023.subsystems.Arm;
 import com.team6560.frc2023.subsystems.Drivetrain;
 import com.team6560.frc2023.subsystems.Limelight;
 
+import edu.wpi.first.wpilibj.Joystick;
 // import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -34,7 +35,7 @@ public class RobotContainer {
 
         private final Arm arm;
 
-        private final ManualControls manualControls = new ManualControls(new XboxController(0));
+        private final ManualControls manualControls = new ManualControls(new XboxController(0));//, new XboxController(1));
 
         // A chooser for autonomous commands
         private final SendableChooser<String> autoChooser;

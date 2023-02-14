@@ -156,6 +156,20 @@ public final class Constants {
     public static final int XBOX_X_BUTTON = 3;
     public static final int XBOX_B_BUTTON = 2;
     public static final int XBOX_A_BUTTON = 1;
+
+    
+
+    public static final int DRIVER_STATION_TOGGLE_1 = 2;
+    public static final int DRIVER_STATION_TOGGLE_2 = 5;
+    public static final int DRIVER_STATION_TOGGLE_3 = 6;
+    public static final int DRIVER_STATION_TOGGLE_4 = 9;
+
+    public static final int DRIVER_STATION_BUTTON_1 = 1;
+    public static final int DRIVER_STATION_BUTTON_2 = 4;
+    public static final int DRIVER_STATION_BUTTON_3 = 3;
+
+    public static final int DRIVER_STATION_X_AXIS = 0;
+    public static final int DRIVER_STATION_Y_AXIS = 1;
   }
 
   // public static class VisionConstants {
