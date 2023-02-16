@@ -54,7 +54,7 @@ public class Arm extends SubsystemBase {
 
 
   public enum ArmPose {
-    ZERO, LOW, MEDIUM_CONE, HIGH_CONE, MEDIUM_CUBE, HIGH_CUBE, HUMAN_PLAYER
+    ZERO, GROUND, LOW, MEDIUM_CONE, HIGH_CONE, MEDIUM_CUBE, HIGH_CUBE, HUMAN_PLAYER
   }
 
   private HashMap<ArmPose, Pair<Double, Boolean>> armPoseMap = new HashMap<ArmPose, Pair<Double, Boolean>>();
@@ -99,6 +99,7 @@ public class Arm extends SubsystemBase {
 
     armPoseMap.put(ArmPose.ZERO, new Pair<Double, Boolean>(0.0, false));
     armPoseMap.put(ArmPose.LOW, new Pair<Double, Boolean>(0.1, false));
+    armPoseMap.put(ArmPose.GROUND, new Pair<Double, Boolean>(0.2, true));
 
     armPoseMap.put(ArmPose.MEDIUM_CONE, new Pair<Double, Boolean>(1.0, false));
     armPoseMap.put(ArmPose.HIGH_CONE, new Pair<Double, Boolean>(0.1, true));
