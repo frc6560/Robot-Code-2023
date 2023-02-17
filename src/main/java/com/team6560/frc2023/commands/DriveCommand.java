@@ -1,5 +1,6 @@
 package com.team6560.frc2023.commands;
 
+import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.commands.auto.AutoBuilder;
 import com.team6560.frc2023.subsystems.Drivetrain;
 
@@ -7,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -30,6 +32,12 @@ public class DriveCommand extends CommandBase {
         boolean driveResetGlobalPose();
 
         boolean overrideMaxVisionPoseCorrection();
+
+        boolean driveIsClimbing();
+
+        double climbVelocityL();
+
+        double climbVelocityR();
     }
 
     private Controls controls;
@@ -70,14 +78,6 @@ public class DriveCommand extends CommandBase {
         }
         goingToPose=false;
 
-        // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of
-        // field-oriented movement
-        drivetrain.drive(
-                ChassisSpeeds.fromFieldRelativeSpeeds(
-                        controls.driveX(),
-                        controls.driveY(),
-                        controls.driveRotation(),
-                        drivetrain.getGyroscopeRotation())); // perhaps use getRawGyroRotation() instead?
         if (controls.driveResetYaw()) {
             drivetrain.zeroGyroscope();
         }
@@ -85,6 +85,57 @@ public class DriveCommand extends CommandBase {
         if (controls.driveResetGlobalPose()) drivetrain.resetOdometry(new Pose2d());
 
         drivetrain.setOverrideMaxVisionPoseCorrection(controls.overrideMaxVisionPoseCorrection());
+
+
+
+        setClimbExtension(controls.driveIsClimbing());
+
+        drivetrain.setBatteryBullshit(controls.driveIsClimbing());
+
+        if (controls.driveIsClimbing()) {
+            
+            drivetrain.setChassisState(Constants.m_kinematics.toSwerveModuleStates(new ChassisSpeeds(0.0, controls.driveY(),0.0)));
+
+            // drivetrain.setLeftClimbExtensionVelocity(controls.climbVelocityL());
+
+            // drivetrain.setRightClimbExtensionVelocity(controls.climbVelocityR());
+
+            //drivetrain wheel radius 2in
+            //climb wheel radius 1.75in
+
+            drivetrain.setClimbDriveMotorVelocity(Units.radiansPerSecondToRotationsPerMinute(drivetrain.getAverageModuleDriveAngularTangentialSpeed() / Units.inchesToMeters(0.7)));
+
+        } else {
+            drivetrain.drive(
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                        controls.driveX(),
+                        controls.driveY(),
+                        controls.driveRotation(),
+                        drivetrain.getGyroscopeRotation())); // perhaps use getRawGyroRotation() instead?
+        }
+        
+    }
+
+    public void setClimbExtension(boolean extended) {
+        double leftCurrPose = drivetrain.getLeftClimbPosition();
+        double rightCurrPose = drivetrain.getRightClimbPosition();
+
+        double target = extended ? 100.0 : 0.0;
+
+        
+        if (Math.abs(leftCurrPose - target) > 5.0)
+            drivetrain.setLeftClimbExtensionVelocity(Math.copySign(0.12,  target - leftCurrPose));
+        else if (Math.abs(leftCurrPose - target) > 0.5)
+            drivetrain.setLeftClimbExtensionVelocity(Math.copySign(0.025, target - leftCurrPose));
+        else
+            drivetrain.setLeftClimbExtensionVelocity(0.0);
+
+        if (Math.abs(rightCurrPose - target) > 5.0)
+            drivetrain.setRightClimbExtensionVelocity(Math.copySign(0.12, target - rightCurrPose));
+        else if (Math.abs(rightCurrPose - target) > 0.5)
+            drivetrain.setRightClimbExtensionVelocity(Math.copySign(0.025, target - rightCurrPose));
+        else
+            drivetrain.setRightClimbExtensionVelocity(0.0);
     }
 
     /**

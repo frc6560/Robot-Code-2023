@@ -18,10 +18,14 @@ public class Util {
      * @return the limited value
      */
     public static double getLimited(double num, double maxMagnitude) {
-        if (num > maxMagnitude) {
-            return maxMagnitude;
-        } else if (num < -maxMagnitude) {
-            return -maxMagnitude;
+        return getLimited(num, -maxMagnitude, maxMagnitude);
+    }
+
+    public static double getLimited(double num, double min, double max) {
+        if (num > max) {
+            return max;
+        } else if (num < min) {
+            return min;
         } else {
             return num;
         }

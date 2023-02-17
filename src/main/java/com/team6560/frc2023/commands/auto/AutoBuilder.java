@@ -20,7 +20,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 /**
  * 
@@ -130,6 +132,21 @@ public class AutoBuilder {
     );
 
     return autoBuilder.followPath(traj);
+  }
+
+  public Command getAutoBalanceCommand() {
+    // This will load the file "FullAuto.path" and generate it with a max velocity
+    // of 2.0 m/s and a max acceleration of 1.0 m/s^2 for every path in the group
+    pathGroup = PathPlanner.loadPathGroup("ChargingStationAuto", new PathConstraints(1.5, 0.75));
+
+    drivetrain.resetOdometry(pathGroup.get(0).getInitialHolonomicPose());
+
+    double offsetRoll = drivetrain.getRoll().getDegrees();
+    double offsetPitch = drivetrain.getPitch().getDegrees();
+    return new SequentialCommandGroup(
+      autoBuilder.fullAuto(pathGroup),
+      new ChargingStationAuto(drivetrain, offsetPitch, offsetRoll)
+    );
   }
 
 }

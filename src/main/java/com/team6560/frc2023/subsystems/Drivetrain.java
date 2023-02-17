@@ -12,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.swervedrivespecialties.swervelib.MkModuleConfiguration;
 import com.swervedrivespecialties.swervelib.MkSwerveModuleBuilder;
@@ -20,6 +21,8 @@ import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.utility.NetworkTable.NtValueDisplay;
+
+import com.revrobotics.CANSparkMaxLowLevel;
 
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Nat;
@@ -34,7 +37,12 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -61,10 +69,10 @@ public class Drivetrain extends SubsystemBase {
          * The default states for each module, corresponding to an X shape.
          */
         public static final SwerveModuleState[] DEFAULT_MODULE_STATES = new SwerveModuleState[] {
-                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(45)),
-                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45)),
-                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45)),
-                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(45))
+                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(45.0)),
+                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45.0)),
+                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(-45.0)),
+                        new SwerveModuleState(0.0, Rotation2d.fromDegrees(45.0))
         };
 
         /**
@@ -81,6 +89,14 @@ public class Drivetrain extends SubsystemBase {
         private final Field2d field = new Field2d();
 
         private boolean overrideMaxVisionPoseCorrection;
+
+        private final CANSparkMax climbExtensionMotorLeft;
+
+        private final CANSparkMax climbExtensionMotorRight;
+
+        private final Solenoid batteryBullshit;
+
+        private final CANSparkMax climbDriveMotor;
 
         public Drivetrain(Supplier<Pair<Pose2d, Double>> poseSupplier) {
                 this.poseSupplier = poseSupplier;
@@ -149,9 +165,87 @@ public class Drivetrain extends SubsystemBase {
                                                                                                     // deviations.
                                                                                                     // X, Y, theta.
 
+                climbExtensionMotorLeft = new CANSparkMax(23, CANSparkMaxLowLevel.MotorType.kBrushless);
+                climbExtensionMotorLeft.setInverted(true);
+
+                climbExtensionMotorRight = new CANSparkMax(22, CANSparkMaxLowLevel.MotorType.kBrushless);
+                climbExtensionMotorRight.setInverted(true);
+
+                climbDriveMotor = new CANSparkMax(21, CANSparkMaxLowLevel.MotorType.kBrushless);
+
+                // for (CANSparkMax i : new CANSparkMax[] {climbExtensionMotorLeft,
+                //                 climbExtensionMotorRight }) {
+                //         i.getPIDController().setP(0.005);
+                //         i.getPIDController().setI(0.00005);
+                //         i.getPIDController().setD(0.0);
+
+                //         i.getPIDController().setIZone(0.0);
+                // }
+
+                climbDriveMotor.setInverted(true);
+                climbDriveMotor.getPIDController().setFF(0.001);
+                climbDriveMotor.getPIDController().setP(0.0);
+                climbDriveMotor.getPIDController().setI(0.0);
+                climbDriveMotor.getPIDController().setD(0.0);
+
+                climbDriveMotor.getPIDController().setIZone(0.0);
+
+                batteryBullshit = new Solenoid(PneumaticsModuleType.CTREPCM, 1); //TODO: CHANGE
+
                 resetOdometry(new Pose2d());
 
                 SmartDashboard.putData("Field", field);
+
+                NtValueDisplay.ntDispTab("Climb")
+                                .add("isClimbExtended", () -> isClimbExtended())
+                                .add("leftClimbPosition", () -> getLeftClimbPosition())
+                                .add("rightClimbPosition", () -> getRightClimbPosition())
+                                .add("climbMotorVelocityRPM", () -> getClimbDriveMotorVelocityRPM())
+                                .add("batteryBullshitExtended", () -> isBatteryBullshitExtended());
+        }
+
+        public boolean isClimbExtended() {
+                return Math.abs(climbExtensionMotorLeft.getEncoder().getPosition()) > 0.0;
+        }
+
+        public double getLeftClimbPosition() {
+                return climbExtensionMotorLeft.getEncoder().getPosition();
+        }
+
+        public double getRightClimbPosition() {
+                return climbExtensionMotorRight.getEncoder().getPosition();
+        }
+
+        public void setLeftClimbExtensionVelocity(double velocityPercentOutput) {
+                climbExtensionMotorLeft.set(velocityPercentOutput);
+        }
+
+        public void setRightClimbExtensionVelocity(double velocityPercentOutput) {
+                climbExtensionMotorRight.set(velocityPercentOutput);
+        }
+
+        public void setClimbDriveMotorVelocity(double velocityRPM) {
+                climbDriveMotor.getPIDController().setReference(velocityRPM, ControlType.kVelocity);
+        }
+
+        public double getClimbDriveMotorVelocityRPM() {
+                return climbDriveMotor.getEncoder().getVelocity();
+        }
+
+        public void setBatteryBullshit(boolean isClimbing) {
+                batteryBullshit.set(isClimbing);
+        }
+
+        public boolean isBatteryBullshitExtended() {
+                return batteryBullshit.get();
+        }
+
+        public double getAverageModuleDriveAngularTangentialSpeed() {
+                double sum = 0;
+                for (SwerveModule i : modules) {
+                        sum += Math.abs(i.getDriveVelocity());
+                }
+                return sum / modules.length;
         }
 
         /**
@@ -220,7 +314,7 @@ public class Drivetrain extends SubsystemBase {
                                 ((CANSparkMax) i.getSteerMotor()).setIdleMode(IdleMode.kCoast);
                         else
                                 ((TalonFX) i.getSteerMotor()).setNeutralMode(NeutralMode.Coast);
-                        
+
                         if (i.getDriveMotor() instanceof CANSparkMax)
                                 ((CANSparkMax) i.getDriveMotor()).setIdleMode(sparkMaxMode);
                         else
@@ -228,6 +322,14 @@ public class Drivetrain extends SubsystemBase {
 
                 }
 
+        }
+
+        public Rotation2d getPitch() {
+                return Rotation2d.fromDegrees(pigeon.getPitch());
+        }
+
+        public Rotation2d getRoll() {
+                return Rotation2d.fromDegrees(pigeon.getRoll());
         }
 
         /**
@@ -257,13 +359,17 @@ public class Drivetrain extends SubsystemBase {
          *                      rotational speed
          */
         public void drive(ChassisSpeeds chassisSpeeds) {
+                if (driveNoX(chassisSpeeds))
+                        setChassisState(DEFAULT_MODULE_STATES);
+        }
 
+        public boolean driveNoX(ChassisSpeeds chassisSpeeds) {
                 SwerveModuleState[] states = Constants.m_kinematics.toSwerveModuleStates(chassisSpeeds);
                 SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
 
                 if (DriverStation.isAutonomous()) {
                         setChassisState(states);
-                        return;
+                        return false;
                 }
 
                 // chassisSpeeds = new
@@ -274,12 +380,11 @@ public class Drivetrain extends SubsystemBase {
                 for (SwerveModuleState state : states) {
                         if (state.speedMetersPerSecond > 0.05) {
                                 setChassisState(states);
-                                return;
+                                return false;
                         }
                 }
 
-                setChassisState(DEFAULT_MODULE_STATES);
-
+                return true;
         }
 
         @Override
@@ -323,10 +428,11 @@ public class Drivetrain extends SubsystemBase {
          * @param moduleStates The desired states for each module.
          */
         public void autoSetChassisState(SwerveModuleState[] states) {
-                setChassisState(states);                
+                setChassisState(states);
                 // ChassisSpeeds speeds = m_kinematics.toChassisSpeeds(states);
-                // setChassisState(m_kinematics.toSwerveModuleStates(new ChassisSpeeds(speeds.vxMetersPerSecond,
-                //                 speeds.vyMetersPerSecond, -speeds.omegaRadiansPerSecond)));
+                // setChassisState(m_kinematics.toSwerveModuleStates(new
+                // ChassisSpeeds(speeds.vxMetersPerSecond,
+                // speeds.vyMetersPerSecond, -speeds.omegaRadiansPerSecond)));
         }
 
         public void setChassisState(double fLdeg, double fRdeg, double bLdeg, double bRdeg) {
@@ -367,7 +473,9 @@ public class Drivetrain extends SubsystemBase {
          *             estimator
          */
         public void resetOdometry(Pose2d pose) {
-                poseEstimator.resetPosition(getRawGyroRotation(), getModulePositions(), pose);
+                poseEstimator.resetPosition(
+                                getRawGyroRotation(),
+                                getModulePositions(), pose);
         }
 
         /**

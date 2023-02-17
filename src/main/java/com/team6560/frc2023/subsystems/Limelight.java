@@ -38,6 +38,7 @@ public class Limelight extends SubsystemBase {
   private final NetworkTableEntry ntY = networkTable.getEntry("ty");
   private final NetworkTableEntry ntV = networkTable.getEntry("tv");
   private final NetworkTableEntry ntL = networkTable.getEntry("tl");
+  private final NetworkTableEntry ntcL = networkTable.getEntry("cl");
   private final NetworkTableEntry ntBotPose = networkTable.getEntry("botpose_wpiblue");
   private final NetworkTableEntry ntPipeline = networkTable.getEntry("pipeline");
 
@@ -111,7 +112,7 @@ public class Limelight extends SubsystemBase {
   public double getLatency() {
     // 11 additional ms is recommended for image capture latency
     // divided by 1000.0 to convert ms to s
-    return (ntL.getDouble(0.0) + 15.0)/1000.0;
+    return (ntL.getDouble(0.0) + ntcL.getDouble(11.0))/1000.0;
   }
 
 

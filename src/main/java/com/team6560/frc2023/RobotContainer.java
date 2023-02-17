@@ -4,16 +4,20 @@
 
 package com.team6560.frc2023;
 
+import com.team6560.frc2023.commands.ArmCommand;
+
 // import java.io.File;
 
 import com.team6560.frc2023.commands.DriveCommand;
 import com.team6560.frc2023.commands.IntakeCommand;
 import com.team6560.frc2023.commands.auto.AutoBuilder;
 import com.team6560.frc2023.controls.ManualControls;
+import com.team6560.frc2023.subsystems.Arm;
 import com.team6560.frc2023.subsystems.Drivetrain;
 import com.team6560.frc2023.subsystems.Intake;
 import com.team6560.frc2023.subsystems.Limelight;
 
+import edu.wpi.first.wpilibj.Joystick;
 // import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -33,7 +37,10 @@ public class RobotContainer {
 
         private final Intake intake;
 
+        private final Arm arm;
+
         private final ManualControls manualControls = new ManualControls(new XboxController(0));
+
 
         // A chooser for autonomous commands
         private final SendableChooser<String> autoChooser;
@@ -51,6 +58,9 @@ public class RobotContainer {
 
                 drivetrain = new Drivetrain(() -> limelight.getBotPose());
                 
+                arm = new Arm();
+                arm.setDefaultCommand(new ArmCommand(arm, manualControls));
+
                 autoBuilder = new AutoBuilder(drivetrain);
 
                 driveCommand = new DriveCommand(drivetrain, autoBuilder, manualControls);
@@ -81,6 +91,7 @@ public class RobotContainer {
                 autoChooser.addOption("StraightAndBack", "StraightAndBack");
                 autoChooser.addOption("Hamid", "Hamid");
                 autoChooser.addOption("HamidSharp", "HamidSharp");
+                autoChooser.addOption("ChargingStationAuto", "ChargingStationAuto");
 
                 // Put the chooser on the dashboard
                 Shuffleboard.getTab("Auto Choose").add(autoChooser);
