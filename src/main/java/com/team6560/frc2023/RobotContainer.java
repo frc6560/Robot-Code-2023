@@ -7,9 +7,11 @@ package com.team6560.frc2023;
 // import java.io.File;
 
 import com.team6560.frc2023.commands.DriveCommand;
+import com.team6560.frc2023.commands.IntakeCommand;
 import com.team6560.frc2023.commands.auto.AutoBuilder;
 import com.team6560.frc2023.controls.ManualControls;
 import com.team6560.frc2023.subsystems.Drivetrain;
+import com.team6560.frc2023.subsystems.Intake;
 import com.team6560.frc2023.subsystems.Limelight;
 
 // import edu.wpi.first.wpilibj.Filesystem;
@@ -29,12 +31,16 @@ public class RobotContainer {
 
         private final DriveCommand driveCommand;
 
+        private final Intake intake;
+
         private final ManualControls manualControls = new ManualControls(new XboxController(0));
 
         // A chooser for autonomous commands
         private final SendableChooser<String> autoChooser;
 
         private final AutoBuilder autoBuilder;
+
+        private IntakeCommand intakeCommand;
 
 
         /**
@@ -49,6 +55,11 @@ public class RobotContainer {
 
                 driveCommand = new DriveCommand(drivetrain, autoBuilder, manualControls);
                 drivetrain.setDefaultCommand(driveCommand);
+
+
+                intake = new Intake();
+                intakeCommand = new IntakeCommand(intake, manualControls);
+                intake.setDefaultCommand(intakeCommand);
 
 
                 autoChooser = new SendableChooser<String>();

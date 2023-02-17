@@ -7,6 +7,7 @@ package com.team6560.frc2023.controls;
 import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.subsystems.Limelight;
 import com.team6560.frc2023.commands.DriveCommand;
+import com.team6560.frc2023.commands.IntakeCommand;
 import com.team6560.frc2023.utility.NumberStepper;
 import com.team6560.frc2023.utility.PovNumberStepper;
 import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab;
@@ -15,13 +16,15 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.XboxController;
 
-public class ManualControls implements DriveCommand.Controls, Limelight.Controls {
+public class ManualControls implements DriveCommand.Controls, Limelight.Controls, IntakeCommand.Controls {
   private XboxController xbox;
 
   private final PovNumberStepper speed;
   private final PovNumberStepper turnSpeed;
 
   private NetworkTable limelightTable;
+
+  private NetworkTable intakeTable;
 
   /**
    * Creates a new `ManualControls` instance.
@@ -51,6 +54,8 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
     
     limelightTable = NetworkTableInstance.getDefault().getTable("Limelight");
+    intakeTable = NetworkTableInstance.getDefault().getTable("Intake");
+    intakeTable.getEntry("speed").setDouble(0.0);
 
     limelightTable.getEntry("limelightPipeline").setInteger( (long) 0);
   }
@@ -139,6 +144,16 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   @Override
   public boolean overrideMaxVisionPoseCorrection() {
     return xbox.getYButton();
+  }
+
+  @Override
+  public boolean isIntakeDown() {
+    return true;
+  }
+
+  @Override
+  public double intakeSpeed() {
+    return intakeTable.getEntry("speed").getDouble(0.0);
   }
 
 }

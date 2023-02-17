@@ -118,6 +118,14 @@ public final class Constants {
 
 
 
+public static final int INTAKE_EXTENSION_MOTOR_LEFT = 17;
+
+public static final int INTAKE_EXTENSION_MOTOR_RIGHT = 16;
+
+public static final int INTAKE_ROTATION_MOTOR = 15;
+
+
+
   public static final class VisionConstants {
     public static final double LIMELIGHT_TO_ROBOT_X = -0.1966595;
     public static final int LIMELIGHT_TO_FLOOR_DISTANCE_METERS = 0;
