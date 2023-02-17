@@ -178,6 +178,8 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   @Override
   public double intakeSpeed() {
     return intakeTable.getEntry("speed").getDouble(0.0);
+  }
+  
   public double armRotationOverride(){
     return controlStation.getLeftTriggerAxis() - controlStation.getRightTriggerAxis();
   }
