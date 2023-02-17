@@ -254,7 +254,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   @Override
   public boolean isOverridingArm() {
     // TODO Auto-generated method stub
-    return false;
+    return true;
   }
 
   
