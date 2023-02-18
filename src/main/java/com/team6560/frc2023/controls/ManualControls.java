@@ -181,17 +181,17 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   }
   
   public double armRotationOverride(){
-    return controlStation.getLeftTriggerAxis() - controlStation.getRightTriggerAxis();
+    return controlStation.getLeftY();
   }
 
   @Override
   public boolean armExtentionOverride(){
-    return controlStation.getXButton();
+    return controlStation.getLeftBumper();
   }
 
   @Override
   public double runClaw(){
-    return (controlStation.getRightBumper() ? 1 : (controlStation.getLeftBumper() ? -1 : 0));
+    return (controlStation.getRightBumper() ? 1 : (controlStation.getRightTriggerAxis() > 0.5 ? -1 : 0));
   }
 
   @Override
