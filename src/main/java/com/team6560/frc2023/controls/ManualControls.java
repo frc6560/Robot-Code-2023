@@ -34,6 +34,8 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   private XboxController controlStation;
 
+  private NetworkTable armTable;
+
   /**
    * Creates a new `ManualControls` instance.
    *
@@ -71,6 +73,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     
     limelightTable = NetworkTableInstance.getDefault().getTable("Limelight");
     intakeTable = NetworkTableInstance.getDefault().getTable("Intake");
+    armTable = NetworkTableInstance.getDefault().getTable("Arm");
     intakeTable.getEntry("speed").setDouble(0.0);
 
     limelightTable.getEntry("limelightPipeline").setInteger( (long) 0);
@@ -82,6 +85,11 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     climbTable.getEntry("climbVelocityL").setDouble(0.0);
 
     climbTable.getEntry("climbVelocityR").setDouble(0.0);
+
+    armTable.getEntry("resetArmZero").setBoolean(false);
+
+    armTable.getEntry("overrideSoftLimits").setBoolean(false);
+
   }
 
   private static double deadband(double value, double deadband) {
@@ -98,7 +106,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   private static double modifyAxis(double value) {
     // Deadband
-    value = deadband(value, 0.001);
+    value = deadband(value, 0.0015);
 
     // Square the axis
     value = Math.copySign(value * value, value);
@@ -172,12 +180,20 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public boolean isIntakeDown() {
-    return true;
+    return xbox.getLeftBumper();
   }
 
   @Override
   public double intakeSpeed() {
     return intakeTable.getEntry("speed").getDouble(0.0);
+  }
+
+  @Override
+  public double moveIntakeSpeed() {
+    double out = 0.0;
+    out += xbox.getRightBumper() ? 0.35 : 0.0;
+    out -= xbox.getLeftBumper() ? 0.35 : 0.0;
+    return out;
   }
   
   public double armRotationOverride(){
@@ -216,45 +232,52 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     //   return ArmPose.ZERO;
 
 
-    return xbox.getBButton() ? ArmPose.MEDIUM_CONE : ArmPose.ZERO;
 
-    // if (controlStation.getRawButton(3))
-    //   return ArmPose.ZERO;
-
-    // if (controlStation.getRawAxis(ControllerIds.DRIVER_STATION_X_AXIS) == -1)
-    //   return ArmPose.HUMAN_PLAYER;
+    // return xbox.getBButton() ? ArmPose.MEDIUM_CONE : ArmPose.ZERO;
     
-    // if (controlStation.getRawButton(5)) {
-    //   switch ((int) controlStation.getRawAxis(ControllerIds.DRIVER_STATION_Y_AXIS)) {
-    //     case 1:
-    //     return ArmPose.HIGH_CONE;
-    //     case 0:
-    //       return ArmPose.MEDIUM_CONE;
-    //     case -1:
-    //       return ArmPose.LOW;
-    //     default:
-    //       return ArmPose.ZERO;
-    //   }
-    // }
-
-    // switch ((int) controlStation.getRawAxis(ControllerIds.DRIVER_STATION_Y_AXIS)) {
-    //   case 1:
-    //   return ArmPose.HIGH_CUBE;
-    //   case 0:
-    //     return ArmPose.MEDIUM_CUBE;
-    //   case -1:
-    //     return ArmPose.LOW;
-    //   default:
-    //     return ArmPose.ZERO;
-    // }
     
+    if (controlStation.getAButton())
+      return ArmPose.MEDIUM_CUBE;
+    
+    if (controlStation.getBButton())
+      return ArmPose.HIGH_CUBE;
+
+    if (controlStation.getXButton())
+      return ArmPose.MEDIUM_CONE;
+    
+    if (controlStation.getYButton())
+      return ArmPose.HIGH_CONE;
+    
+    if (controlStation.getRightY() > 0.5)
+      return ArmPose.GROUND;
+    
+    if (controlStation.getRightY() < -0.5)
+      return ArmPose.HUMAN_PLAYER;
+
+    if (controlStation.getRightX() < -0.5)
+      return ArmPose.LOW;
+    
+    if (controlStation.getStartButton())
+      return ArmPose.DEFAULT;
+    
+    return ArmPose.NONE;
     
   }
 
   @Override
   public boolean isOverridingArm() {
     // TODO Auto-generated method stub
-    return true;
+    return false;
+  }
+
+  @Override
+  public boolean resetArmZero() {
+    return armTable.getEntry("resetArmZero").getBoolean(false);
+  }
+
+  @Override
+  public boolean overrideArmSoftLimits() {
+    return armTable.getEntry("overrideSoftLimits").getBoolean(false);
   }
 
   

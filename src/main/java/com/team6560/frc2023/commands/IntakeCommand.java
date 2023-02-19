@@ -6,6 +6,7 @@ package com.team6560.frc2023.commands;
 
 import com.team6560.frc2023.subsystems.GamePiece;
 import com.team6560.frc2023.subsystems.Intake;
+import com.team6560.frc2023.subsystems.Intake.IntakeState;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -15,16 +16,21 @@ public class IntakeCommand extends CommandBase {
   public interface Controls {
     boolean isIntakeDown();
 
+    double moveIntakeSpeed();
+
     double intakeSpeed();
   }
 
   private Intake intake;
   private Controls controls;
+  private boolean initializeComplete;
 
   /** Creates a new IntakeCommand. */
   public IntakeCommand(Intake intake, Controls controls) {
     this.intake = intake;
     this.controls = controls;
+
+    initializeComplete = false;
 
     addRequirements(intake);
   }
@@ -32,14 +38,20 @@ public class IntakeCommand extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    intake.setIntakeOut(controls.isIntakeDown());
+    // if (intake.getCurrentState() == IntakeState.EXTENDED)
+    //   initializeComplete = true;
+    
+    
+    // if (!initializeComplete)
+    //   return;
 
+    // intake.setIntakeState(controls.isIntakeDown() ? IntakeState.EXTENDED : IntakeState.RETRACTED);
+    intake.moveIntake(controls.moveIntakeSpeed());
     if (intake.isSafeToRunRotationMotor())
       intake.setRotationMotor(controls.intakeSpeed());
     else {

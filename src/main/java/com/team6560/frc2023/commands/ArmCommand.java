@@ -27,6 +27,10 @@ public class ArmCommand extends CommandBase {
       double armRotationOverride();
 
       boolean armExtentionOverride();
+
+      boolean resetArmZero();
+
+      boolean overrideArmSoftLimits();
   }
 
   private Arm arm;
@@ -61,27 +65,43 @@ public class ArmCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (controls.isOverridingArm()) {
-      if(controls.armRotationOverride() != 0) System.out.println("rotating arm at " + controls.armRotationOverride() * rotationSpeed.getDouble(0.0));
 
+    if (controls.resetArmZero())
+      arm.resetArmZero();
+
+    arm.setClawSpeed(controls.runClaw() * (controls.runClaw() < 0 ? 0.25 : 1.0));
+
+    // if(controls.runClaw() != 0) System.out.println("Running claw at " + clawSpeed.getDouble(0.0));
+      
+    if(controls.armExtentionOverride() && !prevControlArmExt){
+      // System.out.println("Setting extention piston " + (!arm.getExtentionStatus() ? "out." : "in."));
+
+      arm.setArmExtention(!arm.getExtentionStatus());
+    }
+
+    prevControlArmExt = controls.armExtentionOverride();
+    if (!controls.isOverridingArm() && controls.armState() != ArmPose.NONE) {
+      // arm.setArmExtention(!arm.getExtentionStatus());
+
+      arm.setArmState(controls.armState());
+
+      return;
+    }
+
+    // if(controls.armRotationOverride() != 0) System.out.println("rotating arm at " + controls.armRotationOverride() * rotationSpeed.getDouble(0.0));
+
+    if (controls.overrideArmSoftLimits()) {
+      arm.setArmRotationVelocityOverrideSoftLimits(controls.armRotationOverride() * rotationSpeed.getDouble(0.0));
+
+    } else {
       arm.setArmRotationVelocity(controls.armRotationOverride() * rotationSpeed.getDouble(0.0));
 
-      if(controls.armExtentionOverride() && !prevControlArmExt){
-        System.out.println("Setting extention piston " + (!arm.getExtentionStatus() ? "out." : "in."));
-
-        arm.setArmExtention(!arm.getExtentionStatus());
-      }
-
-      prevControlArmExt = controls.armExtentionOverride();
-    } else {
-      arm.setArmState(controls.armState());
     }
+
+      
 
     
 
-    arm.setClawSpeed(controls.runClaw() * (controls.runClaw() < 0 ? 0.4 : 1.0));
-
-    if(controls.runClaw() != 0) System.out.println("Running claw at " + clawSpeed.getDouble(0.0));
     
   }
 

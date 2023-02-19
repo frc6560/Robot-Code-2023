@@ -39,7 +39,7 @@ public class RobotContainer {
 
         private final Arm arm;
 
-        private final ManualControls manualControls = new ManualControls(new XboxController(0));
+        private final ManualControls manualControls = new ManualControls(new XboxController(0), new XboxController(1));
 
 
         // A chooser for autonomous commands
