@@ -8,6 +8,7 @@ import com.team6560.frc2023.subsystems.Arm;
 import com.team6560.frc2023.subsystems.GamePiece;
 import com.team6560.frc2023.subsystems.Intake;
 import com.team6560.frc2023.subsystems.Arm.ArmPose;
+import com.team6560.frc2023.subsystems.Intake.IntakeState;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -17,6 +18,8 @@ public class IntakeCommand extends CommandBase {
   public interface Controls {
     boolean isIntakeDown();
 
+    double moveIntakeSpeed();
+
     double intakeSpeed();
   }
 
@@ -24,6 +27,7 @@ public class IntakeCommand extends CommandBase {
   private Controls controls;
   private Arm arm;
   private int rotationMotorFrames;
+  private boolean initializeComplete;
 
   /** Creates a new IntakeCommand. */
   public IntakeCommand(Intake intake, Arm arm, Controls controls) {
@@ -31,20 +35,28 @@ public class IntakeCommand extends CommandBase {
     this.controls = controls;
     this.arm = arm;
 
+    initializeComplete = false;
+
     addRequirements(intake);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    intake.setIntakeOut(controls.isIntakeDown());
+    // if (intake.getCurrentState() == IntakeState.EXTENDED)
+    //   initializeComplete = true;
+    
+    
+    // if (!initializeComplete)
+    //   return;
 
+    // intake.setIntakeState(controls.isIntakeDown() ? IntakeState.EXTENDED : IntakeState.RETRACTED);
+    intake.moveIntake(controls.moveIntakeSpeed());
     if (intake.isSafeToRunRotationMotor())
       intake.setRotationMotor(controls.intakeSpeed());
     else if (intake.getCurrentGamePiece() == GamePiece.CONE) {
