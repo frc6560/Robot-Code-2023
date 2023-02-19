@@ -4,8 +4,10 @@
 
 package com.team6560.frc2023.commands;
 
+import com.team6560.frc2023.subsystems.Arm;
 import com.team6560.frc2023.subsystems.GamePiece;
 import com.team6560.frc2023.subsystems.Intake;
+import com.team6560.frc2023.subsystems.Arm.ArmPose;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -20,11 +22,14 @@ public class IntakeCommand extends CommandBase {
 
   private Intake intake;
   private Controls controls;
+  private Arm arm;
+  private int rotationMotorFrames;
 
   /** Creates a new IntakeCommand. */
-  public IntakeCommand(Intake intake, Controls controls) {
+  public IntakeCommand(Intake intake, Arm arm, Controls controls) {
     this.intake = intake;
     this.controls = controls;
+    this.arm = arm;
 
     addRequirements(intake);
   }
@@ -42,9 +47,20 @@ public class IntakeCommand extends CommandBase {
 
     if (intake.isSafeToRunRotationMotor())
       intake.setRotationMotor(controls.intakeSpeed());
-    else {
+    else if (intake.getCurrentGamePiece() == GamePiece.CONE) {
 
-      if (intake.getCurrentGamePiece() == GamePiece.CONE)
+      if (arm.transferFromIntake()) {
+        intake.setRotationMotor(0.4);
+        rotationMotorFrames++;
+      }
+
+      if (rotationMotorFrames >= 20) {
+        if (arm.transferFromIntakePart2()) {
+          intake.setRotationMotor(0.0);
+          rotationMotorFrames = 0;
+        }
+      }
+
         if ( (int) Timer.getFPGATimestamp() % 4 == 0) {
           intake.setRotationMotor(controls.intakeSpeed() / 4.0);
           return;

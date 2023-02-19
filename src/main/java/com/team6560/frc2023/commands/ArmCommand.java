@@ -5,6 +5,7 @@
 package com.team6560.frc2023.commands;
 
 import com.team6560.frc2023.subsystems.Arm;
+import com.team6560.frc2023.subsystems.Intake;
 import com.team6560.frc2023.subsystems.Arm.ArmPose;
 
 import edu.wpi.first.networktables.NetworkTable;
@@ -37,9 +38,11 @@ public class ArmCommand extends CommandBase {
   private NetworkTable ntTable = NetworkTableInstance.getDefault().getTable("Arm");
   private NetworkTableEntry rotationSpeed;
   private NetworkTableEntry clawSpeed;
+  private Intake intake;
   /** Creates a new ArmCommand. */
-  public ArmCommand(Arm arm, Controls controls) {
+  public ArmCommand(Arm arm, Intake intake, Controls controls) {
     this.arm = arm;
+    this.intake = intake;
     this.controls = controls;
 
     addRequirements(arm);

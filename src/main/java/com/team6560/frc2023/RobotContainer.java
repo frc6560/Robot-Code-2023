@@ -49,6 +49,8 @@ public class RobotContainer {
 
         private IntakeCommand intakeCommand;
 
+        private ArmCommand armCommand;
+
 
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -59,7 +61,10 @@ public class RobotContainer {
                 drivetrain = new Drivetrain(() -> limelight.getBotPose());
                 
                 arm = new Arm();
-                arm.setDefaultCommand(new ArmCommand(arm, manualControls));
+                intake = new Intake();
+
+                armCommand = new ArmCommand(arm, intake, manualControls);
+                arm.setDefaultCommand(armCommand);
 
                 autoBuilder = new AutoBuilder(drivetrain);
 
@@ -67,8 +72,7 @@ public class RobotContainer {
                 drivetrain.setDefaultCommand(driveCommand);
 
 
-                intake = new Intake();
-                intakeCommand = new IntakeCommand(intake, manualControls);
+                intakeCommand = new IntakeCommand(intake, arm, manualControls);
                 intake.setDefaultCommand(intakeCommand);
 
 

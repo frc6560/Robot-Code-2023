@@ -57,10 +57,11 @@ public class Arm extends SubsystemBase {
 
 
   public enum ArmPose {
-    ZERO, GROUND, LOW, MEDIUM_CONE, HIGH_CONE, MEDIUM_CUBE, HIGH_CUBE, HUMAN_PLAYER
+    ZERO, GROUND, TRANSFER, LOW, MEDIUM_CONE, HIGH_CONE, MEDIUM_CUBE, HIGH_CUBE, HUMAN_PLAYER, TRANSFER_PART_2
   }
 
   private HashMap<ArmPose, Pair<Double, Boolean>> armPoseMap = new HashMap<ArmPose, Pair<Double, Boolean>>();
+  private int frames;
 
 
   // private PIDController armPidController = new PIDController(25.0, 7.25, 6.0);
@@ -112,6 +113,7 @@ public class Arm extends SubsystemBase {
 
     armPoseMap.put(ArmPose.HUMAN_PLAYER, new Pair<Double, Boolean>(1.0, false));
 
+    armPoseMap.put(ArmPose.TRANSFER, new Pair<Double, Boolean>(0.3, false));
 
     // armPidController.disableContinuousInput();
     // armPidController.setIntegratorRange(-0.5, 0.5);
@@ -131,6 +133,22 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
+  }
+
+  public boolean transferFromIntake() {
+    setArmState(ArmPose.TRANSFER);
+    setClawSpeed(0.4);
+    return Math.abs(getClawCurrentDraw()) > 20;
+  }
+
+  public boolean transferFromIntakePart2() {
+    setArmState(ArmPose.TRANSFER_PART_2);
+    setClawSpeed(0.0);
+    return frames++ > 20;
+  }
+
+  public double getClawCurrentDraw() {
+    return Math.copySign(Math.abs(clawMotorL.getOutputCurrent()) + Math.abs(clawMotorR.getOutputCurrent()), clawMotorL.getOutputCurrent() + clawMotorR.getOutputCurrent()) / 2.0;
   }
 
   public void setArmExtention(boolean status){
