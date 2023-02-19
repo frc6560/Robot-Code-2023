@@ -185,7 +185,8 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public double intakeSpeed() {
-    return intakeTable.getEntry("speed").getDouble(0.0);
+    return 0.5 * (xbox.getLeftTriggerAxis() - xbox.getRightTriggerAxis());
+    // return intakeTable.getEntry("speed").getDouble(0.0);
   }
 
   @Override

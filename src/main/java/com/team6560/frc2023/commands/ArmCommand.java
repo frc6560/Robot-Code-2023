@@ -97,11 +97,6 @@ public class ArmCommand extends CommandBase {
       arm.setArmRotationVelocity(controls.armRotationOverride() * rotationSpeed.getDouble(0.0));
 
     }
-
-      
-
-    
-
     
   }
 

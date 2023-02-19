@@ -62,6 +62,7 @@ public class Arm extends SubsystemBase {
 
   private HashMap<ArmPose, Pair<Double, Double>> armPoseMap = new HashMap<ArmPose, Pair<Double, Double>>();
 
+  private static final double DEFAULT_TOP_SOFT_LIMIT = 121.0956969;
 
   // private PIDController armPidController = new PIDController(25.0, 7.25, 6.0);
 
@@ -92,7 +93,7 @@ public class Arm extends SubsystemBase {
 
     ntTopLimit = ntTable.getEntry("Top Soft Limit");
     // ntTopLimit.setDouble(107.0);
-    ntTopLimit.setDouble(119.4);
+    ntTopLimit.setDouble(DEFAULT_TOP_SOFT_LIMIT);
     ntBottomLimit = ntTable.getEntry("Bottom Soft Limit");
     ntBottomLimit.setDouble(0.0);
 
@@ -152,7 +153,7 @@ public class Arm extends SubsystemBase {
     double currPos = getRawArmPose();
     double low = ntBottomLimit.getDouble(0.0);
     // double high = ntTopLimit.getDouble(107.0);
-    double high = ntTopLimit.getDouble(119.4);
+    double high = ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT);
 
     return (currPos - low) / (high - low);
   }
@@ -216,7 +217,7 @@ public class Arm extends SubsystemBase {
   }
 
   public void setArmRotation(double pose) {
-    breakMotor.getPIDController().setReference(pose * (ntTopLimit.getDouble(119.4) - ntBottomLimit.getDouble(armPoseMap.get(ArmPose.ZERO).getFirst())), ControlType.kSmartMotion);
+    breakMotor.getPIDController().setReference(pose * (ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT) - ntBottomLimit.getDouble(armPoseMap.get(ArmPose.ZERO).getFirst())), ControlType.kSmartMotion);
     // double calculated = -armPidController.calculate(getArmPose(), pose);
     // if (armPidController.atSetpoint())
     //   return;
