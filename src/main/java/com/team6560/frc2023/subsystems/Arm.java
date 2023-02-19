@@ -61,6 +61,7 @@ public class Arm extends SubsystemBase {
   }
 
   private HashMap<ArmPose, Pair<Double, Double>> armPoseMap = new HashMap<ArmPose, Pair<Double, Double>>();
+  private int frames;
 
   private static final double DEFAULT_TOP_SOFT_LIMIT = 121.0956969;
 
@@ -118,7 +119,7 @@ public class Arm extends SubsystemBase {
 
     armPoseMap.put(ArmPose.HUMAN_PLAYER, new Pair<Double, Double>(0.799, 1.0));
 
-    armPoseMap.put(ArmPose.TRANSFER, new Pair<Double, Boolean>(0.3, false));
+    armPoseMap.put(ArmPose.TRANSFER, new Pair<Double, Double>(0.3, 1.0));
 
     // armPidController.disableContinuousInput();
     // armPidController.setIntegratorRange(-0.5, 0.5);
@@ -149,7 +150,11 @@ public class Arm extends SubsystemBase {
   public boolean transferFromIntakePart2() {
     setArmState(ArmPose.TRANSFER_PART_2);
     setClawSpeed(0.0);
-    return frames++ > 20;
+    if (frames++ > 20) {
+      frames = 0;
+      return true;
+    }
+    return false;
   }
 
   public double getClawCurrentDraw() {
