@@ -31,6 +31,8 @@ public class ArmCommand extends CommandBase {
       boolean resetArmZero();
 
       boolean overrideArmSoftLimits();
+
+      double clawMultiplier();
   }
 
   private Arm arm;
@@ -69,7 +71,7 @@ public class ArmCommand extends CommandBase {
     if (controls.resetArmZero())
       arm.resetArmZero();
 
-    arm.setClawSpeed(controls.runClaw() * (controls.runClaw() < 0 ? 0.25 : 1.0));
+    arm.setClawSpeed(controls.clawMultiplier() * (controls.runClaw() * (controls.runClaw() < 0 ? 0.225 : 1.0)));
 
     // if(controls.runClaw() != 0) System.out.println("Running claw at " + clawSpeed.getDouble(0.0));
       

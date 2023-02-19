@@ -16,6 +16,8 @@ import java.util.HashMap;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -60,7 +62,7 @@ public class Arm extends SubsystemBase {
     ZERO, DEFAULT, GROUND, LOW, MEDIUM_CONE, HIGH_CONE, MEDIUM_CUBE, HIGH_CUBE, HUMAN_PLAYER, NONE
   }
 
-  private HashMap<ArmPose, Pair<Double, Double>> armPoseMap = new HashMap<ArmPose, Pair<Double, Double>>();
+  private HashMap<ArmPose, Double> armPoseMap = new HashMap<ArmPose, Double>();
 
   private static final double DEFAULT_TOP_SOFT_LIMIT = 121.0956969;
 
@@ -101,22 +103,22 @@ public class Arm extends SubsystemBase {
     invertClaw.setBoolean(false);
 
     // position, outSpeedMultiplier
-    armPoseMap.put(ArmPose.ZERO, new Pair<Double, Double>(0.0, 1.0));
+    armPoseMap.put(ArmPose.ZERO, 0.0);
 
     // armPoseMap.put(ArmPose.DEFAULT, new Pair<Double, Double>(0.06321, 1.0));
-    armPoseMap.put(ArmPose.DEFAULT, new Pair<Double, Double>(0.1, 1.0));
+    armPoseMap.put(ArmPose.DEFAULT, 0.1);
 
-    armPoseMap.put(ArmPose.LOW, new Pair<Double, Double>(0.2347, 1.0));
+    armPoseMap.put(ArmPose.LOW, 0.2347);
 
-    armPoseMap.put(ArmPose.GROUND, new Pair<Double, Double>(0.3314, 1.0));
+    armPoseMap.put(ArmPose.GROUND, 0.3314);
 
-    armPoseMap.put(ArmPose.MEDIUM_CONE, new Pair<Double, Double>(0.770, 1.0));
-    armPoseMap.put(ArmPose.HIGH_CONE, new Pair<Double, Double>(1.0, 1.0));
+    armPoseMap.put(ArmPose.MEDIUM_CONE, 0.770);
+    armPoseMap.put(ArmPose.HIGH_CONE, 1.0);
 
-    armPoseMap.put(ArmPose.MEDIUM_CUBE, new Pair<Double, Double>(0.63, 1.5));
-    armPoseMap.put(ArmPose.HIGH_CUBE, new Pair<Double, Double>(0.9, 1.5));
+    armPoseMap.put(ArmPose.MEDIUM_CUBE, 0.63);
+    armPoseMap.put(ArmPose.HIGH_CUBE, 0.9);
 
-    armPoseMap.put(ArmPose.HUMAN_PLAYER, new Pair<Double, Double>(0.799, 1.0));
+    armPoseMap.put(ArmPose.HUMAN_PLAYER, 0.799);
 
 
     // armPidController.disableContinuousInput();
@@ -126,11 +128,12 @@ public class Arm extends SubsystemBase {
     breakMotor.getPIDController().setP(6.560e-8, 0);
     breakMotor.getPIDController().setI(1.06560e-9, 0);
     breakMotor.getPIDController().setD(6.560e-12, 0);
-    breakMotor.getPIDController().setFF(0.002, 0);
+    breakMotor.getPIDController().setFF(0.001, 0);
 
-    breakMotor.getPIDController().setSmartMotionMaxAccel(600, 0);
+    breakMotor.getPIDController().setSmartMotionMaxAccel(650, 0);
+    breakMotor.getPIDController().setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
     // breakMotor.getPIDController().setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
-    breakMotor.getPIDController().setSmartMotionMaxVelocity(11500, 0);
+    breakMotor.getPIDController().setSmartMotionMaxVelocity(1000, 0);
     // breakMotor.getPIDController().setSmartMotionMinOutputVelocity(50, 0);
     breakMotor.getPIDController().setSmartMotionAllowedClosedLoopError(2.06560, 0);
   }
@@ -180,7 +183,7 @@ public class Arm extends SubsystemBase {
 
   public void setArmRotationVelocity(double output){
 
-    if (getArmPose() <= armPoseMap.get(ArmPose.DEFAULT).getFirst()) {
+    if (getArmPose() <= armPoseMap.get(ArmPose.DEFAULT)) {
       output = Math.min(0, output);
 
     } else if(getArmPose() >= 1.0) {
@@ -199,17 +202,12 @@ public class Arm extends SubsystemBase {
     setArmState(armPoseMap.get(armPose));
   }
 
-
-  public void setArmState(Pair<Double, Double> state) {
-    setArmState(state.getFirst());
-  }
-
   public void setArmState(double pose) {
     setArmRotation(pose);
   }
 
   public void setArmRotation(ArmPose armPose) {
-    setArmRotation(armPoseMap.get(armPose).getFirst());
+    setArmRotation(armPoseMap.get(armPose));
   }
 
   public void resetArmZero() {
@@ -217,7 +215,7 @@ public class Arm extends SubsystemBase {
   }
 
   public void setArmRotation(double pose) {
-    breakMotor.getPIDController().setReference(pose * (ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT) - ntBottomLimit.getDouble(armPoseMap.get(ArmPose.ZERO).getFirst())), ControlType.kSmartMotion);
+    breakMotor.getPIDController().setReference(pose * (ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT) - ntBottomLimit.getDouble(armPoseMap.get(ArmPose.ZERO))), ControlType.kSmartMotion);
     // double calculated = -armPidController.calculate(getArmPose(), pose);
     // if (armPidController.atSetpoint())
     //   return;

@@ -38,6 +38,8 @@ public class DriveCommand extends CommandBase {
         double climbVelocityL();
 
         double climbVelocityR();
+
+        double driveBoostMultiplier();
     }
 
     private Controls controls;
@@ -108,8 +110,8 @@ public class DriveCommand extends CommandBase {
         } else {
             drivetrain.drive(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
-                        controls.driveX(),
-                        controls.driveY(),
+                        controls.driveX() * controls.driveBoostMultiplier(),
+                        controls.driveY() * controls.driveBoostMultiplier(),
                         controls.driveRotation(),
                         drivetrain.getGyroscopeRotation())); // perhaps use getRawGyroRotation() instead?
         }

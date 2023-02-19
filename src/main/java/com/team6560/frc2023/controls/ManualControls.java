@@ -159,6 +159,11 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   }
 
   @Override
+  public double driveBoostMultiplier() {
+    return xbox.getLeftBumper() ? 0.5 : xbox.getRightBumper() ? 1.5 : 1.0;
+  }
+
+  @Override
   public boolean GoToDoubleSubstation() {
     return xbox.getAButton();
   }
@@ -208,7 +213,8 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public double runClaw(){
-    return (controlStation.getRightBumper() ? 1 : (controlStation.getRightTriggerAxis() > 0.5 ? -1 : 0));
+    //TODO: Change xbox.getRightBumper()
+    return (xbox.getRightBumper() ? 1 : (controlStation.getRightTriggerAxis() > 0.5 ? -1 : 0));
   }
 
   @Override
@@ -228,6 +234,17 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   }
 
   @Override
+  public double clawMultiplier() {
+    if (controlStation.getLeftTriggerAxis() > 0.5) {
+      if (runClaw() > 0.0) {
+        return 0.5;
+      }
+      return 1.5;
+    }
+    return 1.0;
+  }
+
+  @Override
   public ArmPose armState() {
     // if (!controlStation.getRawButton(4) || !controlStation.getRawButton(1))
     //   return ArmPose.ZERO;
@@ -236,30 +253,26 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
     // return xbox.getBButton() ? ArmPose.MEDIUM_CONE : ArmPose.ZERO;
     
-    
-    if (controlStation.getAButton())
-      return ArmPose.MEDIUM_CUBE;
-    
-    if (controlStation.getBButton())
-      return ArmPose.HIGH_CUBE;
-
     if (controlStation.getXButton())
-      return ArmPose.MEDIUM_CONE;
+      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.MEDIUM_CUBE : ArmPose.MEDIUM_CONE;
     
     if (controlStation.getYButton())
-      return ArmPose.HIGH_CONE;
+      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.HIGH_CUBE : ArmPose.HIGH_CONE;
     
-    if (controlStation.getRightY() > 0.5)
+    if (controlStation.getAButton())
       return ArmPose.GROUND;
     
-    if (controlStation.getRightY() < -0.5)
+    if (controlStation.getBButton())
       return ArmPose.HUMAN_PLAYER;
 
-    if (controlStation.getRightX() < -0.5)
-      return ArmPose.LOW;
+    // if (controlStation.getRightY() < -0.5)
+    //   return ArmPose.LOW;
     
+    // if (controlStation.getStartButton())
+    //   return ArmPose.DEFAULT;
+
     if (controlStation.getStartButton())
-      return ArmPose.DEFAULT;
+      return ArmPose.LOW;
     
     return ArmPose.NONE;
     
