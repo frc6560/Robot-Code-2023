@@ -106,7 +106,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   private static double modifyAxis(double value) {
     // Deadband
-    value = deadband(value, 0.0015);
+    value = deadband(value, 0.005);
 
     // Square the axis
     value = Math.copySign(value * value, value);
@@ -185,25 +185,27 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public boolean isIntakeDown() {
-    return xbox.getLeftBumper();
+    return false;
+    // return xbox.getLeftBumper();
   }
 
   @Override
   public double intakeSpeed() {
-    return 0.5 * (xbox.getLeftTriggerAxis() - xbox.getRightTriggerAxis());
+    return 0.0;
+    // return 0.5 * (controlStation.getRightBumper() ? 1.0 : 0.0 - xbox.getRightTriggerAxis());
     // return intakeTable.getEntry("speed").getDouble(0.0);
   }
 
   @Override
   public double moveIntakeSpeed() {
     double out = 0.0;
-    out += xbox.getRightBumper() ? 0.35 : 0.0;
-    out -= xbox.getLeftBumper() ? 0.35 : 0.0;
+    out += xbox.getBButton() ? 0.35 : 0.0;
+    out -= xbox.getXButton() ? 0.35 : 0.0;
     return out;
   }
   
   public double armRotationOverride(){
-    return controlStation.getLeftY();
+    return modifyAxis(controlStation.getLeftY());
   }
 
   @Override
@@ -214,7 +216,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   @Override
   public double runClaw(){
     //TODO: Change xbox.getRightBumper()
-    return (xbox.getRightBumper() ? 1 : (controlStation.getRightTriggerAxis() > 0.5 ? -1 : 0));
+    return (controlStation.getRightBumper() ? 1 : (xbox.getRightTriggerAxis() > 0.5 ? -1 : 0));
   }
 
   @Override
@@ -239,8 +241,11 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
       if (runClaw() > 0.0) {
         return 0.5;
       }
-      return 1.5;
+      return 2.0;
     }
+    if (runClaw() < 0.0)
+      return 1.3;
+
     return 1.0;
   }
 

@@ -71,7 +71,7 @@ public class ArmCommand extends CommandBase {
     if (controls.resetArmZero())
       arm.resetArmZero();
 
-    arm.setClawSpeed(controls.clawMultiplier() * (controls.runClaw() * (controls.runClaw() < 0 ? 0.225 : 1.0)));
+    arm.setClawSpeed(controls.clawMultiplier() * (controls.runClaw() * (controls.runClaw() < 0 ? 0.2 : 1.0)));
 
     // if(controls.runClaw() != 0) System.out.println("Running claw at " + clawSpeed.getDouble(0.0));
       

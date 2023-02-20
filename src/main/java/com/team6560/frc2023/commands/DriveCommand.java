@@ -112,7 +112,7 @@ public class DriveCommand extends CommandBase {
                 ChassisSpeeds.fromFieldRelativeSpeeds(
                         controls.driveX() * controls.driveBoostMultiplier(),
                         controls.driveY() * controls.driveBoostMultiplier(),
-                        controls.driveRotation(),
+                        controls.driveRotation() * (controls.driveBoostMultiplier() > 1.0 ? 1.0 : controls.driveBoostMultiplier()),
                         drivetrain.getGyroscopeRotation())); // perhaps use getRawGyroRotation() instead?
         }
         
