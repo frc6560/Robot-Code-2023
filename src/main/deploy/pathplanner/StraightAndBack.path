@@ -8,7 +8,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 6.0,
-        "y": 2.666129985634459
+        "y": 2.4502551908170185
       },
       "holonomicAngle": 90.0,
       "isReversal": false,
@@ -25,21 +25,21 @@
     {
       "anchorPoint": {
         "x": 6.0,
-        "y": 5.0
+        "y": 4.0
       },
       "prevControl": {
         "x": 6.0,
-        "y": 3.347340189408964
+        "y": 2.8325863234546786
       },
       "nextControl": {
         "x": 6.0,
-        "y": 3.347340189408964
+        "y": 2.8325863234546786
       },
       "holonomicAngle": 90.0,
       "isReversal": true,
       "velOverride": null,
       "isLocked": false,
-      "isStopPoint": false,
+      "isStopPoint": true,
       "stopEvent": {
         "names": [],
         "executionBehavior": "parallel",
@@ -73,5 +73,13 @@
   "maxVelocity": 1.0,
   "maxAcceleration": 0.2,
   "isReversed": null,
-  "markers": []
+  "markers": [
+    {
+      "position": 0.9732954545454537,
+      "names": [
+        "printCommand",
+        "PLACE_CONE_HIGH"
+      ]
+    }
+  ]
 }

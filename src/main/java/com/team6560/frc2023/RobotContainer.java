@@ -61,7 +61,7 @@ public class RobotContainer {
                 arm = new Arm();
                 arm.setDefaultCommand(new ArmCommand(arm, manualControls));
 
-                autoBuilder = new AutoBuilder(drivetrain);
+                autoBuilder = new AutoBuilder(drivetrain, arm);
 
                 driveCommand = new DriveCommand(drivetrain, autoBuilder, manualControls);
                 drivetrain.setDefaultCommand(driveCommand);
@@ -92,6 +92,7 @@ public class RobotContainer {
                 autoChooser.addOption("Hamid", "Hamid");
                 autoChooser.addOption("HamidSharp", "HamidSharp");
                 autoChooser.addOption("ChargingStationAuto", "ChargingStationAuto");
+                autoChooser.addOption("NewPath", "NewPath");
 
                 // Put the chooser on the dashboard
                 Shuffleboard.getTab("Auto Choose").add(autoChooser);

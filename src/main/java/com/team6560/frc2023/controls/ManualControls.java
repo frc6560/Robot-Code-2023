@@ -215,7 +215,6 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public double runClaw(){
-    //TODO: Change xbox.getRightBumper()
     return (controlStation.getRightBumper() ? 1 : (xbox.getRightTriggerAxis() > 0.5 ? -1 : 0));
   }
 
@@ -236,20 +235,6 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   }
 
   @Override
-  public double clawMultiplier() {
-    if (controlStation.getLeftTriggerAxis() > 0.5) {
-      if (runClaw() > 0.0) {
-        return 0.5;
-      }
-      return 2.0;
-    }
-    if (runClaw() < 0.0)
-      return 1.3;
-
-    return 1.0;
-  }
-
-  @Override
   public ArmPose armState() {
     // if (!controlStation.getRawButton(4) || !controlStation.getRawButton(1))
     //   return ArmPose.ZERO;
@@ -265,10 +250,10 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
       return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.HIGH_CUBE : ArmPose.HIGH_CONE;
     
     if (controlStation.getAButton())
-      return ArmPose.GROUND;
+      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.GROUND_CUBE : ArmPose.GROUND_CONE;
     
     if (controlStation.getBButton())
-      return ArmPose.HUMAN_PLAYER;
+      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.HUMAN_PLAYER_CUBE : ArmPose.HUMAN_PLAYER_CONE;
 
     // if (controlStation.getRightY() < -0.5)
     //   return ArmPose.LOW;
@@ -277,7 +262,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     //   return ArmPose.DEFAULT;
 
     if (controlStation.getStartButton())
-      return ArmPose.LOW;
+      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.LOW_CUBE : ArmPose.LOW_CONE;
     
     return ArmPose.NONE;
     
