@@ -96,7 +96,11 @@ public class Drivetrain extends SubsystemBase {
 
         private final Solenoid batteryBullshit;
 
-        private final CANSparkMax climbDriveMotor;
+        private final CANSparkMax climbDriveMotorLeft;
+
+        private CANSparkMax climbDriveMotorRight;
+
+        private CANSparkMax[] climbDriveMotors;
 
         public Drivetrain(Supplier<Pair<Pose2d, Double>> poseSupplier) {
                 this.poseSupplier = poseSupplier;
@@ -165,14 +169,16 @@ public class Drivetrain extends SubsystemBase {
                                                                                                     // deviations.
                                                                                                     // X, Y, theta.
 
-                climbExtensionMotorLeft = new CANSparkMax(23, CANSparkMaxLowLevel.MotorType.kBrushless);
+                climbExtensionMotorLeft = new CANSparkMax(22, CANSparkMaxLowLevel.MotorType.kBrushless);
                 climbExtensionMotorLeft.setInverted(true);
 
-                climbExtensionMotorRight = new CANSparkMax(22, CANSparkMaxLowLevel.MotorType.kBrushless);
+                climbExtensionMotorRight = new CANSparkMax(24, CANSparkMaxLowLevel.MotorType.kBrushless);
                 climbExtensionMotorRight.setInverted(true);
 
-                climbDriveMotor = new CANSparkMax(21, CANSparkMaxLowLevel.MotorType.kBrushless);
+                climbDriveMotorLeft = new CANSparkMax(23, CANSparkMaxLowLevel.MotorType.kBrushless);
+                climbDriveMotorRight = new CANSparkMax(21, CANSparkMaxLowLevel.MotorType.kBrushless);
 
+                climbDriveMotors = new CANSparkMax[] {climbDriveMotorLeft, climbDriveMotorRight};
                 // for (CANSparkMax i : new CANSparkMax[] {climbExtensionMotorLeft,
                 //                 climbExtensionMotorRight }) {
                 //         i.getPIDController().setP(0.005);
@@ -182,13 +188,19 @@ public class Drivetrain extends SubsystemBase {
                 //         i.getPIDController().setIZone(0.0);
                 // }
 
-                climbDriveMotor.setInverted(true);
-                climbDriveMotor.getPIDController().setFF(0.001);
-                climbDriveMotor.getPIDController().setP(0.0);
-                climbDriveMotor.getPIDController().setI(0.0);
-                climbDriveMotor.getPIDController().setD(0.0);
+                
+                for (CANSparkMax i : climbDriveMotors) {
+                        i.restoreFactoryDefaults();
+                        i.getPIDController().setFF(0.001);
+                        i.getPIDController().setP(0.0);
+                        i.getPIDController().setI(0.0);
+                        i.getPIDController().setD(0.0);
 
-                climbDriveMotor.getPIDController().setIZone(0.0);
+                        i.getPIDController().setIZone(0.0);
+                }
+                
+                climbDriveMotorLeft.setInverted(false);
+                climbDriveMotorRight.setInverted(true);
 
                 batteryBullshit = new Solenoid(PneumaticsModuleType.CTREPCM, 1); //TODO: CHANGE
 
@@ -225,11 +237,12 @@ public class Drivetrain extends SubsystemBase {
         }
 
         public void setClimbDriveMotorVelocity(double velocityRPM) {
-                climbDriveMotor.getPIDController().setReference(velocityRPM, ControlType.kVelocity);
+                for (CANSparkMax i : climbDriveMotors)
+                        i.getPIDController().setReference(velocityRPM, ControlType.kVelocity);
         }
 
         public double getClimbDriveMotorVelocityRPM() {
-                return climbDriveMotor.getEncoder().getVelocity();
+                return climbDriveMotorLeft.getEncoder().getVelocity();
         }
 
         public void setBatteryBullshit(boolean isClimbing) {
@@ -242,10 +255,12 @@ public class Drivetrain extends SubsystemBase {
 
         public double getAverageModuleDriveAngularTangentialSpeed() {
                 double sum = 0;
+                double sign = 0;
                 for (SwerveModule i : modules) {
+                        sign += i.getDriveVelocity();
                         sum += Math.abs(i.getDriveVelocity());
                 }
-                return sum / modules.length;
+                return Math.copySign(sum / modules.length, sign);
         }
 
         /**
