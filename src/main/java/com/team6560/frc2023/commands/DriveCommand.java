@@ -92,11 +92,12 @@ public class DriveCommand extends CommandBase {
 
         setClimbExtension(controls.driveIsClimbing());
 
-        drivetrain.setBatteryBullshit(controls.driveIsClimbing());
+        // drivetrain.setBatteryBullshit(controls.driveIsClimbing());
+        drivetrain.setBatteryBullshit(false);
 
         if (controls.driveIsClimbing()) {
             
-            drivetrain.setChassisState(Constants.m_kinematics.toSwerveModuleStates(new ChassisSpeeds(0.0, controls.driveY(),0.0)));
+            drivetrain.setChassisState(Constants.m_kinematics.toSwerveModuleStates(new ChassisSpeeds(0.0, -controls.driveY(),0.0)));
 
             // drivetrain.setLeftClimbExtensionVelocity(controls.climbVelocityL());
 
