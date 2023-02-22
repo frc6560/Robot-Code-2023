@@ -5,6 +5,7 @@
 package com.team6560.frc2023.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -14,6 +15,9 @@ import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab
 
 import java.util.HashMap;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -39,6 +43,8 @@ public class Arm extends SubsystemBase {
     */
 
   CANSparkMax breakMotor = new CANSparkMax(BREAK_ID, MotorType.kBrushless);
+  SparkMaxPIDController breakMotorPid = breakMotor.getPIDController();
+
   CANSparkMax clawMotorL = new CANSparkMax(CLAW_MOTOR_LEFT_ID, MotorType.kBrushless);
   CANSparkMax clawMotorR = new CANSparkMax(CLAW_MOTOR_RIGHT_ID, MotorType.kBrushless);
   
@@ -50,6 +56,7 @@ public class Arm extends SubsystemBase {
 
   NetworkTableEntry ntTopLimit;
   NetworkTableEntry ntBottomLimit;
+  NetworkTableEntry ntMarkRadin;
 
   NetworkTableEntry invertClaw;
   private double currentReference;
@@ -71,6 +78,7 @@ public class Arm extends SubsystemBase {
     breakMotor.restoreFactoryDefaults();
     // breakMotor.setInverted(true);
     breakMotor.setIdleMode(IdleMode.kBrake);
+    // breakMotor.setInverted(true);
 
     clawMotorL.restoreFactoryDefaults();
     clawMotorL.setIdleMode(IdleMode.kBrake);
@@ -86,6 +94,7 @@ public class Arm extends SubsystemBase {
     .add("Extention Status", this::getExtentionStatus)
     .add("raw arm pos", this::getRawArmPose)
     .add("armPose", this::getArmPose)
+    .add("Target Pos", ()->currentReference)
     ;
 
     breakMultiplyer = ntTable.getEntry("Break Motor Multiplyer");
@@ -99,6 +108,9 @@ public class Arm extends SubsystemBase {
 
     invertClaw = ntTable.getEntry("Invert Claw?");
     invertClaw.setBoolean(false);
+
+    ntMarkRadin = ntTable.getEntry("Mark (F) Radin (T)?"); // TODO: DELETE
+    ntMarkRadin.setBoolean(false);
 
     // position, outSpeedMultiplier
     armPoseMap.put(ArmPose.ZERO, new ArmState(0.0, false, 1.0));
@@ -126,17 +138,26 @@ public class Arm extends SubsystemBase {
     // armPidController.setIntegratorRange(-0.5, 0.5);
     // armPidController.setTolerance(0.05);
 
-    breakMotor.getPIDController().setP(6.560e-8, 0);
-    breakMotor.getPIDController().setI(1.06560e-9, 0);
-    breakMotor.getPIDController().setD(6.560e-12, 0);
-    breakMotor.getPIDController().setFF(0.001, 0);
+    final double zeroToFullTime = 3;
+    breakMotor.setOpenLoopRampRate(zeroToFullTime);
 
-    breakMotor.getPIDController().setSmartMotionMaxAccel(656.0, 0);
-    breakMotor.getPIDController().setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
-    // breakMotor.getPIDController().setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
-    breakMotor.getPIDController().setSmartMotionMaxVelocity(1000, 0);
-    // breakMotor.getPIDController().setSmartMotionMinOutputVelocity(50, 0);
-    breakMotor.getPIDController().setSmartMotionAllowedClosedLoopError(ALLOWED_ERROR, 0);
+    breakMotorPid.setP(6.560e-8, 0);
+    breakMotorPid.setI(1.06560e-9, 0);
+    breakMotorPid.setD(6.560e-12, 0);
+    breakMotorPid.setFF(0.001, 0);
+
+    breakMotorPid.setSmartMotionMaxAccel(656.0, 0);
+    breakMotorPid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
+    // breakMotorPid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
+    breakMotorPid.setSmartMotionMaxVelocity(1000, 0);
+    // breakMotorPid.setSmartMotionMinOutputVelocity(50, 0);
+    breakMotorPid.setSmartMotionAllowedClosedLoopError(ALLOWED_ERROR, 0);
+
+
+    breakMotorPid.setP(0.05, 1);
+    breakMotorPid.setI(1e-6, 1);
+    breakMotorPid.setD(0, 1);
+    breakMotorPid.setFF(0.000156, 1);
     
   }
 
@@ -150,33 +171,18 @@ public class Arm extends SubsystemBase {
     extentionPiston.set(status);
   }
 
-  public double getRawArmPose() {
-    return breakMotor.getEncoder().getPosition();
-  }
-
-  public double getArmPose() {
-    double currPos = getRawArmPose();
-    return convertRawArmPoseToArmPose(currPos);
-  }
-
   public double convertRawArmPoseToArmPose(double rawArmPose) {
     double low = ntBottomLimit.getDouble(0.0);
-    // double high = ntTopLimit.getDouble(107.0);
     double high = ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT);
 
     return (rawArmPose - low) / (high - low);
   }
-  
 
-  public boolean isArmAtSetpoint() {
-    boolean thing = Math.abs(currentReference - getArmPose()) < convertRawArmPoseToArmPose(ALLOWED_ERROR);
-    System.out.println(thing);
-    return thing;
-  }
+  public double convertArmPoseToRawArmPose(double armPose) {
+    double low = ntBottomLimit.getDouble(0.0);
+    double high = ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT);
 
-
-  public double getArmMotorAngularVelocity() {
-    return breakMotor.getEncoder().getVelocity();
+    return armPose * (high - low) + low;
   }
   
   /** Sets arm break velocity in RPM */
@@ -188,10 +194,6 @@ public class Arm extends SubsystemBase {
     breakMotor.set(-speed);
   }
 
-  public void setBreakMotorVolts(double volts) {
-    breakMotor.setVoltage(volts);
-  }
-
   public void setClawSpeed(double output){
     if(output != 0) System.out.println("Claw is running at " + output);
 
@@ -200,7 +202,6 @@ public class Arm extends SubsystemBase {
   }
 
   public void setArmRotationVelocity(double output){
-
     if (getArmPose() <= armPoseMap.get(ArmPose.DEFAULT).getPosition()) {
       output = Math.min(0, output);
 
@@ -215,32 +216,77 @@ public class Arm extends SubsystemBase {
     setBreakMotor(output * BREAK_TO_ARM);
   }
 
-
   public void setArmState(ArmPose armPose) {
     setArmState(armPoseMap.get(armPose).getPosition());
   }
 
   public void setArmState(double pose) {
-    setArmRotation(pose);
+    // setArmRotation(pose);
+    // if(!ntMarkRadin.getBoolean(false)) setArmRotationMark(pose); else setArmRotationRadin(pose);
+    if(!ntMarkRadin.getBoolean(false)) setArmRotation(pose); else setArmRotationRadin(pose);
+    
   }
 
   public void setArmRotation(ArmPose armPose) {
     setArmRotation(armPoseMap.get(armPose).getPosition());
   }
 
-  public void resetArmZero() {
-    breakMotor.getEncoder().setPosition(0.0);
-  }
-
   public void setArmRotation(double pose) {
     this.currentReference = pose;
-    breakMotor.getPIDController().setReference(currentReference * (ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT) - ntBottomLimit.getDouble(armPoseMap.get(ArmPose.ZERO).getPosition())), ControlType.kSmartMotion);
+    breakMotorPid.setReference(currentReference * (ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT) - ntBottomLimit.getDouble(armPoseMap.get(ArmPose.ZERO).getPosition())), ControlType.kSmartMotion);
     // double calculated = -armPidController.calculate(getArmPose(), pose);
     // if (armPidController.atSetpoint())
     //   return;
     // setBreakMotorVolts(calculated);
   }
 
+  public void setArmRotationRadin(double pose) {
+    this.currentReference = pose;
+    double rot = currentReference * (ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT) - ntBottomLimit.getDouble(armPoseMap.get(ArmPose.ZERO).getPosition()));
+
+    final double rampUpWindow = 750;
+    if(getBreakMotorSpeed() < rampUpWindow && !isArmAtSetpoint()){
+      setArmRotation(pose); // ramp up
+
+    } else {
+      breakMotorPid.setReference(rot, ControlType.kPosition, 1);
+    } 
+
+  }
+
+  public void resetArmZero() {
+    breakMotor.getEncoder().setPosition(0.0);
+  }
+
+  ProfiledPIDController controller = new ProfiledPIDController(breakMotorPid.getP(1), breakMotorPid.getI(1)*5, breakMotorPid.getD(1), new TrapezoidProfile.Constraints(11000, 4000));
+
+  public void setArmRotationMark(double pose) {
+    controller.disableContinuousInput();
+    double ff = breakMotorPid.getFF(1);
+    double volts = (controller.calculate(breakMotor.getEncoder().getPosition(), convertArmPoseToRawArmPose(pose)) + ff);
+    System.out.println("Running marks at: " + volts);
+
+    breakMotor.setVoltage(volts);
+  }
+
+  public boolean isArmAtSetpoint() {
+    boolean isAtReference = Math.abs(currentReference - getArmPose()) < convertRawArmPoseToArmPose(ALLOWED_ERROR);
+    System.out.println(isAtReference);
+    return isAtReference;
+  }
+
+  public double getArmMotorAngularVelocity() {
+    return breakMotor.getEncoder().getVelocity();
+  }
+
+  public double getRawArmPose() {
+    return breakMotor.getEncoder().getPosition();
+  }
+
+  public double getArmPose() {
+    double currPos = getRawArmPose();
+    return convertRawArmPoseToArmPose(currPos);
+  }
 
   public double getBreakMotorSpeed(){
     return breakMotor.getEncoder().getVelocity();
