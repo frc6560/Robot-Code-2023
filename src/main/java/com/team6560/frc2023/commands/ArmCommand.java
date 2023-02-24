@@ -22,6 +22,8 @@ public class ArmCommand extends CommandBase {
 
       double runClaw();
 
+      boolean isCubeMode();
+
       boolean isOverridingArm();
 
       double armRotationOverride();
@@ -72,10 +74,17 @@ public class ArmCommand extends CommandBase {
 
     double armSpeedMultiplyer;
     if (controls.armState() == ArmPose.NONE) { // If going manual mode
-      armSpeedMultiplyer = controls.runClaw() > 0.0 ? 0.175 : 1.0;
-    } else {
-      armSpeedMultiplyer = Arm.armPoseMap.get(controls.armState()).getClawSpeedMultiplier();
+      armSpeedMultiplyer = controls.runClaw() > 0.0 ? 1.0 : 0.175;
+      if (controls.isCubeMode()) {
+        if (controls.runClaw() > 0.0)
+          armSpeedMultiplyer *= 0.7;
+        else
+          armSpeedMultiplyer *= 1.5;
+      }
     }
+    else
+      armSpeedMultiplyer = Arm.armPoseMap.get(controls.armState()).getClawSpeedMultiplier();
+
     arm.setClawSpeed( armSpeedMultiplyer * controls.runClaw());
 
     // if(controls.runClaw() != 0) System.out.println("Running claw at " + clawSpeed.getDouble(0.0));

@@ -180,7 +180,14 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public int getLimelightPipeline() {
-    return (int) limelightTable.getEntry("limelightPipeline").getInteger( (long) 0);
+    if (isCubeMode()) {
+      return 0;
+    }
+    // if (autoAlign()) {
+    //   return 1;
+    // }
+    return 1;
+    // return (int) limelightTable.getEntry("limelightPipeline").getInteger( (long) 0);
   }
 
   @Override
@@ -287,6 +294,11 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   @Override
   public boolean overrideArmSoftLimits() {
     return armTable.getEntry("overrideSoftLimits").getBoolean(false);
+  }
+
+  @Override
+  public boolean isCubeMode() {
+    return controlStation.getLeftTriggerAxis() > 0.5;
   }
 
   

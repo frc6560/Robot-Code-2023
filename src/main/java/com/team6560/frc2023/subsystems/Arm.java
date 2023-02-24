@@ -118,28 +118,28 @@ public class Arm extends SubsystemBase {
     // armPoseMap.put(ArmPose.DEFAULT, new Pair<Double, Double>(0.06321, 1.0));
     armPoseMap.put(ArmPose.DEFAULT, new ArmState(0.1, false, 1.0));
 
-    armPoseMap.put(ArmPose.LOW_CUBE, new ArmState(0.2347, false, -2.0 * 0.175));
-    armPoseMap.put(ArmPose.LOW_CONE, new ArmState(0.2347, false, -1.0 * 0.175));
+    armPoseMap.put(ArmPose.LOW_CUBE, new ArmState(0.2347, false, 2.5 * 0.175));
+    armPoseMap.put(ArmPose.LOW_CONE, new ArmState(0.2347, false, 1.0 * 0.175));
 
     armPoseMap.put(ArmPose.GROUND_CUBE, new ArmState(0.3314, true, 0.5));
     armPoseMap.put(ArmPose.GROUND_CONE, new ArmState(0.3314, true, 1.0));
 
-    armPoseMap.put(ArmPose.MEDIUM_CONE, new ArmState(0.770, false, -1.3 * 0.175));
-    armPoseMap.put(ArmPose.HIGH_CONE, new ArmState(1.0, true, -1.0 * 0.175));
+    armPoseMap.put(ArmPose.MEDIUM_CONE, new ArmState(0.770, false, 1.3 * 0.175));
+    armPoseMap.put(ArmPose.HIGH_CONE, new ArmState(1.0, true, 1.0 * 0.175));
 
-    armPoseMap.put(ArmPose.MEDIUM_CUBE, new ArmState(0.63, false, -2.0 * 0.175));
-    armPoseMap.put(ArmPose.HIGH_CUBE, new ArmState(0.9, false, -2.0 * 0.175));
+    armPoseMap.put(ArmPose.MEDIUM_CUBE, new ArmState(0.63, false, 2.5 * 0.175));
+    armPoseMap.put(ArmPose.HIGH_CUBE, new ArmState(0.9, false, 2.5 * 0.175));
 
-    armPoseMap.put(ArmPose.HUMAN_PLAYER_CUBE, new ArmState(0.81, false, 0.5));
-    armPoseMap.put(ArmPose.HUMAN_PLAYER_CONE, new ArmState(0.81, false, 1.3));
+    armPoseMap.put(ArmPose.HUMAN_PLAYER_CUBE, new ArmState(0.85, false, 0.5));
+    armPoseMap.put(ArmPose.HUMAN_PLAYER_CONE, new ArmState(0.85, false, 1.3));
 
 
     // armPidController.disableContinuousInput();
     // armPidController.setIntegratorRange(-0.5, 0.5);
     // armPidController.setTolerance(0.05);
 
-    final double zeroToFullTime = 3;
-    breakMotor.setOpenLoopRampRate(zeroToFullTime);
+    // final double zeroToFullTime = 3;
+    // breakMotor.setOpenLoopRampRate(zeroToFullTime);
 
     breakMotorPid.setP(6.560e-8, 0);
     breakMotorPid.setI(1.06560e-9, 0);
