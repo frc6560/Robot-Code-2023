@@ -3,6 +3,7 @@ package com.team6560.frc2023.commands;
 import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.commands.auto.AutoBuilder;
 import com.team6560.frc2023.subsystems.Drivetrain;
+import com.team6560.frc2023.subsystems.Limelight;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -27,7 +28,7 @@ public class DriveCommand extends CommandBase {
 
         boolean driveResetYaw();
 
-        boolean GoToDoubleSubstation();
+        boolean autoAlign();
 
         boolean driveResetGlobalPose();
 
@@ -49,16 +50,19 @@ public class DriveCommand extends CommandBase {
     private boolean goingToPose = false;
     private Command goToPoseAutoCommand;
 
+    private Limelight limelight;
+
     /**
      * Creates a new `DriveCommand` instance.
      *
      * @param drivetrainSubsystem the `Drivetrain` subsystem used by the command
      * @param controls            the controls for the command
      */
-    public DriveCommand(Drivetrain drivetrainSubsystem, AutoBuilder autoBuilder, Controls controls) {
+    public DriveCommand(Drivetrain drivetrainSubsystem, AutoBuilder autoBuilder, Limelight limelight, Controls controls) {
         this.drivetrain = drivetrainSubsystem;
         this.autoBuilder = autoBuilder;
         this.controls = controls;
+        this.limelight = limelight;
 
         addRequirements(drivetrainSubsystem);
     }
@@ -68,8 +72,8 @@ public class DriveCommand extends CommandBase {
     
     @Override
     public void execute() {
-        if (controls.GoToDoubleSubstation() && !goingToPose) {
-            goToPoseAutoCommand = autoBuilder.goToPose(new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0.0)));
+        if (controls.autoAlign() && !goingToPose) {
+            goToPoseAutoCommand = autoBuilder.goToPose(new Pose2d(new Translation2d(0, limelight.getXDistMeters()), Rotation2d.fromDegrees(0.0)));
             goToPoseAutoCommand.initialize();
             goingToPose = true;
 

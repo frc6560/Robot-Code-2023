@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -22,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab;
 
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 import com.team6560.frc2023.Constants;
@@ -61,9 +63,7 @@ public class Limelight extends SubsystemBase {
     .add("Horizontal Angle", this::getHorizontalAngle)
     .add("Vertical Angle", this::getVerticalAngle)
     .add("Has Target", this::hasTarget)
-    .add("Predicted X Distance From Target", this::getEstimatedRobotXDistanceFromTargetMeters)
-    .add("Predicted Z Distance From Target", this::getEstimatedRobotZDistanceFromTargetMeters);
-
+    .add("Predicted X Distance From Target", this::getXDistMeters);
     SmartDashboard.putData("aprilTagField", aprilTagField);
     // SmartDashboard.putData("reflectiveTapeField", reflectiveTapeField);
 
@@ -84,6 +84,22 @@ public class Limelight extends SubsystemBase {
 
   public boolean hasTarget(){
     return ntV.getDouble(0.0) == 1.0;
+  }
+
+  public double getXDistMeters() {
+    double yDist_edge_to_target = getVerticalAngle() < 0.0 ? Units.inchesToMeters(22.5) : Units.inchesToMeters(39.5);
+
+    double predicted_robot_dist = predictedPose.get().getX();
+
+    double yDist_robot_to_wall = predicted_robot_dist > Constants.FieldConstants.length / 2
+      ? Constants.FieldConstants.length - predicted_robot_dist
+      : predicted_robot_dist;
+    
+    double wall_to_edge = 69; // TODO: change
+
+    double yDist = yDist_robot_to_wall - (wall_to_edge - yDist_edge_to_target);
+
+    return yDist/Math.tan(Math.toRadians(getHorizontalAngle()));
   }
 
   public void setForceOff(boolean value) {
@@ -116,28 +132,12 @@ public class Limelight extends SubsystemBase {
   }
 
 
-  public void addMarker() {
-
-    Pose2d robotPose = predictedPose.get();
-
-    if (robotPose == null || Math.abs(robotPose.getRotation().getDegrees() % 360.0) > 10.0) return;
-
-    Translation2d robotTranslation = robotPose.getTranslation();
-
-    Translation2d markerLocation;
-    
-    if (DriverStation.getAlliance() == DriverStation.Alliance.Blue)
-      markerLocation = robotTranslation.plus(new Translation2d(-getEstimatedRobotZDistanceFromTargetMeters(), getEstimatedRobotXDistanceFromTargetMeters()));
-    else
-      markerLocation = robotTranslation.plus(new Translation2d(getEstimatedRobotZDistanceFromTargetMeters(), getEstimatedRobotXDistanceFromTargetMeters()));
-
-    
-    aprilTagField.getObject("marker").setPose(new Pose2d(markerLocation, new Rotation2d()));
-  }
+  
 
 
   public Pair<Pose2d, Double> getBotPose() {
 
+    if (ntPipeline.getInteger(0l) != 0) return null;
     if (!hasTarget()) return null;
 
     double currentTime = Timer.getFPGATimestamp() - getLatency();
@@ -146,6 +146,9 @@ public class Limelight extends SubsystemBase {
 
     if (limelightBotPoseArray == null || limelightBotPoseArray.length < 6) return null;
 
+    if (new double[] {0.0, 0.0, 0.0, 0.0, 0.0}.equals(Arrays.copyOf(limelightBotPoseArray, limelightBotPoseArray.length - 1)))
+      return null;
+    
     Pose2d pose = new Pose3d(new Translation3d(limelightBotPoseArray[0], limelightBotPoseArray[1], limelightBotPoseArray[2]), new Rotation3d(Math.toRadians(limelightBotPoseArray[3]), Math.toRadians(limelightBotPoseArray[4]), Math.toRadians(limelightBotPoseArray[5]))).toPose2d();
     
     if (pose == null) return null;
@@ -163,6 +166,6 @@ public class Limelight extends SubsystemBase {
 
   @Override
   public void periodic() {
-    ntPipeline.setNumber(forceOff ? 0 : controls.getLimelightPipeline());
+    ntPipeline.setNumber(forceOff ? 5 : controls.getLimelightPipeline());
   }
 }

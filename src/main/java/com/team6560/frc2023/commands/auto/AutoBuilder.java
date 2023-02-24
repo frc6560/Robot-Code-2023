@@ -25,6 +25,7 @@ import com.team6560.frc2023.subsystems.Arm.ArmPose;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
@@ -46,7 +47,7 @@ public class AutoBuilder {
    * A HashMap containing "marker" events and corresponding actions.
    */
   private HashMap<String, Command> eventMap;
-  
+
   /**
    * 
    * A list of PathPlannerTrajectory objects that represent the group of paths for
@@ -68,19 +69,25 @@ public class AutoBuilder {
 
   private Arm arm;
 
+  private SwerveAutoBuilder teleopAutoBuilder;
+
   /**
    * 
-   * Constructor for AutoBuilder class. Initializes eventMap, autoBuilder, and drivetrain.
+   * Constructor for AutoBuilder class. Initializes eventMap, autoBuilder, and
+   * drivetrain.
    * 
-   * @param drivetrain An instance of Drivetrain that represents the drive ubsystem.
+   * @param drivetrain An instance of Drivetrain that represents the drive
+   *                   ubsystem.
    */
   public AutoBuilder(Drivetrain drivetrain, Arm arm) {
     this.drivetrain = drivetrain;
-    this.arm=arm;
+    this.arm = arm;
 
     eventMap = new HashMap<>();
     eventMap.put("printCommand", new PrintCommand("test Print command"));
-    // eventMap.put("PLACE_CONE_HIGH", new RunCommand( () -> arm.setArmState(ArmPose.HIGH_CONE), arm).until( () -> arm.isArmAtSetpoint()));
+    // eventMap.put("PLACE_CONE_HIGH", new RunCommand( () ->
+    // arm.setArmState(ArmPose.HIGH_CONE), arm).until( () ->
+    // arm.isArmAtSetpoint()));
     eventMap.put("PLACE_CONE_HIGH", new MoveArmToPoseCommand(arm, ArmPose.HIGH_CONE));
     eventMap.put("PLACE_CONE_MID", new MoveArmToPoseCommand(arm, ArmPose.MEDIUM_CONE));
     eventMap.put("PLACE_LOW_CUBE", new MoveArmToPoseCommand(arm, ArmPose.LOW_CUBE));
@@ -90,15 +97,26 @@ public class AutoBuilder {
     eventMap.put("PICK_GROUND_CUBE", new MoveArmToPoseCommand(arm, ArmPose.GROUND_CUBE));
     eventMap.put("PICK_GROUND_CONE", new MoveArmToPoseCommand(arm, ArmPose.GROUND_CONE));
 
-
-
     autoBuilder = new SwerveAutoBuilder(
         () -> drivetrain.getPose(), // Pose2d supplier
         (pose) -> drivetrain.resetOdometry(pose), // Pose2d consumer, used to reset odometry at the beginning of auto
         Constants.m_kinematics, // SwerveDriveKinematics
-        new PIDConstants(5.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y ID controllers)
+        new PIDConstants(5.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
         new PIDConstants(0.5, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
-        (state) -> drivetrain.autoSetChassisState(state), // Module states consumer used to output to the drive subsystem
+        (state) -> drivetrain.autoSetChassisState(state), // Module states consumer used to output to the drive
+                                                          // subsystem
+        eventMap,
+        drivetrain // The drive subsystem. Used to properly set the requirements of path following commands
+    );
+
+    teleopAutoBuilder = new SwerveAutoBuilder(
+        () -> drivetrain.getPose(), // Pose2d supplier
+        (pose) -> drivetrain.resetOdometry(pose), // Pose2d consumer, used to reset odometry at the beginning of auto
+        Constants.m_kinematics, // SwerveDriveKinematics
+        new PIDConstants(0.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
+        new PIDConstants(0.0, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
+        (state) -> drivetrain.teleopFinesseChassisState(state), // Module states consumer used to output to the drive
+                                                          // subsystem
         eventMap,
         drivetrain // The drive subsystem. Used to properly set the requirements of path following commands
     );
@@ -124,8 +142,8 @@ public class AutoBuilder {
 
     // stopEventList.add("Waypoint 1");
 
-    // autoBuilder.stopEventGroup(new StopEvent(new ArrayList<>(), ExecutionBehavior.SEQUENTIAL, WaitBehavior.AFTER, 1.0));
-
+    // autoBuilder.stopEventGroup(new StopEvent(new ArrayList<>(),
+    // ExecutionBehavior.SEQUENTIAL, WaitBehavior.AFTER, 1.0));
 
     return new SequentialCommandGroup(
         new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE),
@@ -133,18 +151,16 @@ public class AutoBuilder {
         new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT),
         autoBuilder.fullAuto(pathGroup.get(0)),
         new SequentialCommandGroup(
-          new MoveArmToPoseCommand(this.arm, ArmPose.GROUND_CONE),
-          new MoveArmPistonCommand(arm, false),
-          new MoveArmToPoseCommand(arm, ArmPose.DEFAULT)
-        )
-          .alongWith(autoBuilder.fullAuto(pathGroup.get(1))),
+            new MoveArmToPoseCommand(this.arm, ArmPose.GROUND_CONE),
+            new MoveArmPistonCommand(arm, false),
+            new MoveArmToPoseCommand(arm, ArmPose.DEFAULT))
+            .alongWith(autoBuilder.fullAuto(pathGroup.get(1))),
 
         new SequentialCommandGroup(
-          autoBuilder.fullAuto(pathGroup.get(2)),
-          new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CUBE)//,
-          // new MoveArmPistonCommand(this.arm, false)
-        )
-      );
+            autoBuilder.fullAuto(pathGroup.get(2)),
+            new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CUBE)// ,
+        // new MoveArmPistonCommand(this.arm, false)
+        ));
 
   }
 
@@ -152,7 +168,8 @@ public class AutoBuilder {
    * 
    * Returns a command for autonomous action to go to a specified Pose2d.
    * 
-   * @param desiredPose The desired final position and orientation for the robot to reach.
+   * @param desiredPose The desired final position and orientation for the robot
+   *                    to reach.
    * 
    * @return Command for autonomous action to go to the specified Pose2d.
    */
@@ -172,10 +189,13 @@ public class AutoBuilder {
         new PathConstraints(0.5, 0.25),
         // position, heading(direction of travel), holonomic rotation, velocity verride
         new PathPoint(currPose.getTranslation(), heading, currPose.getRotation(), currSpeed),
-        new PathPoint(desiredPose.getTranslation(), heading, desiredPose.getRotation())
-    );
+        new PathPoint(desiredPose.getTranslation(), heading, desiredPose.getRotation()));
 
-    return autoBuilder.followPath(traj);
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> drivetrain.setAutoLock(true)),
+      teleopAutoBuilder.followPath(traj),
+      new InstantCommand(() -> drivetrain.setAutoLock(false))
+    );
   }
 
   public Command getAutoBalanceCommand() {
@@ -188,9 +208,8 @@ public class AutoBuilder {
     double offsetRoll = drivetrain.getRoll().getDegrees();
     double offsetPitch = drivetrain.getPitch().getDegrees();
     return new SequentialCommandGroup(
-      autoBuilder.fullAuto(pathGroup),
-      new ChargingStationAuto(drivetrain, offsetPitch, offsetRoll)
-    );
+        autoBuilder.fullAuto(pathGroup),
+        new ChargingStationAuto(drivetrain, offsetPitch, offsetRoll));
   }
 
 }

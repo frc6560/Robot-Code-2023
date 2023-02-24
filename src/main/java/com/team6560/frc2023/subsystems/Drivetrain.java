@@ -102,6 +102,10 @@ public class Drivetrain extends SubsystemBase {
 
         private CANSparkMax[] climbDriveMotors;
 
+        private boolean autoLock;
+
+        private ChassisSpeeds currentManualSetChassisSpeeds;
+
         public Drivetrain(Supplier<Pair<Pose2d, Double>> poseSupplier) {
                 this.poseSupplier = poseSupplier;
 
@@ -379,6 +383,9 @@ public class Drivetrain extends SubsystemBase {
         }
 
         public boolean driveNoX(ChassisSpeeds chassisSpeeds) {
+                this.currentManualSetChassisSpeeds = chassisSpeeds;
+                if (this.autoLock)
+                        return false;
                 SwerveModuleState[] states = Constants.m_kinematics.toSwerveModuleStates(chassisSpeeds);
                 SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
 
@@ -525,5 +532,15 @@ public class Drivetrain extends SubsystemBase {
 
                 double camPoseObsTime = result.getSecond();
                 poseEstimator.addVisionMeasurement(camPose, camPoseObsTime);
+        }
+
+        public void teleopFinesseChassisState(SwerveModuleState[] state) {
+                ChassisSpeeds speeds = Constants.m_kinematics.toChassisSpeeds(state);
+
+                setChassisState(Constants.m_kinematics.toSwerveModuleStates(new ChassisSpeeds(currentManualSetChassisSpeeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond)));
+        }
+
+        public void setAutoLock(boolean lock) {
+                this.autoLock = lock;
         }
 }

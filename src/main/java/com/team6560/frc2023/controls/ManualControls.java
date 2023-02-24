@@ -164,7 +164,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   }
 
   @Override
-  public boolean GoToDoubleSubstation() {
+  public boolean autoAlign() {
     return xbox.getAButton();
   }
 

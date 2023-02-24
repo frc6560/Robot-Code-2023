@@ -63,7 +63,7 @@ public class RobotContainer {
 
                 autoBuilder = new AutoBuilder(drivetrain, arm);
 
-                driveCommand = new DriveCommand(drivetrain, autoBuilder, manualControls);
+                driveCommand = new DriveCommand(drivetrain, autoBuilder, limelight, manualControls);
                 drivetrain.setDefaultCommand(driveCommand);
 
 
