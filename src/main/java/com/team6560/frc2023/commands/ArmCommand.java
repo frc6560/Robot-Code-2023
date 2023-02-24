@@ -66,11 +66,12 @@ public class ArmCommand extends CommandBase {
   @Override
   public void execute() {
 
-    if (controls.resetArmZero())
+    if (controls.resetArmZero()){
       arm.resetArmZero();
+    }
 
     double armSpeedMultiplyer;
-    if (controls.armState() == ArmPose.NONE) {
+    if (controls.armState() == ArmPose.NONE) { // If going manual mode
       armSpeedMultiplyer = controls.runClaw() > 0.0 ? 0.175 : 1.0;
     } else {
       armSpeedMultiplyer = Arm.armPoseMap.get(controls.armState()).getClawSpeedMultiplier();
