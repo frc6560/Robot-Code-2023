@@ -68,7 +68,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     ntDispTab("Controls")
       .add("Y Joystick", this::driveY)
       .add("X Joystick", this::driveX)
-      .add("Rotation Joystick", this::driveRotation);
+      .add("Rotation Joystick", this::driveRotationX);
 
     
     limelightTable = NetworkTableInstance.getDefault().getTable("Limelight");
@@ -143,8 +143,13 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
    * @return the angular velocity of the robot
    */
   @Override
-  public double driveRotation() {
+  public double driveRotationX() {
     return modifyAxis(-xbox.getRightX() * turnSpeed.get());
+  }
+
+  @Override
+  public double driveRotationY() {
+    return modifyAxis(-xbox.getRightY() * turnSpeed.get());
   }
 
   /**

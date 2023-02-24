@@ -526,7 +526,10 @@ public class Drivetrain extends SubsystemBase {
                         return;
 
                 Pose2d camPose = result.getFirst();
-
+                
+                if (camPose == null || camPose == new Pose2d())
+                        return;
+                
                 if (camPose.minus(getPose()).getTranslation().getNorm() > 1.5 && !overrideMaxVisionPoseCorrection)
                         return;
 

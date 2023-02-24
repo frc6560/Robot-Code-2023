@@ -62,8 +62,8 @@ public class Limelight extends SubsystemBase {
     ntDispTab("Limelight")
     .add("Horizontal Angle", this::getHorizontalAngle)
     .add("Vertical Angle", this::getVerticalAngle)
-    .add("Has Target", this::hasTarget)
-    .add("Predicted X Distance From Target", this::getXDistMeters);
+    .add("Has Target", this::hasTarget);
+
     SmartDashboard.putData("aprilTagField", aprilTagField);
     // SmartDashboard.putData("reflectiveTapeField", reflectiveTapeField);
 
@@ -84,22 +84,6 @@ public class Limelight extends SubsystemBase {
 
   public boolean hasTarget(){
     return ntV.getDouble(0.0) == 1.0;
-  }
-
-  public double getXDistMeters() {
-    double yDist_edge_to_target = getVerticalAngle() < 0.0 ? Units.inchesToMeters(22.5) : Units.inchesToMeters(39.5);
-
-    double predicted_robot_dist = predictedPose.get().getX();
-
-    double yDist_robot_to_wall = predicted_robot_dist > Constants.FieldConstants.length / 2
-      ? Constants.FieldConstants.length - predicted_robot_dist
-      : predicted_robot_dist;
-    
-    double wall_to_edge = 1.37795; // TODO: change
-
-    double yDist = yDist_robot_to_wall - (wall_to_edge - yDist_edge_to_target);
-
-    return yDist/Math.tan(Math.toRadians(getHorizontalAngle()));
   }
 
   public void setForceOff(boolean value) {
@@ -153,6 +137,8 @@ public class Limelight extends SubsystemBase {
     
     if (pose == null) return null;
 
+    if (pose.equals(new Pose2d()))
+      return null;
     //transform pose from LL "field space" to pose2d
     // pose = new Pose2d(pose.getTranslation().plus(new Translation2d(Constants.FieldConstants.length/2.0, Constants.FieldConstants.width/2.0)), pose.getRotation());
 
