@@ -533,6 +533,11 @@ public class Drivetrain extends SubsystemBase {
                 if (camPose.minus(getPose()).getTranslation().getNorm() > 1.5 && !overrideMaxVisionPoseCorrection)
                         return;
 
+                if (!overrideMaxVisionPoseCorrection) {
+                        // TODO: test this line of code and see if it's stupid or not
+                        camPose = new Pose2d(camPose.getTranslation(), getGyroscopeRotation());
+                }
+                
                 double camPoseObsTime = result.getSecond();
                 poseEstimator.addVisionMeasurement(camPose, camPoseObsTime);
         }

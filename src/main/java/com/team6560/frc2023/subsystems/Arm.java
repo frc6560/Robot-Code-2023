@@ -151,7 +151,7 @@ public class Arm extends SubsystemBase {
     // breakMotorPid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
     breakMotorPid.setSmartMotionMaxVelocity(1000, 0);
     // breakMotorPid.setSmartMotionMinOutputVelocity(50, 0);
-    breakMotorPid.setSmartMotionAllowedClosedLoopError(ALLOWED_ERROR, 0);
+    // breakMotorPid.setSmartMotionAllowedClosedLoopError(ALLOWED_ERROR, 0);
 
 
     breakMotorPid.setP(0.05, 1);
@@ -223,7 +223,7 @@ public class Arm extends SubsystemBase {
   public void setArmState(double pose) {
     // setArmRotation(pose);
     // if(!ntMarkRadin.getBoolean(false)) setArmRotationMark(pose); else setArmRotationRadin(pose);
-    if(!ntMarkRadin.getBoolean(false)) setArmRotation(pose); else setArmRotationRadin(pose);
+    setArmRotationRadin(pose);
     
   }
 

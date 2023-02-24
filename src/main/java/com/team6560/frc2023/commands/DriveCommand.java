@@ -58,7 +58,8 @@ public class DriveCommand extends CommandBase {
     private Limelight limelight;
 
     private PIDController driveRotationPIDController = new PIDController(0.03, 0.0269420, 0.0);
-    private PIDController driveTranslationPIDController = new PIDController(0.1, 0.0, 0.00025);
+    private PIDController driveTranslationYPIDController = new PIDController(0.1, 0.0, 0.00025);
+    private PIDController driveTranslationXPIDController = new PIDController(0.1, 0.0, 0.00025);
 
     private boolean rotationIsPosition = true;
 
@@ -66,9 +67,11 @@ public class DriveCommand extends CommandBase {
 
     private boolean isOverridingAngle = true;
 
-    private double lastTranslationX;
+    private double lastTranslationY;
 
     private boolean isOverridingTranslation;
+
+    private double lastTranslationX;
 
     /**
      * Creates a new `DriveCommand` instance.
@@ -90,9 +93,13 @@ public class DriveCommand extends CommandBase {
         driveRotationPIDController.setTolerance(0.0);
         driveRotationPIDController.enableContinuousInput(-180.0, 180.0);
 
-        driveTranslationPIDController.setIntegratorRange(-0.6, 0.6);
-        driveTranslationPIDController.setTolerance(0.0);
-        driveTranslationPIDController.enableContinuousInput(-180.0, 180.0);
+        driveTranslationYPIDController.setIntegratorRange(-0.6, 0.6);
+        driveTranslationYPIDController.setTolerance(0.0);
+        driveTranslationYPIDController.enableContinuousInput(-180.0, 180.0);
+
+        driveTranslationXPIDController.setIntegratorRange(-0.6, 0.6);
+        driveTranslationXPIDController.setTolerance(0.0);
+        driveTranslationXPIDController.enableContinuousInput(-180.0, 180.0);
 
         NtValueDisplay.ntDispTab("DriveCommand")
                 .add("actual", () -> drivetrainSubsystem.getGyroscopeRotation().getDegrees())
@@ -124,15 +131,15 @@ public class DriveCommand extends CommandBase {
                             drivetrain.getGyroscopeRotation()));
     }
 
-    public void translateX(double translationX) {
+    public void translateY(double translationY) {
 
-        lastTranslationX = translationX;
+        lastTranslationY = translationY;
 
         // double thing = MathUtil.inputModulus(current - lastRotationTheta, -180, 180);
 
-        double calculated = driveTranslationPIDController.calculate(translationX, 0);
+        double calculated = driveTranslationYPIDController.calculate(translationY, 0);
 
-        if (driveTranslationPIDController.atSetpoint()) {
+        if (driveTranslationYPIDController.atSetpoint()) {
             isOverridingTranslation = false;
         } else
             isOverridingTranslation = true;
@@ -146,7 +153,7 @@ public class DriveCommand extends CommandBase {
                             drivetrain.getGyroscopeRotation()));
     }
 
-    public void translateAndRotate(double translationX, double rotation) {
+    public void translateAndRotate(double translationY, double translationX, double rotation) {
         double currentRotation = drivetrain.getGyroscopeRotation().getDegrees();
 
         lastRotationTheta = rotation;
@@ -160,30 +167,47 @@ public class DriveCommand extends CommandBase {
         } else
             isOverridingAngle = true;
 
+        lastTranslationY = translationY;
         lastTranslationX = translationX;
 
         // double thing = MathUtil.inputModulus(current - lastRotationTheta, -180, 180);
 
-        double calculatedTranslation = driveTranslationPIDController.calculate(translationX, 0);
-
+        double calculatedTranslationY = driveTranslationYPIDController.calculate(translationY, 0);
+        double calculatedTranslationX = driveTranslationXPIDController.calculate(translationX, 0);
 
         // if (driveTranslationPIDController.atSetpoint()) {
-        //     drivetrain.driveNoX(
-        //         ChassisSpeeds.fromFieldRelativeSpeeds(
-        //                 controls.driveX(),
-        //                 0.0,
-        //                 isOverridingAngle ? calculatedRotation : controls.driveRotationX(),
-        //                 drivetrain.getGyroscopeRotation()));
-        //     return;
-        // } 
-
+        // drivetrain.driveNoX(
+        // ChassisSpeeds.fromFieldRelativeSpeeds(
+        // controls.driveX(),
+        // 0.0,
+        // isOverridingAngle ? calculatedRotation : controls.driveRotationX(),
+        // drivetrain.getGyroscopeRotation()));
+        // return;
+        // }
 
         drivetrain.driveNoX(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
-                        controls.driveX(),
-                        calculatedTranslation,
+                        calculatedTranslationX,
+                        calculatedTranslationY,
                         isOverridingAngle ? calculatedRotation : controls.driveRotationX(),
                         drivetrain.getGyroscopeRotation()));
+    }
+
+    public void autoAlign() {
+        double xAngle;
+        double rotation;
+
+        if (drivetrain.getPose().getX() < Constants.FieldConstants.length / 2.0) {
+            xAngle = limelight.getHorizontalAngle();
+            rotation = 0.0;
+        } else {
+            xAngle = -limelight.getHorizontalAngle();
+            rotation = 180.0;
+        }
+
+        double yAngle = limelight.getVerticalAngle();
+
+        translateAndRotate(xAngle, yAngle, rotation);
     }
 
     @Override
@@ -194,14 +218,7 @@ public class DriveCommand extends CommandBase {
     public void execute() {
 
         if (controls.autoAlign()) {
-            // if (Math.abs(controls.driveRotationX()) > 0.1 ||
-            // Math.abs(controls.driveRotationY()) > 0.1)
-            // rotate(Math.toDegrees(90.0 - Math.atan2(controls.driveRotationY(),
-            // controls.driveRotationX())));
-
-            double xAngle = -limelight.getHorizontalAngle();
-            double rotation = 180.0;
-            translateAndRotate(xAngle, rotation);
+            autoAlign();
             return;
         }
 
@@ -253,7 +270,8 @@ public class DriveCommand extends CommandBase {
                     ChassisSpeeds.fromFieldRelativeSpeeds(
                             controls.driveX() * controls.driveBoostMultiplier(),
                             controls.driveY() * controls.driveBoostMultiplier(),
-                            controls.driveRotationX() * (controls.driveBoostMultiplier() > 1.0 ? 1.0 : controls.driveBoostMultiplier()),
+                            controls.driveRotationX()
+                                    * (controls.driveBoostMultiplier() > 1.0 ? 1.0 : controls.driveBoostMultiplier()),
                             drivetrain.getGyroscopeRotation())); // perhaps use getRawGyroRotation() instead?
         }
 
