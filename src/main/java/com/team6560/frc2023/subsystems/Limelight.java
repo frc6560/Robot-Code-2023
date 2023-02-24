@@ -95,7 +95,7 @@ public class Limelight extends SubsystemBase {
       ? Constants.FieldConstants.length - predicted_robot_dist
       : predicted_robot_dist;
     
-    double wall_to_edge = 69; // TODO: change
+    double wall_to_edge = 1.37795; // TODO: change
 
     double yDist = yDist_robot_to_wall - (wall_to_edge - yDist_edge_to_target);
 
