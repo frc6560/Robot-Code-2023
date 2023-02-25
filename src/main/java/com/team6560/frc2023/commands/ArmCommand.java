@@ -43,6 +43,7 @@ public class ArmCommand extends CommandBase {
   private NetworkTable ntTable = NetworkTableInstance.getDefault().getTable("Arm");
   private NetworkTableEntry rotationSpeed;
   private NetworkTableEntry clawSpeed;
+  private boolean lock;
 
   /** Creates a new ArmCommand. */
   public ArmCommand(Arm arm, Controls controls) {
@@ -68,6 +69,8 @@ public class ArmCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    if (lock)
+      return;
 
     if (controls.resetArmZero()) {
       arm.resetArmZero();
@@ -117,6 +120,18 @@ public class ArmCommand extends CommandBase {
 
     }
 
+  }
+
+  public boolean transferFromIntake(double clawSpeed) {
+    return arm.transferFromIntake(clawSpeed);
+  }
+
+  public void setArmState(ArmPose armPose) {
+    arm.setArmState(armPose);
+  }
+
+  public void setArmStateLock(boolean lock) {
+    this.lock = lock;
   }
 
   // Called once the command ends or is interrupted.

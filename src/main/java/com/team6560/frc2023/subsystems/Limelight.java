@@ -18,6 +18,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -72,6 +73,12 @@ public class Limelight extends SubsystemBase {
 
 
   public int getPipeline() {
+    if (DriverStation.getAlliance() == Alliance.Blue && predictedPose.get().getX() > Constants.FieldConstants.length / 2.0)
+      return 0;
+    
+    if (DriverStation.getAlliance() == Alliance.Red && predictedPose.get().getX() < Constants.FieldConstants.length / 2.0)
+      return 0;
+    
     return controls.getLimelightPipeline();
   }
 

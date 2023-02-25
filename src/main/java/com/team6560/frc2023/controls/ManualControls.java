@@ -203,9 +203,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public double intakeSpeed() {
-    return 0.0;
-    // return 0.5 * (controlStation.getRightBumper() ? 1.0 : 0.0 - xbox.getRightTriggerAxis());
-    // return intakeTable.getEntry("speed").getDouble(0.0);
+    return -0.5;
   }
 
   @Override
@@ -282,7 +280,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public boolean isOverridingArm() {
-    // TODO Auto-generated method stub
+    // TODO Auto-generated method stub ahahahahahaha
     return false;
   }
 

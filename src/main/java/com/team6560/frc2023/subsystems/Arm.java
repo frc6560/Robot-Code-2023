@@ -28,26 +28,26 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static com.team6560.frc2023.Constants.*;
 
 public class Arm extends SubsystemBase {
-  /* 
+  /*
    * rotors: 38.1
    * break motor: 350
    * extention piston
    * gripper?
    */
 
-   /*
-    * rotate hand up
-    *   move rotors & break motor
-    * extend & retract arm
-    * run claw
-    */
+  /*
+   * rotate hand up
+   * move rotors & break motor
+   * extend & retract arm
+   * run claw
+   */
 
   CANSparkMax breakMotor = new CANSparkMax(BREAK_ID, MotorType.kBrushless);
   SparkMaxPIDController breakMotorPid = breakMotor.getPIDController();
 
   CANSparkMax clawMotorL = new CANSparkMax(CLAW_MOTOR_LEFT_ID, MotorType.kBrushless);
   CANSparkMax clawMotorR = new CANSparkMax(CLAW_MOTOR_RIGHT_ID, MotorType.kBrushless);
-  
+
   Solenoid extentionPiston = new Solenoid(PneumaticsModuleType.CTREPCM, EXTENTION_SOLENOID_ID);
 
   NetworkTable ntTable = NetworkTableInstance.getDefault().getTable("Arm");
@@ -60,9 +60,9 @@ public class Arm extends SubsystemBase {
   NetworkTableEntry invertClaw;
   private double currentReference;
 
-
   public enum ArmPose {
-    ZERO, DEFAULT, GROUND_CONE, LOW_CUBE, LOW_CONE, MEDIUM_CONE, HIGH_CONE, MEDIUM_CUBE, HIGH_CUBE, HUMAN_PLAYER_CONE, NONE, HUMAN_PLAYER_CUBE, GROUND_CUBE
+    ZERO, DEFAULT, GROUND_CONE, LOW_CUBE, LOW_CONE, MEDIUM_CONE, HIGH_CONE, MEDIUM_CUBE, HIGH_CUBE, HUMAN_PLAYER_CONE,
+    NONE, HUMAN_PLAYER_CUBE, GROUND_CUBE, INTAKE_CONE, INTAKE_CUBE
   }
 
   public static HashMap<ArmPose, ArmState> armPoseMap = new HashMap<ArmPose, ArmState>();
@@ -81,20 +81,19 @@ public class Arm extends SubsystemBase {
 
     clawMotorL.restoreFactoryDefaults();
     clawMotorL.setIdleMode(IdleMode.kBrake);
-    
+
     clawMotorR.restoreFactoryDefaults();
     clawMotorR.setIdleMode(IdleMode.kBrake);
     clawMotorR.setInverted(true);
 
     ntDispTab("Arm")
-    .add("Break Motor Speed", this::getBreakMotorSpeed)
-    .add("Claw Speed Left", this::getClawSpeedL)
-    .add("Claw Speed Right", this::getClawSpeedR)
-    .add("Extention Status", this::getExtentionStatus)
-    .add("raw arm pos", this::getRawArmPose)
-    .add("armPose", this::getArmPose)
-    .add("Target Pos", ()->currentReference)
-    ;
+        .add("Break Motor Speed", this::getBreakMotorSpeed)
+        .add("Claw Speed Left", this::getClawSpeedL)
+        .add("Claw Speed Right", this::getClawSpeedR)
+        .add("Extention Status", this::getExtentionStatus)
+        .add("raw arm pos", this::getRawArmPose)
+        .add("armPose", this::getArmPose)
+        .add("Target Pos", () -> currentReference);
 
     breakMultiplyer = ntTable.getEntry("Break Motor Multiplyer");
     breakMultiplyer.setDouble(0.1);
@@ -129,6 +128,8 @@ public class Arm extends SubsystemBase {
     armPoseMap.put(ArmPose.HUMAN_PLAYER_CUBE, new ArmState(0.85, false, 0.5));
     armPoseMap.put(ArmPose.HUMAN_PLAYER_CONE, new ArmState(0.85, false, 1.3));
 
+    armPoseMap.put(ArmPose.INTAKE_CONE, new ArmState(0.344, false, 1.3));
+    armPoseMap.put(ArmPose.INTAKE_CUBE, new ArmState(0.344, false, 0.5));
 
     // armPidController.disableContinuousInput();
     // armPidController.setIntegratorRange(-0.5, 0.5);
@@ -149,19 +150,18 @@ public class Arm extends SubsystemBase {
     // breakMotorPid.setSmartMotionMinOutputVelocity(50, 0);
     // breakMotorPid.setSmartMotionAllowedClosedLoopError(ALLOWED_ERROR, 0);
 
-
     breakMotorPid.setP(0.05, 1);
     breakMotorPid.setI(1e-6, 1);
     breakMotorPid.setD(0, 1);
     breakMotorPid.setFF(0.000156, 1);
-    
+
   }
 
   @Override
   public void periodic() {
   }
 
-  public void setArmExtention(boolean status){
+  public void setArmExtention(boolean status) {
     // System.out.println("Arm extended " + (status ? "Out." : "In."));
 
     extentionPiston.set(status);
@@ -180,28 +180,28 @@ public class Arm extends SubsystemBase {
 
     return armPose * (high - low) + low;
   }
-  
+
   /** Sets arm break velocity in RPM */
-  public void setBreakMotor(double rpm){
+  public void setBreakMotor(double rpm) {
     double speed = rpm * breakMultiplyer.getDouble(1.0) * BREAK_MOTOR_MULTIPLIER;
 
     // if(speed != 0) System.out.println("break is running at " + speed);
-    
+
     breakMotor.set(-speed);
   }
 
-  public void setClawSpeed(double output){
+  public void setClawSpeed(double output) {
     // if(output != 0) System.out.println("Claw is running at " + output);
 
     clawMotorL.set(output);
     clawMotorR.set(output);
   }
 
-  public void setArmRotationVelocity(double output){
+  public void setArmRotationVelocity(double output) {
     if (getArmPose() <= armPoseMap.get(ArmPose.DEFAULT).getPosition()) {
       output = Math.min(0, output);
 
-    } else if(getArmPose() >= 1.0) {
+    } else if (getArmPose() >= 1.0) {
       output = Math.max(0, output);
     }
 
@@ -218,9 +218,10 @@ public class Arm extends SubsystemBase {
 
   public void setArmState(double pose) {
     // setArmRotation(pose);
-    // if(!ntMarkRadin.getBoolean(false)) setArmRotationMark(pose); else setArmRotationRadin(pose);
+    // if(!ntMarkRadin.getBoolean(false)) setArmRotationMark(pose); else
+    // setArmRotationRadin(pose);
     setArmRotation(pose);
-    
+
   }
 
   public void setArmRotation(ArmPose armPose) {
@@ -229,24 +230,26 @@ public class Arm extends SubsystemBase {
 
   public void setArmRotationOld(double pose) {
     this.currentReference = pose;
-    breakMotorPid.setReference(currentReference * (ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT) - ntBottomLimit.getDouble(armPoseMap.get(ArmPose.ZERO).getPosition())), ControlType.kSmartMotion);
+    breakMotorPid.setReference(currentReference * (ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT)
+        - ntBottomLimit.getDouble(armPoseMap.get(ArmPose.ZERO).getPosition())), ControlType.kSmartMotion);
     // double calculated = -armPidController.calculate(getArmPose(), pose);
     // if (armPidController.atSetpoint())
-    //   return;
+    // return;
     // setBreakMotorVolts(calculated);
   }
 
   public void setArmRotation(double pose) {
     this.currentReference = pose;
-    double rot = currentReference * (ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT) - ntBottomLimit.getDouble(armPoseMap.get(ArmPose.ZERO).getPosition()));
+    double rot = currentReference * (ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT)
+        - ntBottomLimit.getDouble(armPoseMap.get(ArmPose.ZERO).getPosition()));
 
     final double rampUpWindow = 750;
-    if(Math.abs(getBreakMotorSpeed()) < rampUpWindow && !isArmAtSetpoint()){
+    if (Math.abs(getBreakMotorSpeed()) < rampUpWindow && !isArmAtSetpoint()) {
       setArmRotationOld(pose); // ramp up
 
     } else {
       breakMotorPid.setReference(rot, ControlType.kPosition, 1);
-    } 
+    }
 
   }
 
@@ -254,7 +257,8 @@ public class Arm extends SubsystemBase {
     breakMotor.getEncoder().setPosition(0.0);
   }
 
-  ProfiledPIDController controller = new ProfiledPIDController(breakMotorPid.getP(1), breakMotorPid.getI(1)*5, breakMotorPid.getD(1), new TrapezoidProfile.Constraints(11000, 4000));
+  ProfiledPIDController controller = new ProfiledPIDController(breakMotorPid.getP(1), breakMotorPid.getI(1) * 5,
+      breakMotorPid.getD(1), new TrapezoidProfile.Constraints(11000, 4000));
 
   public void setArmRotationMark(double pose) {
     controller.disableContinuousInput();
@@ -284,25 +288,37 @@ public class Arm extends SubsystemBase {
     return convertRawArmPoseToArmPose(currPos);
   }
 
-  public double getBreakMotorSpeed(){
+  public double getBreakMotorSpeed() {
     return breakMotor.getEncoder().getVelocity();
   }
 
-  public boolean getExtentionStatus(){
+  public boolean getExtentionStatus() {
     return extentionPiston.get();
   }
 
-  public double getClawSpeedL(){
+  public double getClawSpeedL() {
     return Math.abs(clawMotorL.getEncoder().getVelocity());
   }
-  public double getClawSpeedR(){
+
+  public double getClawSpeedR() {
     return Math.abs(clawMotorR.getEncoder().getVelocity());
   }
-  public double getClawSpeed(){
+
+  public double getClawSpeed() {
     // average of two claws
     return (getClawSpeedL() + getClawSpeedR()) / 2.0;
   }
 
-  
+  public double getClawCurrentOutput() {
+    return Math.copySign((Math.abs(clawMotorL.getOutputCurrent()) + Math.abs(clawMotorR.getOutputCurrent())) / 2.0,
+        clawMotorL.getOutputCurrent() + clawMotorR.getOutputCurrent());
+  }
+
+  public boolean transferFromIntake(double clawSpeed) {
+    setClawSpeed(clawSpeed);
+    System.out.println(Math.abs(getClawCurrentOutput()));
+    return Math.abs(getClawCurrentOutput()) > 15.0;
+
+  }
 
 }

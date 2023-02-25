@@ -39,7 +39,7 @@ public class Intake extends SubsystemBase {
     // leftExtensionMotor.setInverted(false);
     // rightExtensionMotor.setInverted(true);
 
-    extensionMotors = new CANSparkMax[] {leftExtensionMotor, rightExtensionMotor};
+    extensionMotors = new CANSparkMax[] { leftExtensionMotor, rightExtensionMotor };
 
     intakeStateMap = new HashMap<IntakeState, Double>();
 
@@ -54,7 +54,8 @@ public class Intake extends SubsystemBase {
       i.getPIDController().setFF(0.001, 0);
 
       i.getPIDController().setSmartMotionMaxAccel(300, 0);
-      // i.getPIDController().setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
+      // i.getPIDController().setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal,
+      // 0);
       i.getPIDController().setSmartMotionMaxVelocity(5000, 0);
       // i.getPIDController().setSmartMotionMinOutputVelocity(50, 0);
       i.getPIDController().setSmartMotionAllowedClosedLoopError(0.5, 0);
@@ -67,13 +68,14 @@ public class Intake extends SubsystemBase {
     // rotationMotor.setSecondaryCurrentLimit(2);
 
     ntDispTab("Intake")
-    .add("Rotation Motor Current Draw", this::getRotationMotorCurrent)
-    .add("Intake extension pose", () -> leftExtensionMotor.getEncoder().getPosition());
-    
-      intakeStateMap.put(IntakeState.EXTENDED, 1.0);
-      intakeStateMap.put(IntakeState.RETRACTED, 0.0);
+        .add("Rotation Motor Current Draw", this::getRotationMotorCurrent)
+        .add("Intake extension pose", this::getIntakePosition);
 
-    }
+    intakeStateMap.put(IntakeState.EXTENDED, 1.0);
+    intakeStateMap.put(IntakeState.RETRACTED, 0.0);
+
+    leftExtensionMotor.getEncoder().setPosition(-5.0);
+  }
 
   @Override
   public void periodic() {
@@ -87,6 +89,9 @@ public class Intake extends SubsystemBase {
 
   }
 
+  public double getIntakePosition() {
+    return leftExtensionMotor.getEncoder().getPosition();
+  }
 
   public void setIntakeState(IntakeState intakeState) {
     this.currIntakeState = intakeState;
@@ -98,7 +103,6 @@ public class Intake extends SubsystemBase {
     if (currentGamePiece == GamePiece.CONE) {
       return false;
     }
-
 
     return true;
   }
@@ -123,7 +127,6 @@ public class Intake extends SubsystemBase {
   public void setRightExtensionMotorPosition(double position) {
     rightExtensionMotor.getPIDController().setReference(convertPositionToPercent(position), ControlType.kSmartMotion);
   }
-
 
   public void moveIntake(double percentOutput) {
     leftExtensionMotor.set(-percentOutput);

@@ -25,15 +25,17 @@ public class IntakeCommand extends CommandBase {
 
   private Intake intake;
   private Controls controls;
-  private Arm arm;
+  private ArmCommand armCommand;
   private int rotationMotorFrames;
   private boolean initializeComplete;
+  private int newThingFrames;
+  private int newNewThingFrames;
 
   /** Creates a new IntakeCommand. */
-  public IntakeCommand(Intake intake, Arm arm, Controls controls) {
+  public IntakeCommand(Intake intake, ArmCommand armCommand, Controls controls) {
     this.intake = intake;
     this.controls = controls;
-    this.arm = arm;
+    this.armCommand = armCommand;
 
     initializeComplete = false;
 
@@ -48,6 +50,27 @@ public class IntakeCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    // if (rotationMotorFrames > 25) {
+    //   intake.moveIntake(0.0);
+    //   arm.setArmState(ArmPose.MEDIUM_CONE);
+    //   newThingFrames++;
+    //   if (newThingFrames > 15) {
+    //     intake.moveIntake(-0.3);
+    //     newNewThingFrames++;
+    //     if (newNewThingFrames > 15) {
+    //       intake.moveIntake(0.0);
+    //       arm.setArmState(ArmPose.DEFAULT);
+    //       initializeComplete = true;
+    //     }
+          
+    //   }
+    // } else {
+    //   intake.moveIntake(0.3);
+    //   rotationMotorFrames++;
+    // }
+      
+    // if (!initializeComplete)
+    //   return;
     // if (intake.getCurrentState() == IntakeState.EXTENDED)
     //   initializeComplete = true;
     
@@ -56,31 +79,21 @@ public class IntakeCommand extends CommandBase {
     //   return;
 
     // intake.setIntakeState(controls.isIntakeDown() ? IntakeState.EXTENDED : IntakeState.RETRACTED);
-    intake.moveIntake(controls.moveIntakeSpeed());
-    if (intake.isSafeToRunRotationMotor())
-      intake.setRotationMotor(controls.intakeSpeed());
-    else if (intake.getCurrentGamePiece() == GamePiece.CONE) {
+  //   intake.moveIntake(controls.moveIntakeSpeed());
+  //   intake.setRotationMotor(0.0);
+  //   if (Math.abs(intake.getIntakePosition()) > 10.0) {
+  //     intake.setRotationMotor(controls.intakeSpeed());
 
-      if (arm.transferFromIntake()) {
-        intake.setRotationMotor(0.4);
-        rotationMotorFrames++;
-      }
+  //     armCommand.setArmStateLock(true);
+  //     armCommand.setArmState(ArmPose.INTAKE_CONE);
 
-      if (rotationMotorFrames >= 20) {
-        if (arm.transferFromIntakePart2()) {
-          intake.setRotationMotor(0.0);
-          rotationMotorFrames = 0;
-        }
-      }
+  //     if (armCommand.transferFromIntake(Arm.armPoseMap.get(ArmPose.INTAKE_CONE).getClawSpeedMultiplier())) {
+  //       intake.setRotationMotor(-controls.intakeSpeed());
+  //       armCommand.transferFromIntake(0.0);
+  //       armCommand.setArmStateLock(false);
+  //     }
 
-        if ( (int) Timer.getFPGATimestamp() % 4 == 0) {
-          intake.setRotationMotor(controls.intakeSpeed() / 4.0);
-          return;
-        }
-
-      intake.setRotationMotor(0.0);
-
-    }
+  //   }
   }
 
   // Called once the command ends or is interrupted.

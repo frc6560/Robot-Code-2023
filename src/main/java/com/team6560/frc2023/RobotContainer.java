@@ -63,7 +63,7 @@ public class RobotContainer {
                 arm = new Arm();
                 intake = new Intake();
 
-                armCommand = new ArmCommand(arm, intake, manualControls);
+                armCommand = new ArmCommand(arm, manualControls);
                 arm.setDefaultCommand(armCommand);
 
                 autoBuilder = new AutoBuilder(drivetrain, arm);
@@ -72,7 +72,7 @@ public class RobotContainer {
                 drivetrain.setDefaultCommand(driveCommand);
 
 
-                intakeCommand = new IntakeCommand(intake, arm, manualControls);
+                intakeCommand = new IntakeCommand(intake, armCommand, manualControls);
                 intake.setDefaultCommand(intakeCommand);
 
 
