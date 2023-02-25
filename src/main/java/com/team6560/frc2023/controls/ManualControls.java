@@ -68,7 +68,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     ntDispTab("Controls")
       .add("Y Joystick", this::driveY)
       .add("X Joystick", this::driveX)
-      .add("Rotation Joystick", this::driveRotation);
+      .add("Rotation Joystick", this::driveRotationX);
 
     
     limelightTable = NetworkTableInstance.getDefault().getTable("Limelight");
@@ -106,7 +106,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   private static double modifyAxis(double value) {
     // Deadband
-    value = deadband(value, 0.0015);
+    value = deadband(value, 0.005);
 
     // Square the axis
     value = Math.copySign(value * value, value);
@@ -143,8 +143,13 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
    * @return the angular velocity of the robot
    */
   @Override
-  public double driveRotation() {
+  public double driveRotationX() {
     return modifyAxis(-xbox.getRightX() * turnSpeed.get());
+  }
+
+  @Override
+  public double driveRotationY() {
+    return modifyAxis(-xbox.getRightY() * turnSpeed.get());
   }
 
   /**
@@ -159,7 +164,12 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   }
 
   @Override
-  public boolean GoToDoubleSubstation() {
+  public double driveBoostMultiplier() {
+    return xbox.getLeftBumper() ? 0.5 : xbox.getRightBumper() ? 1.5 : 1.0;
+  }
+
+  @Override
+  public boolean autoAlign() {
     return xbox.getAButton();
   }
 
@@ -170,7 +180,14 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public int getLimelightPipeline() {
-    return (int) limelightTable.getEntry("limelightPipeline").getInteger( (long) 0);
+    if (isCubeMode()) {
+      return 0;
+    }
+    // if (autoAlign()) {
+    //   return 1;
+    // }
+    return 1;
+    // return (int) limelightTable.getEntry("limelightPipeline").getInteger( (long) 0);
   }
 
   @Override
@@ -180,25 +197,27 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public boolean isIntakeDown() {
-    return xbox.getLeftBumper();
+    return false;
+    // return xbox.getLeftBumper();
   }
 
   @Override
   public double intakeSpeed() {
-    return 0.5 * (xbox.getLeftTriggerAxis() - xbox.getRightTriggerAxis());
+    return 0.0;
+    // return 0.5 * (controlStation.getRightBumper() ? 1.0 : 0.0 - xbox.getRightTriggerAxis());
     // return intakeTable.getEntry("speed").getDouble(0.0);
   }
 
   @Override
   public double moveIntakeSpeed() {
     double out = 0.0;
-    out += xbox.getRightBumper() ? 0.35 : 0.0;
-    out -= xbox.getLeftBumper() ? 0.35 : 0.0;
+    out += xbox.getBButton() ? 0.35 : 0.0;
+    out -= xbox.getXButton() ? 0.35 : 0.0;
     return out;
   }
   
   public double armRotationOverride(){
-    return controlStation.getLeftY();
+    return modifyAxis(controlStation.getLeftY());
   }
 
   @Override
@@ -208,7 +227,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public double runClaw(){
-    return (controlStation.getRightBumper() ? 1 : (controlStation.getRightTriggerAxis() > 0.5 ? -1 : 0));
+    return (controlStation.getRightBumper() ? 1 : (xbox.getRightTriggerAxis() > 0.5 ? -1 : 0));
   }
 
   @Override
@@ -236,30 +255,26 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
     // return xbox.getBButton() ? ArmPose.MEDIUM_CONE : ArmPose.ZERO;
     
-    
-    if (controlStation.getAButton())
-      return ArmPose.MEDIUM_CUBE;
-    
-    if (controlStation.getBButton())
-      return ArmPose.HIGH_CUBE;
-
     if (controlStation.getXButton())
-      return ArmPose.MEDIUM_CONE;
+      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.MEDIUM_CUBE : ArmPose.MEDIUM_CONE;
     
     if (controlStation.getYButton())
-      return ArmPose.HIGH_CONE;
+      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.HIGH_CUBE : ArmPose.HIGH_CONE;
     
-    if (controlStation.getRightY() > 0.5)
-      return ArmPose.GROUND;
+    if (controlStation.getAButton())
+      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.LOW_CUBE : ArmPose.LOW_CONE;
     
-    if (controlStation.getRightY() < -0.5)
-      return ArmPose.HUMAN_PLAYER;
+    if (controlStation.getBButton())
+      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.HUMAN_PLAYER_CUBE : ArmPose.HUMAN_PLAYER_CONE;
 
-    if (controlStation.getRightX() < -0.5)
-      return ArmPose.LOW;
+    // if (controlStation.getRightY() < -0.5)
+    //   return ArmPose.LOW;
     
+    // if (controlStation.getStartButton())
+    //   return ArmPose.DEFAULT;
+
     if (controlStation.getStartButton())
-      return ArmPose.DEFAULT;
+      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.GROUND_CUBE : ArmPose.GROUND_CONE;
     
     return ArmPose.NONE;
     
@@ -281,6 +296,14 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     return armTable.getEntry("overrideSoftLimits").getBoolean(false);
   }
 
-  
+  @Override
+  public boolean isCubeMode() {
+    return controlStation.getLeftTriggerAxis() > 0.5;
+  }
+
+  @Override
+  public boolean driveIsAutoRotating() {
+    return xbox.getLeftTriggerAxis() > 0.5;
+  }
 
 }

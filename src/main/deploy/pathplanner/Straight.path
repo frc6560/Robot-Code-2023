@@ -25,11 +25,11 @@
     {
       "anchorPoint": {
         "x": 6.0,
-        "y": 5.0
+        "y": 3.0
       },
       "prevControl": {
         "x": 6.0,
-        "y": 3.8600525852086083
+        "y": 1.8600525852086083
       },
       "nextControl": null,
       "holonomicAngle": 90.0,
@@ -45,5 +45,12 @@
       }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 0.8334872159090898,
+      "names": [
+        "PLACE_CONE_HIGH"
+      ]
+    }
+  ]
 }

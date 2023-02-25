@@ -5,6 +5,7 @@
 package com.team6560.frc2023.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -14,8 +15,9 @@ import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab
 
 import java.util.HashMap;
 
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -41,6 +43,8 @@ public class Arm extends SubsystemBase {
     */
 
   CANSparkMax breakMotor = new CANSparkMax(BREAK_ID, MotorType.kBrushless);
+  SparkMaxPIDController breakMotorPid = breakMotor.getPIDController();
+
   CANSparkMax clawMotorL = new CANSparkMax(CLAW_MOTOR_LEFT_ID, MotorType.kBrushless);
   CANSparkMax clawMotorR = new CANSparkMax(CLAW_MOTOR_RIGHT_ID, MotorType.kBrushless);
   
@@ -54,16 +58,17 @@ public class Arm extends SubsystemBase {
   NetworkTableEntry ntBottomLimit;
 
   NetworkTableEntry invertClaw;
+  private double currentReference;
 
 
   public enum ArmPose {
-    ZERO, DEFAULT, TRANSFER, TRANSFER_PART_2, GROUND, LOW, MEDIUM_CONE, HIGH_CONE, MEDIUM_CUBE, HIGH_CUBE, HUMAN_PLAYER, NONE
+    ZERO, DEFAULT, GROUND_CONE, LOW_CUBE, LOW_CONE, MEDIUM_CONE, HIGH_CONE, MEDIUM_CUBE, HIGH_CUBE, HUMAN_PLAYER_CONE, NONE, HUMAN_PLAYER_CUBE, GROUND_CUBE
   }
 
-  private HashMap<ArmPose, Pair<Double, Double>> armPoseMap = new HashMap<ArmPose, Pair<Double, Double>>();
-  private int frames;
+  public static HashMap<ArmPose, ArmState> armPoseMap = new HashMap<ArmPose, ArmState>();
 
   private static final double DEFAULT_TOP_SOFT_LIMIT = 121.0956969;
+  private static final double ALLOWED_ERROR = 2.06560;
 
   // private PIDController armPidController = new PIDController(25.0, 7.25, 6.0);
 
@@ -72,6 +77,7 @@ public class Arm extends SubsystemBase {
     breakMotor.restoreFactoryDefaults();
     // breakMotor.setInverted(true);
     breakMotor.setIdleMode(IdleMode.kBrake);
+    // breakMotor.setInverted(true);
 
     clawMotorL.restoreFactoryDefaults();
     clawMotorL.setIdleMode(IdleMode.kBrake);
@@ -87,6 +93,7 @@ public class Arm extends SubsystemBase {
     .add("Extention Status", this::getExtentionStatus)
     .add("raw arm pos", this::getRawArmPose)
     .add("armPose", this::getArmPose)
+    .add("Target Pos", ()->currentReference)
     ;
 
     breakMultiplyer = ntTable.getEntry("Break Motor Multiplyer");
@@ -102,82 +109,76 @@ public class Arm extends SubsystemBase {
     invertClaw.setBoolean(false);
 
     // position, outSpeedMultiplier
-    armPoseMap.put(ArmPose.ZERO, new Pair<Double, Double>(0.0, 1.0));
+    armPoseMap.put(ArmPose.ZERO, new ArmState(0.0, false, 1.0));
 
     // armPoseMap.put(ArmPose.DEFAULT, new Pair<Double, Double>(0.06321, 1.0));
-    armPoseMap.put(ArmPose.DEFAULT, new Pair<Double, Double>(0.1, 1.0));
+    armPoseMap.put(ArmPose.DEFAULT, new ArmState(0.1, false, 1.0));
 
-    armPoseMap.put(ArmPose.LOW, new Pair<Double, Double>(0.2347, 1.0));
+    armPoseMap.put(ArmPose.LOW_CUBE, new ArmState(0.245, false, 2.5 * 0.175));
+    armPoseMap.put(ArmPose.LOW_CONE, new ArmState(0.245, false, 1.0 * 0.175));
 
-    armPoseMap.put(ArmPose.GROUND, new Pair<Double, Double>(0.3314, 1.0));
+    armPoseMap.put(ArmPose.GROUND_CUBE, new ArmState(0.35, true, 0.5));
+    armPoseMap.put(ArmPose.GROUND_CONE, new ArmState(0.35, true, 1.0));
 
-    armPoseMap.put(ArmPose.MEDIUM_CONE, new Pair<Double, Double>(0.770, 1.0));
-    armPoseMap.put(ArmPose.HIGH_CONE, new Pair<Double, Double>(1.0, 1.0));
+    armPoseMap.put(ArmPose.MEDIUM_CONE, new ArmState(0.79, false, 1.6 * 0.175));
+    armPoseMap.put(ArmPose.HIGH_CONE, new ArmState(1.0, true, 1.6 * 0.175));
 
-    armPoseMap.put(ArmPose.MEDIUM_CUBE, new Pair<Double, Double>(0.63, 1.5));
-    armPoseMap.put(ArmPose.HIGH_CUBE, new Pair<Double, Double>(0.9, 1.5));
+    armPoseMap.put(ArmPose.MEDIUM_CUBE, new ArmState(0.7, false, 3.0 * 0.175));
+    armPoseMap.put(ArmPose.HIGH_CUBE, new ArmState(1.0, false, 3.0 * 0.175));
 
-    armPoseMap.put(ArmPose.HUMAN_PLAYER, new Pair<Double, Double>(0.799, 1.0));
+    armPoseMap.put(ArmPose.HUMAN_PLAYER_CUBE, new ArmState(0.85, false, 0.5));
+    armPoseMap.put(ArmPose.HUMAN_PLAYER_CONE, new ArmState(0.85, false, 1.3));
 
-    armPoseMap.put(ArmPose.TRANSFER, new Pair<Double, Double>(0.3, 1.0));
 
     // armPidController.disableContinuousInput();
     // armPidController.setIntegratorRange(-0.5, 0.5);
     // armPidController.setTolerance(0.05);
 
-    breakMotor.getPIDController().setP(6.560e-8, 0);
-    breakMotor.getPIDController().setI(1.06560e-9, 0);
-    breakMotor.getPIDController().setD(6.560e-12, 0);
-    breakMotor.getPIDController().setFF(0.002, 0);
+    // final double zeroToFullTime = 3;
+    // breakMotor.setOpenLoopRampRate(zeroToFullTime);
 
-    breakMotor.getPIDController().setSmartMotionMaxAccel(600, 0);
-    // breakMotor.getPIDController().setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
-    breakMotor.getPIDController().setSmartMotionMaxVelocity(11500, 0);
-    // breakMotor.getPIDController().setSmartMotionMinOutputVelocity(50, 0);
-    breakMotor.getPIDController().setSmartMotionAllowedClosedLoopError(2.06560, 0);
+    breakMotorPid.setP(6.560e-8, 0);
+    breakMotorPid.setI(1.06560e-9, 0);
+    breakMotorPid.setD(6.560e-12, 0);
+    breakMotorPid.setFF(0.001, 0);
+
+    breakMotorPid.setSmartMotionMaxAccel(656.0, 0);
+    breakMotorPid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
+    // breakMotorPid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
+    breakMotorPid.setSmartMotionMaxVelocity(1000, 0);
+    // breakMotorPid.setSmartMotionMinOutputVelocity(50, 0);
+    // breakMotorPid.setSmartMotionAllowedClosedLoopError(ALLOWED_ERROR, 0);
+
+
+    breakMotorPid.setP(0.05, 1);
+    breakMotorPid.setI(1e-6, 1);
+    breakMotorPid.setD(0, 1);
+    breakMotorPid.setFF(0.000156, 1);
+    
   }
 
   @Override
   public void periodic() {
   }
 
-  public boolean transferFromIntake() {
-    setArmState(ArmPose.TRANSFER);
-    setClawSpeed(0.4);
-    return Math.abs(getClawCurrentDraw()) > 20;
-  }
-
-  public boolean transferFromIntakePart2() {
-    setArmState(ArmPose.TRANSFER_PART_2);
-    setClawSpeed(0.0);
-    if (frames++ > 20) {
-      frames = 0;
-      return true;
-    }
-    return false;
-  }
-
-  public double getClawCurrentDraw() {
-    return Math.copySign(Math.abs(clawMotorL.getOutputCurrent()) + Math.abs(clawMotorR.getOutputCurrent()), clawMotorL.getOutputCurrent() + clawMotorR.getOutputCurrent()) / 2.0;
-  }
-
   public void setArmExtention(boolean status){
-    System.out.println("Arm extended " + (status ? "Out." : "In."));
+    // System.out.println("Arm extended " + (status ? "Out." : "In."));
 
     extentionPiston.set(status);
   }
 
-  public double getRawArmPose() {
-    return breakMotor.getEncoder().getPosition();
-  }
-
-  public double getArmPose() {
-    double currPos = getRawArmPose();
+  public double convertRawArmPoseToArmPose(double rawArmPose) {
     double low = ntBottomLimit.getDouble(0.0);
-    // double high = ntTopLimit.getDouble(107.0);
     double high = ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT);
 
-    return (currPos - low) / (high - low);
+    return (rawArmPose - low) / (high - low);
+  }
+
+  public double convertArmPoseToRawArmPose(double armPose) {
+    double low = ntBottomLimit.getDouble(0.0);
+    double high = ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT);
+
+    return armPose * (high - low) + low;
   }
   
   /** Sets arm break velocity in RPM */
@@ -189,20 +190,15 @@ public class Arm extends SubsystemBase {
     breakMotor.set(-speed);
   }
 
-  public void setBreakMotorVolts(double volts) {
-    breakMotor.setVoltage(volts);
-  }
-
   public void setClawSpeed(double output){
-    if(output != 0) System.out.println("Claw is running at " + output);
+    // if(output != 0) System.out.println("Claw is running at " + output);
 
     clawMotorL.set(output);
     clawMotorR.set(output);
   }
 
   public void setArmRotationVelocity(double output){
-
-    if (getArmPose() <= armPoseMap.get(ArmPose.DEFAULT).getFirst()) {
+    if (getArmPose() <= armPoseMap.get(ArmPose.DEFAULT).getPosition()) {
       output = Math.min(0, output);
 
     } else if(getArmPose() >= 1.0) {
@@ -216,36 +212,77 @@ public class Arm extends SubsystemBase {
     setBreakMotor(output * BREAK_TO_ARM);
   }
 
-
   public void setArmState(ArmPose armPose) {
-    setArmState(armPoseMap.get(armPose));
-  }
-
-
-  public void setArmState(Pair<Double, Double> state) {
-    setArmState(state.getFirst());
+    setArmState(armPoseMap.get(armPose).getPosition());
   }
 
   public void setArmState(double pose) {
+    // setArmRotation(pose);
+    // if(!ntMarkRadin.getBoolean(false)) setArmRotationMark(pose); else setArmRotationRadin(pose);
     setArmRotation(pose);
+    
   }
 
   public void setArmRotation(ArmPose armPose) {
-    setArmRotation(armPoseMap.get(armPose).getFirst());
+    setArmRotation(armPoseMap.get(armPose).getPosition());
   }
 
-  public void resetArmZero() {
-    breakMotor.getEncoder().setPosition(0.0);
-  }
-
-  public void setArmRotation(double pose) {
-    breakMotor.getPIDController().setReference(pose * (ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT) - ntBottomLimit.getDouble(armPoseMap.get(ArmPose.ZERO).getFirst())), ControlType.kSmartMotion);
+  public void setArmRotationOld(double pose) {
+    this.currentReference = pose;
+    breakMotorPid.setReference(currentReference * (ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT) - ntBottomLimit.getDouble(armPoseMap.get(ArmPose.ZERO).getPosition())), ControlType.kSmartMotion);
     // double calculated = -armPidController.calculate(getArmPose(), pose);
     // if (armPidController.atSetpoint())
     //   return;
     // setBreakMotorVolts(calculated);
   }
 
+  public void setArmRotation(double pose) {
+    this.currentReference = pose;
+    double rot = currentReference * (ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT) - ntBottomLimit.getDouble(armPoseMap.get(ArmPose.ZERO).getPosition()));
+
+    final double rampUpWindow = 750;
+    if(Math.abs(getBreakMotorSpeed()) < rampUpWindow && !isArmAtSetpoint()){
+      setArmRotationOld(pose); // ramp up
+
+    } else {
+      breakMotorPid.setReference(rot, ControlType.kPosition, 1);
+    } 
+
+  }
+
+  public void resetArmZero() {
+    breakMotor.getEncoder().setPosition(0.0);
+  }
+
+  ProfiledPIDController controller = new ProfiledPIDController(breakMotorPid.getP(1), breakMotorPid.getI(1)*5, breakMotorPid.getD(1), new TrapezoidProfile.Constraints(11000, 4000));
+
+  public void setArmRotationMark(double pose) {
+    controller.disableContinuousInput();
+    double ff = breakMotorPid.getFF(1);
+    double volts = (controller.calculate(breakMotor.getEncoder().getPosition(), convertArmPoseToRawArmPose(pose)) + ff);
+    // System.out.println("Running marks at: " + volts);
+
+    breakMotor.setVoltage(volts);
+  }
+
+  public boolean isArmAtSetpoint() {
+    boolean isAtReference = Math.abs(currentReference - getArmPose()) < convertRawArmPoseToArmPose(ALLOWED_ERROR);
+    // System.out.println(isAtReference);
+    return isAtReference;
+  }
+
+  public double getArmMotorAngularVelocity() {
+    return breakMotor.getEncoder().getVelocity();
+  }
+
+  public double getRawArmPose() {
+    return breakMotor.getEncoder().getPosition();
+  }
+
+  public double getArmPose() {
+    double currPos = getRawArmPose();
+    return convertRawArmPoseToArmPose(currPos);
+  }
 
   public double getBreakMotorSpeed(){
     return breakMotor.getEncoder().getVelocity();

@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -22,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab;
 
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 import com.team6560.frc2023.Constants;
@@ -37,6 +39,7 @@ public class Limelight extends SubsystemBase {
   private final NetworkTableEntry ntX = networkTable.getEntry("tx");
   private final NetworkTableEntry ntY = networkTable.getEntry("ty");
   private final NetworkTableEntry ntV = networkTable.getEntry("tv");
+  private final NetworkTableEntry ntA = networkTable.getEntry("ta");
   private final NetworkTableEntry ntL = networkTable.getEntry("tl");
   private final NetworkTableEntry ntcL = networkTable.getEntry("cl");
   private final NetworkTableEntry ntBotPose = networkTable.getEntry("botpose_wpiblue");
@@ -60,9 +63,7 @@ public class Limelight extends SubsystemBase {
     ntDispTab("Limelight")
     .add("Horizontal Angle", this::getHorizontalAngle)
     .add("Vertical Angle", this::getVerticalAngle)
-    .add("Has Target", this::hasTarget)
-    .add("Predicted X Distance From Target", this::getEstimatedRobotXDistanceFromTargetMeters)
-    .add("Predicted Z Distance From Target", this::getEstimatedRobotZDistanceFromTargetMeters);
+    .add("Has Target", this::hasTarget);
 
     SmartDashboard.putData("aprilTagField", aprilTagField);
     // SmartDashboard.putData("reflectiveTapeField", reflectiveTapeField);
@@ -76,6 +77,10 @@ public class Limelight extends SubsystemBase {
 
   public double getHorizontalAngle() {
     return ntX.getDouble(0.0);
+  }
+
+  public double getTargetArea() {
+    return ntA.getDouble(0.0);
   }
 
   public double getVerticalAngle() {
@@ -116,28 +121,12 @@ public class Limelight extends SubsystemBase {
   }
 
 
-  public void addMarker() {
-
-    Pose2d robotPose = predictedPose.get();
-
-    if (robotPose == null || Math.abs(robotPose.getRotation().getDegrees() % 360.0) > 10.0) return;
-
-    Translation2d robotTranslation = robotPose.getTranslation();
-
-    Translation2d markerLocation;
-    
-    if (DriverStation.getAlliance() == DriverStation.Alliance.Blue)
-      markerLocation = robotTranslation.plus(new Translation2d(-getEstimatedRobotZDistanceFromTargetMeters(), getEstimatedRobotXDistanceFromTargetMeters()));
-    else
-      markerLocation = robotTranslation.plus(new Translation2d(getEstimatedRobotZDistanceFromTargetMeters(), getEstimatedRobotXDistanceFromTargetMeters()));
-
-    
-    aprilTagField.getObject("marker").setPose(new Pose2d(markerLocation, new Rotation2d()));
-  }
+  
 
 
   public Pair<Pose2d, Double> getBotPose() {
 
+    if (ntPipeline.getInteger(0l) != 0) return null;
     if (!hasTarget()) return null;
 
     double currentTime = Timer.getFPGATimestamp() - getLatency();
@@ -146,10 +135,15 @@ public class Limelight extends SubsystemBase {
 
     if (limelightBotPoseArray == null || limelightBotPoseArray.length < 6) return null;
 
+    if (new double[] {0.0, 0.0, 0.0, 0.0, 0.0}.equals(Arrays.copyOf(limelightBotPoseArray, limelightBotPoseArray.length - 1)))
+      return null;
+    
     Pose2d pose = new Pose3d(new Translation3d(limelightBotPoseArray[0], limelightBotPoseArray[1], limelightBotPoseArray[2]), new Rotation3d(Math.toRadians(limelightBotPoseArray[3]), Math.toRadians(limelightBotPoseArray[4]), Math.toRadians(limelightBotPoseArray[5]))).toPose2d();
     
     if (pose == null) return null;
 
+    if (pose.equals(new Pose2d()))
+      return null;
     //transform pose from LL "field space" to pose2d
     // pose = new Pose2d(pose.getTranslation().plus(new Translation2d(Constants.FieldConstants.length/2.0, Constants.FieldConstants.width/2.0)), pose.getRotation());
 
@@ -163,6 +157,6 @@ public class Limelight extends SubsystemBase {
 
   @Override
   public void periodic() {
-    ntPipeline.setNumber(forceOff ? 0 : controls.getLimelightPipeline());
+    ntPipeline.setNumber(forceOff ? 5 : controls.getLimelightPipeline());
   }
 }
