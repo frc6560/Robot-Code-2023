@@ -13,26 +13,26 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class ArmCommand extends CommandBase {
-  
-    /**
-     * Interface for defining the controls for the arm command.
-     */
-    public static interface Controls {
-      ArmPose armState();
 
-      double runClaw();
+  /**
+   * Interface for defining the controls for the arm command.
+   */
+  public static interface Controls {
+    ArmPose armState();
 
-      boolean isCubeMode();
+    double runClaw();
 
-      boolean isOverridingArm();
+    boolean isCubeMode();
 
-      double armRotationOverride();
+    boolean isOverridingArm();
 
-      boolean armExtentionOverride();
+    double armRotationOverride();
 
-      boolean resetArmZero();
+    boolean armExtentionOverride();
 
-      boolean overrideArmSoftLimits();
+    boolean resetArmZero();
+
+    boolean overrideArmSoftLimits();
   }
 
   private Arm arm;
@@ -43,13 +43,14 @@ public class ArmCommand extends CommandBase {
   private NetworkTable ntTable = NetworkTableInstance.getDefault().getTable("Arm");
   private NetworkTableEntry rotationSpeed;
   private NetworkTableEntry clawSpeed;
+
   /** Creates a new ArmCommand. */
   public ArmCommand(Arm arm, Controls controls) {
     this.arm = arm;
     this.controls = controls;
 
     addRequirements(arm);
-    
+
     rotationSpeed = ntTable.getEntry("Rotation Speed (ARM RPM)");
     rotationSpeed.setDouble(0.015);
 
@@ -68,29 +69,30 @@ public class ArmCommand extends CommandBase {
   @Override
   public void execute() {
 
-    if (controls.resetArmZero()){
+    if (controls.resetArmZero()) {
       arm.resetArmZero();
     }
 
     double armSpeedMultiplyer;
     if (controls.armState() == ArmPose.NONE) { // If going manual mode
-      armSpeedMultiplyer = controls.runClaw() > 0.0 ? 1.0 : 0.175;
-      if (controls.isCubeMode()) {
-        if (controls.runClaw() > 0.0)
-          armSpeedMultiplyer *= 0.7;
-        else
-          armSpeedMultiplyer *= 1.5;
-      }
-    }
-    else
+      armSpeedMultiplyer = controls.runClaw() > 0.0 ? 1.0696942069 : 0.26969;
+    } else
       armSpeedMultiplyer = Arm.armPoseMap.get(controls.armState()).getClawSpeedMultiplier();
 
-    arm.setClawSpeed( armSpeedMultiplyer * controls.runClaw());
+    if (controls.isCubeMode()) {
+      if (controls.runClaw() > 0.0)
+        armSpeedMultiplyer *= 0.85;
+      else
+        armSpeedMultiplyer *= 1.5;
+    }
+    arm.setClawSpeed(armSpeedMultiplyer * controls.runClaw());
 
-    // if(controls.runClaw() != 0) System.out.println("Running claw at " + clawSpeed.getDouble(0.0));
-      
-    if(controls.armExtentionOverride() && !prevControlArmExt){
-      // System.out.println("Setting extention piston " + (!arm.getExtentionStatus() ? "out." : "in."));
+    // if(controls.runClaw() != 0) System.out.println("Running claw at " +
+    // clawSpeed.getDouble(0.0));
+
+    if (controls.armExtentionOverride() && !prevControlArmExt) {
+      // System.out.println("Setting extention piston " + (!arm.getExtentionStatus() ?
+      // "out." : "in."));
 
       arm.setArmExtention(!arm.getExtentionStatus());
     }
@@ -104,7 +106,8 @@ public class ArmCommand extends CommandBase {
       return;
     }
 
-    // if(controls.armRotationOverride() != 0) System.out.println("rotating arm at " + controls.armRotationOverride() * rotationSpeed.getDouble(0.0));
+    // if(controls.armRotationOverride() != 0) System.out.println("rotating arm at "
+    // + controls.armRotationOverride() * rotationSpeed.getDouble(0.0));
 
     if (controls.overrideArmSoftLimits()) {
       arm.setArmRotationVelocityOverrideSoftLimits(controls.armRotationOverride() * rotationSpeed.getDouble(0.0));
@@ -113,7 +116,7 @@ public class ArmCommand extends CommandBase {
       arm.setArmRotationVelocity(controls.armRotationOverride() * rotationSpeed.getDouble(0.0));
 
     }
-    
+
   }
 
   // Called once the command ends or is interrupted.

@@ -56,7 +56,6 @@ public class Arm extends SubsystemBase {
 
   NetworkTableEntry ntTopLimit;
   NetworkTableEntry ntBottomLimit;
-  NetworkTableEntry ntMarkRadin;
 
   NetworkTableEntry invertClaw;
   private double currentReference;
@@ -109,26 +108,23 @@ public class Arm extends SubsystemBase {
     invertClaw = ntTable.getEntry("Invert Claw?");
     invertClaw.setBoolean(false);
 
-    ntMarkRadin = ntTable.getEntry("Mark (F) Radin (T)?"); // TODO: DELETE
-    ntMarkRadin.setBoolean(false);
-
     // position, outSpeedMultiplier
     armPoseMap.put(ArmPose.ZERO, new ArmState(0.0, false, 1.0));
 
     // armPoseMap.put(ArmPose.DEFAULT, new Pair<Double, Double>(0.06321, 1.0));
     armPoseMap.put(ArmPose.DEFAULT, new ArmState(0.1, false, 1.0));
 
-    armPoseMap.put(ArmPose.LOW_CUBE, new ArmState(0.2347, false, 2.5 * 0.175));
-    armPoseMap.put(ArmPose.LOW_CONE, new ArmState(0.2347, false, 1.0 * 0.175));
+    armPoseMap.put(ArmPose.LOW_CUBE, new ArmState(0.245, false, 2.5 * 0.175));
+    armPoseMap.put(ArmPose.LOW_CONE, new ArmState(0.245, false, 1.0 * 0.175));
 
-    armPoseMap.put(ArmPose.GROUND_CUBE, new ArmState(0.3314, true, 0.5));
-    armPoseMap.put(ArmPose.GROUND_CONE, new ArmState(0.3314, true, 1.0));
+    armPoseMap.put(ArmPose.GROUND_CUBE, new ArmState(0.35, true, 0.5));
+    armPoseMap.put(ArmPose.GROUND_CONE, new ArmState(0.35, true, 1.0));
 
-    armPoseMap.put(ArmPose.MEDIUM_CONE, new ArmState(0.770, false, 1.3 * 0.175));
-    armPoseMap.put(ArmPose.HIGH_CONE, new ArmState(1.0, true, 1.0 * 0.175));
+    armPoseMap.put(ArmPose.MEDIUM_CONE, new ArmState(0.79, false, 1.6 * 0.175));
+    armPoseMap.put(ArmPose.HIGH_CONE, new ArmState(1.0, true, 1.6 * 0.175));
 
-    armPoseMap.put(ArmPose.MEDIUM_CUBE, new ArmState(0.63, false, 2.5 * 0.175));
-    armPoseMap.put(ArmPose.HIGH_CUBE, new ArmState(0.9, false, 2.5 * 0.175));
+    armPoseMap.put(ArmPose.MEDIUM_CUBE, new ArmState(0.7, false, 3.0 * 0.175));
+    armPoseMap.put(ArmPose.HIGH_CUBE, new ArmState(1.0, false, 3.0 * 0.175));
 
     armPoseMap.put(ArmPose.HUMAN_PLAYER_CUBE, new ArmState(0.85, false, 0.5));
     armPoseMap.put(ArmPose.HUMAN_PLAYER_CONE, new ArmState(0.85, false, 1.3));
@@ -166,7 +162,7 @@ public class Arm extends SubsystemBase {
   }
 
   public void setArmExtention(boolean status){
-    System.out.println("Arm extended " + (status ? "Out." : "In."));
+    // System.out.println("Arm extended " + (status ? "Out." : "In."));
 
     extentionPiston.set(status);
   }
@@ -195,7 +191,7 @@ public class Arm extends SubsystemBase {
   }
 
   public void setClawSpeed(double output){
-    if(output != 0) System.out.println("Claw is running at " + output);
+    // if(output != 0) System.out.println("Claw is running at " + output);
 
     clawMotorL.set(output);
     clawMotorR.set(output);
@@ -223,7 +219,7 @@ public class Arm extends SubsystemBase {
   public void setArmState(double pose) {
     // setArmRotation(pose);
     // if(!ntMarkRadin.getBoolean(false)) setArmRotationMark(pose); else setArmRotationRadin(pose);
-    setArmRotationRadin(pose);
+    setArmRotation(pose);
     
   }
 
@@ -231,7 +227,7 @@ public class Arm extends SubsystemBase {
     setArmRotation(armPoseMap.get(armPose).getPosition());
   }
 
-  public void setArmRotation(double pose) {
+  public void setArmRotationOld(double pose) {
     this.currentReference = pose;
     breakMotorPid.setReference(currentReference * (ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT) - ntBottomLimit.getDouble(armPoseMap.get(ArmPose.ZERO).getPosition())), ControlType.kSmartMotion);
     // double calculated = -armPidController.calculate(getArmPose(), pose);
@@ -240,13 +236,13 @@ public class Arm extends SubsystemBase {
     // setBreakMotorVolts(calculated);
   }
 
-  public void setArmRotationRadin(double pose) {
+  public void setArmRotation(double pose) {
     this.currentReference = pose;
     double rot = currentReference * (ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT) - ntBottomLimit.getDouble(armPoseMap.get(ArmPose.ZERO).getPosition()));
 
     final double rampUpWindow = 750;
-    if(getBreakMotorSpeed() < rampUpWindow && !isArmAtSetpoint()){
-      setArmRotation(pose); // ramp up
+    if(Math.abs(getBreakMotorSpeed()) < rampUpWindow && !isArmAtSetpoint()){
+      setArmRotationOld(pose); // ramp up
 
     } else {
       breakMotorPid.setReference(rot, ControlType.kPosition, 1);
@@ -264,14 +260,14 @@ public class Arm extends SubsystemBase {
     controller.disableContinuousInput();
     double ff = breakMotorPid.getFF(1);
     double volts = (controller.calculate(breakMotor.getEncoder().getPosition(), convertArmPoseToRawArmPose(pose)) + ff);
-    System.out.println("Running marks at: " + volts);
+    // System.out.println("Running marks at: " + volts);
 
     breakMotor.setVoltage(volts);
   }
 
   public boolean isArmAtSetpoint() {
     boolean isAtReference = Math.abs(currentReference - getArmPose()) < convertRawArmPoseToArmPose(ALLOWED_ERROR);
-    System.out.println(isAtReference);
+    // System.out.println(isAtReference);
     return isAtReference;
   }
 

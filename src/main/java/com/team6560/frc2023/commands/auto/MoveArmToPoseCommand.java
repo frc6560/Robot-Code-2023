@@ -42,7 +42,7 @@ public class MoveArmToPoseCommand extends CommandBase {
     arm.setArmState(armPose);
     
     boolean isExtended = Arm.armPoseMap.get(armPose).getExtentionStatus();
-    System.out.println(finished);
+    // System.out.println(finished);
 
     if (arm.isArmAtSetpoint()) {
 
@@ -53,7 +53,7 @@ public class MoveArmToPoseCommand extends CommandBase {
       }
 
       if (isExtended != startExtentionStatus) {
-        System.out.println("THING!!");
+        // System.out.println("THING!!");
         arm.setArmExtention(isExtended);
         pistonTimer.start();
 

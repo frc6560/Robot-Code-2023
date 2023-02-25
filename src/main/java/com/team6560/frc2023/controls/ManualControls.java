@@ -262,7 +262,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
       return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.HIGH_CUBE : ArmPose.HIGH_CONE;
     
     if (controlStation.getAButton())
-      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.GROUND_CUBE : ArmPose.GROUND_CONE;
+      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.LOW_CUBE : ArmPose.LOW_CONE;
     
     if (controlStation.getBButton())
       return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.HUMAN_PLAYER_CUBE : ArmPose.HUMAN_PLAYER_CONE;
@@ -274,7 +274,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     //   return ArmPose.DEFAULT;
 
     if (controlStation.getStartButton())
-      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.LOW_CUBE : ArmPose.LOW_CONE;
+      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.GROUND_CUBE : ArmPose.GROUND_CONE;
     
     return ArmPose.NONE;
     
@@ -301,6 +301,9 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     return controlStation.getLeftTriggerAxis() > 0.5;
   }
 
-  
+  @Override
+  public boolean driveIsAutoRotating() {
+    return xbox.getLeftTriggerAxis() > 0.5;
+  }
 
 }

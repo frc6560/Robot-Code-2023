@@ -39,6 +39,7 @@ public class Limelight extends SubsystemBase {
   private final NetworkTableEntry ntX = networkTable.getEntry("tx");
   private final NetworkTableEntry ntY = networkTable.getEntry("ty");
   private final NetworkTableEntry ntV = networkTable.getEntry("tv");
+  private final NetworkTableEntry ntA = networkTable.getEntry("ta");
   private final NetworkTableEntry ntL = networkTable.getEntry("tl");
   private final NetworkTableEntry ntcL = networkTable.getEntry("cl");
   private final NetworkTableEntry ntBotPose = networkTable.getEntry("botpose_wpiblue");
@@ -76,6 +77,10 @@ public class Limelight extends SubsystemBase {
 
   public double getHorizontalAngle() {
     return ntX.getDouble(0.0);
+  }
+
+  public double getTargetArea() {
+    return ntA.getDouble(0.0);
   }
 
   public double getVerticalAngle() {

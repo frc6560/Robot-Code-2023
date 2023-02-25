@@ -4,14 +4,17 @@ import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.commands.auto.AutoBuilder;
 import com.team6560.frc2023.subsystems.Drivetrain;
 import com.team6560.frc2023.subsystems.Limelight;
+import com.team6560.frc2023.utility.Util;
 import com.team6560.frc2023.utility.NetworkTable.NtValueDisplay;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -46,6 +49,8 @@ public class DriveCommand extends CommandBase {
         double climbVelocityR();
 
         double driveBoostMultiplier();
+
+        boolean driveIsAutoRotating();
     }
 
     private Controls controls;
@@ -57,9 +62,9 @@ public class DriveCommand extends CommandBase {
 
     private Limelight limelight;
 
-    private PIDController driveRotationPIDController = new PIDController(0.03, 0.0269420, 0.0);
-    private PIDController driveTranslationYPIDController = new PIDController(0.1, 0.0, 0.00025);
-    private PIDController driveTranslationXPIDController = new PIDController(0.1, 0.0, 0.00025);
+    private PIDController driveRotationPIDController = new PIDController(0.06, 0.05, 0.0);
+    private PIDController driveTranslationYPIDController = new PIDController(0.11, 0.013, 0.0);
+    private PIDController driveTranslationXPIDController = new PIDController(0.1275, 0.0, 0.0);
 
     private boolean rotationIsPosition = true;
 
@@ -117,11 +122,6 @@ public class DriveCommand extends CommandBase {
 
         double calculated = driveRotationPIDController.calculate(current, lastRotationTheta);
 
-        if (driveRotationPIDController.atSetpoint()) {
-            isOverridingAngle = false;
-        } else
-            isOverridingAngle = true;
-
         if (isOverridingAngle)
             drivetrain.driveNoX(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -154,6 +154,8 @@ public class DriveCommand extends CommandBase {
     }
 
     public void translateAndRotate(double translationY, double translationX, double rotation) {
+        if (!limelight.hasTarget())
+            return;
         double currentRotation = drivetrain.getGyroscopeRotation().getDegrees();
 
         lastRotationTheta = rotation;
@@ -167,6 +169,9 @@ public class DriveCommand extends CommandBase {
         } else
             isOverridingAngle = true;
 
+        if (limelight.getTargetArea() < 0.5)
+            translationX += translationX > 0 ? -13.2 : 13.2;
+
         lastTranslationY = translationY;
         lastTranslationX = translationX;
 
@@ -175,14 +180,11 @@ public class DriveCommand extends CommandBase {
         double calculatedTranslationY = driveTranslationYPIDController.calculate(translationY, 0);
         double calculatedTranslationX = driveTranslationXPIDController.calculate(translationX, 0);
 
-        // if (driveTranslationPIDController.atSetpoint()) {
-        // drivetrain.driveNoX(
-        // ChassisSpeeds.fromFieldRelativeSpeeds(
-        // controls.driveX(),
-        // 0.0,
-        // isOverridingAngle ? calculatedRotation : controls.driveRotationX(),
-        // drivetrain.getGyroscopeRotation()));
-        // return;
+        // System.out.println(driveRotationPIDController.getPositionError());
+
+        // if (!limelight.hasTarget() || Math.abs(driveRotationPIDController.getPositionError()) > 7.5) {
+        //     calculatedTranslationX = 0.0;
+        //     calculatedTranslationY = 0.0;
         // }
 
         drivetrain.driveNoX(
@@ -198,11 +200,11 @@ public class DriveCommand extends CommandBase {
         double rotation;
 
         if (drivetrain.getPose().getX() < Constants.FieldConstants.length / 2.0) {
-            xAngle = limelight.getHorizontalAngle();
-            rotation = 0.0;
-        } else {
             xAngle = -limelight.getHorizontalAngle();
             rotation = 180.0;
+        } else {
+            xAngle = limelight.getHorizontalAngle();
+            rotation = 0.0;
         }
 
         double yAngle = limelight.getVerticalAngle();
@@ -219,6 +221,15 @@ public class DriveCommand extends CommandBase {
 
         if (controls.autoAlign()) {
             autoAlign();
+            return;
+        }
+
+        if (controls.driveIsAutoRotating()) {
+            double gyroRots = drivetrain.getGyroscopeRotation().getDegrees();
+            if (Math.abs(Util.getHeadingDiff(gyroRots, 180.0)) < Math.abs(Util.getHeadingDiff(gyroRots, 0.0)))
+                rotate(180.0);
+            else
+                rotate(0.0);
             return;
         }
 
