@@ -207,7 +207,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public double intakeSpeed() {
-    return -0.5;
+    return isCubeMode() ? 0.5 : -0.5;
   }
 
   @Override

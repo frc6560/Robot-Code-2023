@@ -258,8 +258,8 @@ public class DriveCommand extends CommandBase {
 
         setClimbExtension(controls.driveIsClimbing());
 
-        // drivetrain.setBatteryBullshit(controls.driveIsClimbing());
-        drivetrain.setBatteryBullshit(false);
+        drivetrain.setBatteryBullshit(controls.driveIsClimbing());
+        // drivetrain.setBatteryBullshit(false);
 
         if (controls.driveIsClimbing()) {
 

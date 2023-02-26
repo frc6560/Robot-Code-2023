@@ -80,7 +80,8 @@ public class IntakeCommand extends CommandBase {
 
     // intake.setIntakeState(controls.isIntakeDown() ? IntakeState.EXTENDED : IntakeState.RETRACTED);
     intake.moveIntake(controls.moveIntakeSpeed());
-    intake.setRotationMotor(Math.abs(intake.getIntakePosition()) > 10.0 ? controls.intakeSpeed() : 0.0);
+    // TODO: uncomment
+    // intake.setRotationMotor(Math.abs(intake.getIntakePosition()) > 10.0 ? controls.intakeSpeed() : 0.0);
     // if () {
 
   //     armCommand.setArmStateLock(true);
