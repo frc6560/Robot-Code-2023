@@ -4,10 +4,12 @@
 
 package com.team6560.frc2023.commands;
 
+import com.team6560.frc2023.Constants;
+import com.team6560.frc2023.Constants.*;
+
 import com.team6560.frc2023.subsystems.Arm;
 import com.team6560.frc2023.subsystems.GamePiece;
 import com.team6560.frc2023.subsystems.Intake;
-import com.team6560.frc2023.subsystems.Arm.ArmPose;
 import com.team6560.frc2023.subsystems.Intake.IntakeState;
 
 import edu.wpi.first.wpilibj.Timer;

@@ -4,15 +4,17 @@
 
 package com.team6560.frc2023.commands.auto;
 
+import com.team6560.frc2023.Constants;
+import com.team6560.frc2023.Constants.*;
+
 import com.team6560.frc2023.subsystems.Arm;
-import com.team6560.frc2023.subsystems.Arm.ArmPose;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class MoveArmToPoseCommand extends CommandBase {
   private Arm arm;
-  private ArmPose armPose;
+  private Constants.ArmConstants.ArmPose armPose;
   private boolean finished = false;
   private boolean startExtentionStatus;
 
@@ -21,7 +23,7 @@ public class MoveArmToPoseCommand extends CommandBase {
   private Timer clawTimer;
 
   /** Creates a new MoveArmToPoseCommand. */
-  public MoveArmToPoseCommand(Arm arm, ArmPose pose) {
+  public MoveArmToPoseCommand(Arm arm, Constants.ArmConstants.ArmPose pose) {
     this.arm = arm;
     this.armPose = pose;
     addRequirements(arm);
@@ -41,12 +43,12 @@ public class MoveArmToPoseCommand extends CommandBase {
   public void execute() {
     arm.setArmState(armPose);
     
-    boolean isExtended = Arm.armPoseMap.get(armPose).getExtentionStatus();
+    boolean isExtended = Constants.ArmConstants.armPoseMap.get(armPose).getExtentionStatus();
     // System.out.println(finished);
 
     if (arm.isArmAtSetpoint()) {
 
-      if (this.armPose == ArmPose.DEFAULT) {
+      if (this.armPose == Constants.ArmConstants.ArmPose.DEFAULT) {
         arm.setArmExtention(false);
         this.finished = true;
         return;
@@ -58,7 +60,7 @@ public class MoveArmToPoseCommand extends CommandBase {
         pistonTimer.start();
 
         if (pistonTimer.hasElapsed(isExtended ? 1.5 : 1.0)) {
-          double clawSpeed = Arm.armPoseMap.get(armPose).getClawSpeedMultiplier();
+          double clawSpeed = Constants.ArmConstants.armPoseMap.get(armPose).getClawSpeedMultiplier();
           arm.setClawSpeed(clawSpeed);
           clawTimer.start();
         }
@@ -70,7 +72,7 @@ public class MoveArmToPoseCommand extends CommandBase {
 
         
       } else {
-        arm.setClawSpeed(Arm.armPoseMap.get(armPose).getClawSpeedMultiplier());
+        arm.setClawSpeed(Constants.ArmConstants.armPoseMap.get(armPose).getClawSpeedMultiplier());
         clawTimer.start();
 
         if (clawTimer.hasElapsed(1.5)) {

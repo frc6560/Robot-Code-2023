@@ -173,14 +173,14 @@ public class Drivetrain extends SubsystemBase {
                                                                                                     // deviations.
                                                                                                     // X, Y, theta.
 
-                climbExtensionMotorLeft = new CANSparkMax(24, CANSparkMaxLowLevel.MotorType.kBrushless);
+                climbExtensionMotorLeft = new CANSparkMax(CLIMB_EXTENSION_MOTOR_LEFT, CANSparkMaxLowLevel.MotorType.kBrushless);
                 climbExtensionMotorLeft.setInverted(true);
 
-                climbExtensionMotorRight = new CANSparkMax(22, CANSparkMaxLowLevel.MotorType.kBrushless);
+                climbExtensionMotorRight = new CANSparkMax(CLIMB_EXTENSION_MOTOR_RIGHT, CANSparkMaxLowLevel.MotorType.kBrushless);
                 climbExtensionMotorRight.setInverted(true);
 
-                climbDriveMotorLeft = new CANSparkMax(23, CANSparkMaxLowLevel.MotorType.kBrushless);
-                climbDriveMotorRight = new CANSparkMax(21, CANSparkMaxLowLevel.MotorType.kBrushless);
+                climbDriveMotorLeft = new CANSparkMax(CLIMB_DRIVE_MOTOR_LEFT, CANSparkMaxLowLevel.MotorType.kBrushless);
+                climbDriveMotorRight = new CANSparkMax(CLIMB_DRIVE_MOTOR_RIGHT, CANSparkMaxLowLevel.MotorType.kBrushless);
 
                 climbDriveMotors = new CANSparkMax[] {climbDriveMotorLeft, climbDriveMotorRight};
                 // for (CANSparkMax i : new CANSparkMax[] {climbExtensionMotorLeft,

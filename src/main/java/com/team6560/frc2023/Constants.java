@@ -5,6 +5,7 @@
 package com.team6560.frc2023;
 
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
+import com.team6560.frc2023.subsystems.ArmState;
 
 // import edu.wpi.first.math.geometry.Rotation3d;
 // import edu.wpi.first.math.geometry.Transform3d;
@@ -12,6 +13,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 // import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+
+import java.util.HashMap;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -116,25 +119,83 @@ public final class Constants {
       // Back right
       new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0));
 
+
+
   public static final int BREAK_ID = 25; // ARC motor
+
   public static final int CLAW_MOTOR_LEFT_ID = 26;
+
   public static final int CLAW_MOTOR_RIGHT_ID = 27;
+
   public static final int EXTENTION_SOLENOID_ID = 0;
 
   // public static final double ROTOR_TO_ARM = 38.1;
 
   public static final double BREAK_TO_ARM = 350;
+
   public static final double BREAK_MOTOR_MULTIPLIER = 1.0;
 
-public static final int INTAKE_EXTENSION_MOTOR_LEFT = 17;
+  public static final int INTAKE_EXTENSION_MOTOR_LEFT = 17;
 
-public static final int INTAKE_EXTENSION_MOTOR_RIGHT = 16;
+  public static final int INTAKE_EXTENSION_MOTOR_RIGHT = 16; 
 
-public static final int INTAKE_ROTATION_MOTOR = 15;
-
-public static final int CANdleId = 0;
+  public static final int INTAKE_ROTATION_MOTOR = 15;
 
 
+  public static final int CLIMB_EXTENSION_MOTOR_LEFT = 24;
+
+  public static final int CLIMB_EXTENSION_MOTOR_RIGHT = 22;
+
+  public static final int CLIMB_DRIVE_MOTOR_LEFT = 23;
+
+  public static final int CLIMB_DRIVE_MOTOR_RIGHT = 21;
+  
+
+  public static final int CANdleId = 0;
+
+
+
+  public static final class ArmConstants {
+    public enum ArmPose {
+      ZERO, DEFAULT, GROUND_CONE, LOW_CUBE, LOW_CONE, MEDIUM_CONE, HIGH_CONE, MEDIUM_CUBE, HIGH_CUBE, HUMAN_PLAYER_CONE,
+      NONE, HUMAN_PLAYER_CUBE, GROUND_CUBE, INTAKE_CONE, INTAKE_CUBE
+    }
+    
+    public static final HashMap<ArmPose, ArmState> armPoseMap = new HashMap<ArmPose, ArmState>();
+
+    static {
+      // position, outSpeedMultiplier
+      armPoseMap.put(ArmPose.ZERO, new ArmState(0.0, false, 1.0));
+
+      // armPoseMap.put(ArmPose.DEFAULT, new Pair<Double, Double>(0.06321, 1.0));
+      armPoseMap.put(ArmPose.DEFAULT, new ArmState(0.1, false, 1.0));
+
+      armPoseMap.put(ArmPose.LOW_CUBE, new ArmState(0.245, false, 2.5 * 0.175));
+      armPoseMap.put(ArmPose.LOW_CONE, new ArmState(0.245, false, 1.0 * 0.175));
+
+      armPoseMap.put(ArmPose.GROUND_CUBE, new ArmState(0.35, true, 0.5));
+      armPoseMap.put(ArmPose.GROUND_CONE, new ArmState(0.35, true, 1.0));
+
+      armPoseMap.put(ArmPose.MEDIUM_CONE, new ArmState(0.79, false, 1.6 * 0.175));
+      armPoseMap.put(ArmPose.HIGH_CONE, new ArmState(1.0, true, 1.6 * 0.175));
+
+      armPoseMap.put(ArmPose.MEDIUM_CUBE, new ArmState(0.7, false, 3.0 * 0.175));
+      armPoseMap.put(ArmPose.HIGH_CUBE, new ArmState(1.0, false, 3.0 * 0.175));
+
+      armPoseMap.put(ArmPose.HUMAN_PLAYER_CUBE, new ArmState(0.85, false, 0.5));
+      armPoseMap.put(ArmPose.HUMAN_PLAYER_CONE, new ArmState(0.85, false, 1.3));
+
+      armPoseMap.put(ArmPose.INTAKE_CONE, new ArmState(0.344, false, 1.3));
+      armPoseMap.put(ArmPose.INTAKE_CUBE, new ArmState(0.344, false, 0.5));
+    }
+
+
+    public static final double zeroToFullTime = 0.5;
+
+    public static final double DEFAULT_TOP_SOFT_LIMIT = 121.0956969;
+
+    public static final double ALLOWED_ERROR = 2.06560;
+  }
 
   public static final class VisionConstants {
     public static final double LIMELIGHT_TO_ROBOT_X = -0.1966595;

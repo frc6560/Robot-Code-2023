@@ -6,7 +6,6 @@ package com.team6560.frc2023.controls;
 
 import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.Constants.*;
-import com.team6560.frc2023.subsystems.Arm.ArmPose;
 import com.team6560.frc2023.subsystems.Limelight;
 import com.team6560.frc2023.commands.DriveCommand;
 import com.team6560.frc2023.commands.IntakeCommand;
@@ -260,7 +259,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   }
 
   @Override
-  public ArmPose armState() {
+  public Constants.ArmConstants.ArmPose armState() {
     // if (!controlStation.getRawButton(4) || !controlStation.getRawButton(1))
     //   return ArmPose.ZERO;
 
@@ -269,16 +268,16 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     // return xbox.getBButton() ? ArmPose.MEDIUM_CONE : ArmPose.ZERO;
     
     if (controlStation.getXButton())
-      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.MEDIUM_CUBE : ArmPose.MEDIUM_CONE;
+      return controlStation.getLeftTriggerAxis() > 0.5 ? Constants.ArmConstants.ArmPose.MEDIUM_CUBE : Constants.ArmConstants.ArmPose.MEDIUM_CONE;
     
     if (controlStation.getYButton())
-      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.HIGH_CUBE : ArmPose.HIGH_CONE;
+      return controlStation.getLeftTriggerAxis() > 0.5 ? Constants.ArmConstants.ArmPose.HIGH_CUBE : Constants.ArmConstants.ArmPose.HIGH_CONE;
     
     if (controlStation.getAButton())
-      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.LOW_CUBE : ArmPose.LOW_CONE;
+      return controlStation.getLeftTriggerAxis() > 0.5 ? Constants.ArmConstants.ArmPose.LOW_CUBE : Constants.ArmConstants.ArmPose.LOW_CONE;
     
     if (controlStation.getBButton())
-      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.HUMAN_PLAYER_CUBE : ArmPose.HUMAN_PLAYER_CONE;
+      return controlStation.getLeftTriggerAxis() > 0.5 ? Constants.ArmConstants.ArmPose.HUMAN_PLAYER_CUBE : Constants.ArmConstants.ArmPose.HUMAN_PLAYER_CONE;
 
     // if (controlStation.getRightY() < -0.5)
     //   return ArmPose.LOW;
@@ -287,9 +286,9 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     //   return ArmPose.DEFAULT;
 
     if (controlStation.getStartButton())
-      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.GROUND_CUBE : ArmPose.GROUND_CONE;
+      return controlStation.getLeftTriggerAxis() > 0.5 ? Constants.ArmConstants.ArmPose.GROUND_CUBE : Constants.ArmConstants.ArmPose.GROUND_CONE;
     
-    return ArmPose.NONE;
+    return Constants.ArmConstants.ArmPose.NONE;
     
   }
 

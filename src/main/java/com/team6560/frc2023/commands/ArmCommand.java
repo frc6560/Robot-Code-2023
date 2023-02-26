@@ -5,7 +5,9 @@
 package com.team6560.frc2023.commands;
 
 import com.team6560.frc2023.subsystems.Arm;
-import com.team6560.frc2023.subsystems.Arm.ArmPose;
+
+import com.team6560.frc2023.Constants;
+import com.team6560.frc2023.Constants.*;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -18,7 +20,7 @@ public class ArmCommand extends CommandBase {
    * Interface for defining the controls for the arm command.
    */
   public static interface Controls {
-    ArmPose armState();
+    Constants.ArmConstants.ArmPose armState();
 
     double runClaw();
 
@@ -77,10 +79,10 @@ public class ArmCommand extends CommandBase {
     }
 
     double armSpeedMultiplyer;
-    if (controls.armState() == ArmPose.NONE) { // If going manual mode
+    if (controls.armState() == Constants.ArmConstants.ArmPose.NONE) { // If going manual mode
       armSpeedMultiplyer = controls.runClaw() > 0.0 ? 1.0696942069 : 0.26969;
     } else
-      armSpeedMultiplyer = Arm.armPoseMap.get(controls.armState()).getClawSpeedMultiplier();
+      armSpeedMultiplyer = Constants.ArmConstants.armPoseMap.get(controls.armState()).getClawSpeedMultiplier();
 
     if (controls.isCubeMode()) {
       if (controls.runClaw() > 0.0)
@@ -101,7 +103,7 @@ public class ArmCommand extends CommandBase {
     }
 
     prevControlArmExt = controls.armExtentionOverride();
-    if (!controls.isOverridingArm() && controls.armState() != ArmPose.NONE) {
+    if (!controls.isOverridingArm() && controls.armState() != Constants.ArmConstants.ArmPose.NONE) {
       // arm.setArmExtention(!arm.getExtentionStatus());
 
       arm.setArmState(controls.armState());
@@ -126,7 +128,7 @@ public class ArmCommand extends CommandBase {
     return arm.transferFromIntake(clawSpeed);
   }
 
-  public void setArmState(ArmPose armPose) {
+  public void setArmState(Constants.ArmConstants.ArmPose armPose) {
     arm.setArmState(armPose);
   }
 

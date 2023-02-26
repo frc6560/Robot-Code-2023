@@ -20,7 +20,8 @@ import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.subsystems.Arm;
 import com.team6560.frc2023.subsystems.Drivetrain;
-import com.team6560.frc2023.subsystems.Arm.ArmPose;
+import com.team6560.frc2023.Constants;
+import com.team6560.frc2023.Constants.ArmConstants;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -88,14 +89,14 @@ public class AutoBuilder {
     // eventMap.put("PLACE_CONE_HIGH", new RunCommand( () ->
     // arm.setArmState(ArmPose.HIGH_CONE), arm).until( () ->
     // arm.isArmAtSetpoint()));
-    eventMap.put("PLACE_CONE_HIGH", new MoveArmToPoseCommand(arm, ArmPose.HIGH_CONE));
-    eventMap.put("PLACE_CONE_MID", new MoveArmToPoseCommand(arm, ArmPose.MEDIUM_CONE));
-    eventMap.put("PLACE_LOW_CUBE", new MoveArmToPoseCommand(arm, ArmPose.LOW_CUBE));
-    eventMap.put("PLACE_LOW_CONE", new MoveArmToPoseCommand(arm, ArmPose.LOW_CONE));
-    eventMap.put("PLACE_CUBE_HIGH", new MoveArmToPoseCommand(arm, ArmPose.HIGH_CUBE));
-    eventMap.put("PLACE_CUBE_MID", new MoveArmToPoseCommand(arm, ArmPose.MEDIUM_CUBE));
-    eventMap.put("PICK_GROUND_CUBE", new MoveArmToPoseCommand(arm, ArmPose.GROUND_CUBE));
-    eventMap.put("PICK_GROUND_CONE", new MoveArmToPoseCommand(arm, ArmPose.GROUND_CONE));
+    eventMap.put("PLACE_CONE_HIGH", new MoveArmToPoseCommand(arm, Constants.ArmConstants.ArmPose.HIGH_CONE));
+    eventMap.put("PLACE_CONE_MID", new MoveArmToPoseCommand(arm, Constants.ArmConstants.ArmPose.MEDIUM_CONE));
+    eventMap.put("PLACE_LOW_CUBE", new MoveArmToPoseCommand(arm, Constants.ArmConstants.ArmPose.LOW_CUBE));
+    eventMap.put("PLACE_LOW_CONE", new MoveArmToPoseCommand(arm, Constants.ArmConstants.ArmPose.LOW_CONE));
+    eventMap.put("PLACE_CUBE_HIGH", new MoveArmToPoseCommand(arm, Constants.ArmConstants.ArmPose.HIGH_CUBE));
+    eventMap.put("PLACE_CUBE_MID", new MoveArmToPoseCommand(arm, Constants.ArmConstants.ArmPose.MEDIUM_CUBE));
+    eventMap.put("PICK_GROUND_CUBE", new MoveArmToPoseCommand(arm, Constants.ArmConstants.ArmPose.GROUND_CUBE));
+    eventMap.put("PICK_GROUND_CONE", new MoveArmToPoseCommand(arm, Constants.ArmConstants.ArmPose.GROUND_CONE));
 
     autoBuilder = new SwerveAutoBuilder(
         () -> drivetrain.getPose(), // Pose2d supplier
