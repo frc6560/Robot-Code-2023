@@ -10,11 +10,13 @@ import com.team6560.frc2023.commands.ArmCommand;
 
 import com.team6560.frc2023.commands.DriveCommand;
 import com.team6560.frc2023.commands.IntakeCommand;
+import com.team6560.frc2023.commands.LightItUpUpUpLightItUpUpUpCommand;
 import com.team6560.frc2023.commands.auto.AutoBuilder;
 import com.team6560.frc2023.controls.ManualControls;
 import com.team6560.frc2023.subsystems.Arm;
 import com.team6560.frc2023.subsystems.Drivetrain;
 import com.team6560.frc2023.subsystems.Intake;
+import com.team6560.frc2023.subsystems.LightItUpUpUpLightItUpUpUp;
 import com.team6560.frc2023.subsystems.Limelight;
 
 import edu.wpi.first.wpilibj.Joystick;
@@ -48,6 +50,10 @@ public class RobotContainer {
         private final AutoBuilder autoBuilder;
 
         private IntakeCommand intakeCommand;
+
+        private LightItUpUpUpLightItUpUpUp candlesubsystem;
+
+        private LightItUpUpUpLightItUpUpUpCommand candlecommand;
 
 
         /**
@@ -96,6 +102,10 @@ public class RobotContainer {
 
                 // Put the chooser on the dashboard
                 Shuffleboard.getTab("Auto Choose").add(autoChooser);
+
+                this.candlesubsystem = new LightItUpUpUpLightItUpUpUp();
+                this.candlecommand = new LightItUpUpUpLightItUpUpUpCommand(candlesubsystem, manualControls);
+                candlesubsystem.setDefaultCommand(candlecommand);
         }
 
 

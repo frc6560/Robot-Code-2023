@@ -13,6 +13,7 @@ import com.team6560.frc2023.commands.IntakeCommand;
 import com.team6560.frc2023.utility.NumberStepper;
 import com.team6560.frc2023.commands.ArmCommand;
 import com.team6560.frc2023.utility.PovNumberStepper;
+import com.team6560.frc2023.commands.LightItUpUpUpLightItUpUpUpCommand;
 import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab;
 
 import edu.wpi.first.networktables.NetworkTable;
@@ -20,7 +21,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 
-public class ManualControls implements DriveCommand.Controls, Limelight.Controls, ArmCommand.Controls, IntakeCommand.Controls {
+public class ManualControls implements DriveCommand.Controls, Limelight.Controls, ArmCommand.Controls, IntakeCommand.Controls, LightItUpUpUpLightItUpUpUpCommand.Controls {
   private XboxController xbox;
 
   private final PovNumberStepper speed;

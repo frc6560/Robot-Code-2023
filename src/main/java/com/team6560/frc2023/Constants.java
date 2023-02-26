@@ -132,6 +132,8 @@ public static final int INTAKE_EXTENSION_MOTOR_RIGHT = 16;
 
 public static final int INTAKE_ROTATION_MOTOR = 15;
 
+public static final int CANdleId = 0;
+
 
 
   public static final class VisionConstants {
