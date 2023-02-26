@@ -136,7 +136,7 @@ public class AutoBuilder {
     // of 2.0 m/s and a max acceleration of 1.0 m/s^2 for every path in the group
     pathGroup = PathPlanner.loadPathGroup(pathName, new PathConstraints(1.5, 0.75));
 
-    drivetrain.resetOdometry(pathGroup.get(0).getInitialHolonomicPose());
+    // drivetrain.resetOdometry(pathGroup.get(0).getInitialHolonomicPose());
 
     // List<String> stopEventList = new ArrayList<String>();
 
@@ -145,22 +145,24 @@ public class AutoBuilder {
     // autoBuilder.stopEventGroup(new StopEvent(new ArrayList<>(),
     // ExecutionBehavior.SEQUENTIAL, WaitBehavior.AFTER, 1.0));
 
-    return new SequentialCommandGroup(
-        new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE),
-        new MoveArmPistonCommand(this.arm, false),
-        new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT),
-        autoBuilder.fullAuto(pathGroup.get(0)),
-        new SequentialCommandGroup(
-            new MoveArmToPoseCommand(this.arm, ArmPose.GROUND_CONE),
-            new MoveArmPistonCommand(arm, false),
-            new MoveArmToPoseCommand(arm, ArmPose.DEFAULT))
-            .alongWith(autoBuilder.fullAuto(pathGroup.get(1))),
+    // return new SequentialCommandGroup(
+    //     new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE),
+    //     new MoveArmPistonCommand(this.arm, false),
+    //     new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT),
+    //     autoBuilder.fullAuto(pathGroup.get(0)),
+    //     new SequentialCommandGroup(
+    //         new MoveArmToPoseCommand(this.arm, ArmPose.GROUND_CONE),
+    //         new MoveArmPistonCommand(arm, false),
+    //         new MoveArmToPoseCommand(arm, ArmPose.DEFAULT))
+    //         .alongWith(autoBuilder.fullAuto(pathGroup.get(1))),
 
-        new SequentialCommandGroup(
-            autoBuilder.fullAuto(pathGroup.get(2)),
-            new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CUBE)// ,
-        // new MoveArmPistonCommand(this.arm, false)
-        ));
+    //     new SequentialCommandGroup(
+    //         autoBuilder.fullAuto(pathGroup.get(2)),
+    //         new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CUBE)// ,
+    //     // new MoveArmPistonCommand(this.arm, false)
+    //     ));
+
+    return autoBuilder.fullAuto(pathGroup);
 
   }
 

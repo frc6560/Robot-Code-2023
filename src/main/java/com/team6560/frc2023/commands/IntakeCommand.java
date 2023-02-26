@@ -79,10 +79,9 @@ public class IntakeCommand extends CommandBase {
     //   return;
 
     // intake.setIntakeState(controls.isIntakeDown() ? IntakeState.EXTENDED : IntakeState.RETRACTED);
-  //   intake.moveIntake(controls.moveIntakeSpeed());
-  //   intake.setRotationMotor(0.0);
-  //   if (Math.abs(intake.getIntakePosition()) > 10.0) {
-  //     intake.setRotationMotor(controls.intakeSpeed());
+    intake.moveIntake(controls.moveIntakeSpeed());
+    intake.setRotationMotor(Math.abs(intake.getIntakePosition()) > 10.0 ? controls.intakeSpeed() : 0.0);
+    // if () {
 
   //     armCommand.setArmStateLock(true);
   //     armCommand.setArmState(ArmPose.INTAKE_CONE);
@@ -93,7 +92,7 @@ public class IntakeCommand extends CommandBase {
   //       armCommand.setArmStateLock(false);
   //     }
 
-  //   }
+    // }
   }
 
   // Called once the command ends or is interrupted.

@@ -167,16 +167,16 @@ public class Drivetrain extends SubsystemBase {
                                 new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.1), // State measurement
                                                                                                 // standard deviations.
                                                                                                 // X, Y, theta.
-                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(1.25, 1.25, 1.25)); // Vision
+                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(1.75, 1.75, 1.75)); // Vision
                                                                                                     // measurement
                                                                                                     // standard
                                                                                                     // deviations.
                                                                                                     // X, Y, theta.
 
-                climbExtensionMotorLeft = new CANSparkMax(22, CANSparkMaxLowLevel.MotorType.kBrushless);
+                climbExtensionMotorLeft = new CANSparkMax(24, CANSparkMaxLowLevel.MotorType.kBrushless);
                 climbExtensionMotorLeft.setInverted(true);
 
-                climbExtensionMotorRight = new CANSparkMax(24, CANSparkMaxLowLevel.MotorType.kBrushless);
+                climbExtensionMotorRight = new CANSparkMax(22, CANSparkMaxLowLevel.MotorType.kBrushless);
                 climbExtensionMotorRight.setInverted(true);
 
                 climbDriveMotorLeft = new CANSparkMax(23, CANSparkMaxLowLevel.MotorType.kBrushless);

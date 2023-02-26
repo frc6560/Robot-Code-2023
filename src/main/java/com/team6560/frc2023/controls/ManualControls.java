@@ -17,6 +17,7 @@ import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 
@@ -180,6 +181,8 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public int getLimelightPipeline() {
+    if (!DriverStation.isTeleop())
+      return 0;
     if (isCubeMode()) {
       return 0;
     }
