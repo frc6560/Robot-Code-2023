@@ -38,6 +38,10 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   private NetworkTable armTable;
 
+  private boolean prevclimbEngaged;
+
+  private boolean climbEngaged;
+
   /**
    * Creates a new `ManualControls` instance.
    *
@@ -234,7 +238,14 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public boolean driveIsClimbing() {
-    return this.climbTable.getEntry("isClimbing").getBoolean(false);
+    if (prevclimbEngaged != controlStation.getBackButton() && controlStation.getBackButton()){
+      climbEngaged = !climbEngaged;
+
+      }
+      prevclimbEngaged = controlStation.getBackButton();
+      
+      return climbEngaged;
+    // return this.climbTable.getEntry("isClimbing").getBoolean(false);
   }
 
   @Override

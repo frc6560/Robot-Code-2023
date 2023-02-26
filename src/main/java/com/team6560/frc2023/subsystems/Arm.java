@@ -135,8 +135,8 @@ public class Arm extends SubsystemBase {
     // armPidController.setIntegratorRange(-0.5, 0.5);
     // armPidController.setTolerance(0.05);
 
-    // final double zeroToFullTime = 3;
-    // breakMotor.setOpenLoopRampRate(zeroToFullTime);
+    final double zeroToFullTime = 0.5;
+    breakMotor.setOpenLoopRampRate(zeroToFullTime);
 
     breakMotorPid.setP(6.560e-8, 0);
     breakMotorPid.setI(1.06560e-9, 0);

@@ -98,7 +98,7 @@ public class Drivetrain extends SubsystemBase {
 
         private final CANSparkMax climbDriveMotorLeft;
 
-        private CANSparkMax climbDriveMotorRight;
+        private final CANSparkMax climbDriveMotorRight;
 
         private CANSparkMax[] climbDriveMotors;
 
