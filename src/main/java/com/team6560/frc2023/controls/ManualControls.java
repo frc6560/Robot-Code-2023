@@ -39,7 +39,6 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   private NetworkTable armTable;
 
   private boolean prevclimbEngaged;
-
   private boolean climbEngaged;
 
   /**
@@ -240,11 +239,11 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   public boolean driveIsClimbing() {
     if (prevclimbEngaged != controlStation.getBackButton() && controlStation.getBackButton()){
       climbEngaged = !climbEngaged;
+    }
 
-      }
-      prevclimbEngaged = controlStation.getBackButton();
-      
-      return climbEngaged;
+    prevclimbEngaged = controlStation.getBackButton();
+    
+    return climbEngaged;
     // return this.climbTable.getEntry("isClimbing").getBoolean(false);
   }
 
