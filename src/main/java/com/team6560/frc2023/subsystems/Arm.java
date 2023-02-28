@@ -257,18 +257,6 @@ public class Arm extends SubsystemBase {
     breakMotor.getEncoder().setPosition(0.0);
   }
 
-  ProfiledPIDController controller = new ProfiledPIDController(breakMotorPid.getP(1), breakMotorPid.getI(1) * 5,
-      breakMotorPid.getD(1), new TrapezoidProfile.Constraints(11000, 4000));
-
-  public void setArmRotationMark(double pose) {
-    controller.disableContinuousInput();
-    double ff = breakMotorPid.getFF(1);
-    double volts = (controller.calculate(breakMotor.getEncoder().getPosition(), convertArmPoseToRawArmPose(pose)) + ff);
-    // System.out.println("Running marks at: " + volts);
-
-    breakMotor.setVoltage(volts);
-  }
-
   public boolean isArmAtSetpoint() {
     boolean isAtReference = Math.abs(currentReference - getArmPose()) < convertRawArmPoseToArmPose(ALLOWED_ERROR);
     // System.out.println(isAtReference);

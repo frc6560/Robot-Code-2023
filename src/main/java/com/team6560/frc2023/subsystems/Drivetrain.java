@@ -204,7 +204,7 @@ public class Drivetrain extends SubsystemBase {
                 }
                 
                 climbDriveMotorLeft.setInverted(false);
-                climbDriveMotorRight.setInverted(true);
+                climbDriveMotorRight.setInverted(false);
 
                 batteryBullshit = new Solenoid(PneumaticsModuleType.CTREPCM, 1); //TODO: CHANGE
 
@@ -241,7 +241,9 @@ public class Drivetrain extends SubsystemBase {
         }
 
         public void setClimbDriveMotorVelocity(double velocityRPM) {
+                
                 for (CANSparkMax i : climbDriveMotors)
+                        // i.set(velocityRPM/5100);
                         i.getPIDController().setReference(velocityRPM, ControlType.kVelocity);
         }
 
