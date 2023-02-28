@@ -116,7 +116,7 @@ public class Arm extends SubsystemBase {
     armPoseMap.put(ArmPose.LOW_CUBE, new ArmState(0.245, false, 2.5 * 0.175));
     armPoseMap.put(ArmPose.LOW_CONE, new ArmState(0.245, false, 1.0 * 0.175));
 
-    armPoseMap.put(ArmPose.GROUND_CUBE, new ArmState(0.35, true, 0.5));
+    armPoseMap.put(ArmPose.GROUND_CUBE, new ArmState(0.36, true, 0.5));
     armPoseMap.put(ArmPose.GROUND_CONE, new ArmState(0.35, true, 1.0));
 
     armPoseMap.put(ArmPose.MEDIUM_CONE, new ArmState(0.79, false, 1.6 * 0.175));
@@ -125,7 +125,7 @@ public class Arm extends SubsystemBase {
     armPoseMap.put(ArmPose.MEDIUM_CUBE, new ArmState(0.7, false, 3.0 * 0.175));
     armPoseMap.put(ArmPose.HIGH_CUBE, new ArmState(1.0, false, 3.0 * 0.175));
 
-    armPoseMap.put(ArmPose.HUMAN_PLAYER_CUBE, new ArmState(0.85, false, 0.5));
+    armPoseMap.put(ArmPose.HUMAN_PLAYER_CUBE, new ArmState(0.84, false, 0.5));
     armPoseMap.put(ArmPose.HUMAN_PLAYER_CONE, new ArmState(0.85, false, 1.3));
 
     armPoseMap.put(ArmPose.INTAKE_CONE, new ArmState(0.344, false, 1.3));

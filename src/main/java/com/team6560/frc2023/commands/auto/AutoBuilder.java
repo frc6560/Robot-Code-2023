@@ -188,16 +188,12 @@ public class AutoBuilder {
     // More complex path with holonomic rotation. Non-zero starting velocity of
     // currSpeed. Max velocity of 4 m/s and max accel of 3 m/s^2
     PathPlannerTrajectory traj = PathPlanner.generatePath(
-        new PathConstraints(0.5, 0.25),
+        new PathConstraints(2.0, 1.0),
         // position, heading(direction of travel), holonomic rotation, velocity verride
         new PathPoint(currPose.getTranslation(), heading, currPose.getRotation(), currSpeed),
         new PathPoint(desiredPose.getTranslation(), heading, desiredPose.getRotation()));
 
-    return new SequentialCommandGroup(
-      new InstantCommand(() -> drivetrain.setAutoLock(true)),
-      teleopAutoBuilder.followPath(traj),
-      new InstantCommand(() -> drivetrain.setAutoLock(false))
-    );
+    return autoBuilder.followPath(traj);
   }
 
   public Command getAutoBalanceCommand() {

@@ -21,6 +21,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class ManualControls implements DriveCommand.Controls, Limelight.Controls, ArmCommand.Controls, IntakeCommand.Controls, LightItUpUpUpLightItUpUpUpCommand.Controls {
   private XboxController xbox;
@@ -59,13 +60,13 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
       this.controlStation = controlStation;
 
     this.speed = new PovNumberStepper(
-        new NumberStepper(Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.2, 0.0,
-            Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.6, Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.05),
+        new NumberStepper(Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.4, 0.0,
+            Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.6, Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.025),
         xbox,
         PovNumberStepper.PovDirection.VERTICAL);
 
     this.turnSpeed = new PovNumberStepper(
-        new NumberStepper(Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.1, 0.0,
+        new NumberStepper(Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.175, 0.0,
             Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.15,
             Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.0025),
         xbox,
@@ -128,7 +129,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
    */
   @Override
   public double driveX() {
-    return modifyAxis(-xbox.getLeftY() * speed.get());
+    return modifyAxis((DriverStation.getAlliance().equals(Alliance.Blue) ? -1.0 : 1.0) * xbox.getLeftY() * speed.get());
   }
 
   /**
@@ -139,7 +140,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
    */
   @Override
   public double driveY() {
-    return modifyAxis(-xbox.getLeftX() * speed.get());
+    return modifyAxis((DriverStation.getAlliance().equals(Alliance.Blue) ? -1.0 : 1.0) * xbox.getLeftX() * speed.get());
   }
 
   /**
@@ -186,16 +187,17 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public int getLimelightPipeline() {
-    if (!DriverStation.isTeleop())
-      return 0;
-    if (isCubeMode()) {
-      return 0;
-    }
-    // if (autoAlign()) {
-    //   return 1;
+    return 0;
+    // if (!DriverStation.isTeleop())
+    //   return 0;
+    // if (isCubeMode()) {
+    //   return 0;
     // }
-    return 1;
-    // return (int) limelightTable.getEntry("limelightPipeline").getInteger( (long) 0);
+    // // if (autoAlign()) {
+    // //   return 1;
+    // // }
+    // return 1;
+    // // return (int) limelightTable.getEntry("limelightPipeline").getInteger( (long) 0);
   }
 
   @Override

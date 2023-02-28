@@ -1,5 +1,8 @@
 package com.team6560.frc2023.commands;
 
+import java.util.ArrayList;
+import java.util.Optional;
+
 import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.commands.auto.AutoBuilder;
 import com.team6560.frc2023.subsystems.Drivetrain;
@@ -7,11 +10,14 @@ import com.team6560.frc2023.subsystems.Limelight;
 import com.team6560.frc2023.utility.Util;
 import com.team6560.frc2023.utility.NetworkTable.NtValueDisplay;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -51,6 +57,8 @@ public class DriveCommand extends CommandBase {
         double driveBoostMultiplier();
 
         boolean driveIsAutoRotating();
+
+        boolean isCubeMode();
     }
 
     private Controls controls;
@@ -164,13 +172,8 @@ public class DriveCommand extends CommandBase {
 
         double calculatedRotation = driveRotationPIDController.calculate(currentRotation, lastRotationTheta);
 
-        if (driveRotationPIDController.atSetpoint()) {
-            isOverridingAngle = false;
-        } else
-            isOverridingAngle = true;
-
         if (limelight.getTargetArea() < 0.5)
-            translationX += translationX > 0 ? -13.2 : 13.2;
+            translationX += translationX > 0 ? 14.35 : -14.35;
 
         lastTranslationY = translationY;
         lastTranslationX = translationX;
@@ -182,14 +185,14 @@ public class DriveCommand extends CommandBase {
 
         // System.out.println(driveRotationPIDController.getPositionError());
 
-        // if (!limelight.hasTarget() || Math.abs(driveRotationPIDController.getPositionError()) > 7.5) {
-        //     calculatedTranslationX = 0.0;
-        //     calculatedTranslationY = 0.0;
-        // }
+        if (!limelight.hasTarget() || Math.abs(driveRotationPIDController.getPositionError()) > 7.5) {
+            calculatedTranslationX = 0.0;
+            calculatedTranslationY = 0.0;
+        }
 
         drivetrain.driveNoX(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
-                        calculatedTranslationX,
+                        controls.driveX(),
                         calculatedTranslationY,
                         isOverridingAngle ? calculatedRotation : controls.driveRotationX(),
                         drivetrain.getGyroscopeRotation()));
@@ -212,6 +215,61 @@ public class DriveCommand extends CommandBase {
         translateAndRotate(xAngle, yAngle, rotation);
     }
 
+    public void autoAlign2() {
+        Pose2d estimatedGlobalPose = drivetrain.getPose();
+
+        ArrayList<Pose2d> allAprilTagPoses = new ArrayList<Pose2d>();
+
+        Constants.APRIL_TAG_FIELD_LAYOUT.getTags().forEach((i) -> {
+            allAprilTagPoses.add(i.pose.toPose2d());
+        });
+
+        // int currTargetId = limelight.getCurrentApriltagId();
+        // Optional<Pose3d> optional =
+        // Constants.APRIL_TAG_FIELD_LAYOUT.getTagPose(currTargetId);
+        // Pose2d apriltagPose = optional.isPresent() ? optional.get().toPose2d() :
+        // null;
+
+        Pose2d apriltagPose = estimatedGlobalPose.nearest(allAprilTagPoses);
+
+        if (apriltagPose == null)
+            return;
+
+        ArrayList<Pose2d> possibleLocations = new ArrayList<Pose2d>();
+
+        Optional<Pose3d> redHumanPlayerApriltag = Constants.APRIL_TAG_FIELD_LAYOUT.getTagPose(4);
+        Optional<Pose3d> blueHumanPlayerApriltag = Constants.APRIL_TAG_FIELD_LAYOUT.getTagPose(5);
+
+        double getXDistMeters = 0.73;
+        double getYDistMeters = 1.0;
+
+        if ((controls.isCubeMode())
+                || (blueHumanPlayerApriltag.isPresent()
+                        && blueHumanPlayerApriltag.get().toPose2d().equals(apriltagPose))
+                || (redHumanPlayerApriltag.isPresent()
+                        && redHumanPlayerApriltag.get().toPose2d().equals(apriltagPose))) {
+            // the closest apriltag is the blue or red human player apriltag
+            possibleLocations.add(apriltagPose
+                    .plus(new Transform2d(new Translation2d(getXDistMeters, 0.0), Rotation2d.fromRotations(0.5))));
+            possibleLocations
+                    .add(apriltagPose.plus(new Transform2d(new Translation2d(-getXDistMeters, 0.0), new Rotation2d())));
+        } else {
+            possibleLocations.add(apriltagPose.plus(
+                    new Transform2d(new Translation2d(getXDistMeters, getYDistMeters), Rotation2d.fromRotations(0.5))));
+            possibleLocations.add(apriltagPose.plus(new Transform2d(new Translation2d(getXDistMeters, -getYDistMeters),
+                    Rotation2d.fromRotations(0.5))));
+            possibleLocations.add(apriltagPose
+                    .plus(new Transform2d(new Translation2d(-getXDistMeters, getYDistMeters), new Rotation2d())));
+            possibleLocations.add(apriltagPose
+                    .plus(new Transform2d(new Translation2d(-getXDistMeters, -getYDistMeters), new Rotation2d())));
+        }
+
+        Pose2d desiredPose = estimatedGlobalPose.nearest(possibleLocations);
+
+        goToPoseAutoCommand = autoBuilder.goToPose(desiredPose);
+
+    }
+
     @Override
     public void initialize() {
     }
@@ -220,8 +278,32 @@ public class DriveCommand extends CommandBase {
     public void execute() {
 
         if (controls.autoAlign()) {
-            autoAlign();
+            if (goToPoseAutoCommand == null) {
+                autoAlign2();
+                return;
+            }
+
+            if (!goingToPose) {
+                drivetrain.setAutoLock(true);
+                goToPoseAutoCommand.initialize();
+                goingToPose = true;
+            } else
+                goToPoseAutoCommand.execute();
+
+            if (goToPoseAutoCommand.isFinished()) {
+                goToPoseAutoCommand = null;
+                goingToPose = false;
+                drivetrain.setAutoLock(false);
+            }
+
             return;
+        } else {
+            if (goToPoseAutoCommand != null && !goToPoseAutoCommand.isFinished()) {
+                goToPoseAutoCommand.cancel();
+            }
+            drivetrain.setAutoLock(false);
+            goToPoseAutoCommand = null;
+            goingToPose = false;
         }
 
         if (controls.driveIsAutoRotating()) {
@@ -254,7 +336,8 @@ public class DriveCommand extends CommandBase {
         if (controls.driveResetGlobalPose())
             drivetrain.resetOdometry(new Pose2d());
 
-        drivetrain.setOverrideMaxVisionPoseCorrection(controls.overrideMaxVisionPoseCorrection());
+        // drivetrain.setOverrideMaxVisionPoseCorrection(controls.overrideMaxVisionPoseCorrection());
+        drivetrain.setOverrideMaxVisionPoseCorrection(true);
 
         setClimbExtension(controls.driveIsClimbing());
 

@@ -543,9 +543,7 @@ public class Drivetrain extends SubsystemBase {
         }
 
         public void teleopFinesseChassisState(SwerveModuleState[] state) {
-                ChassisSpeeds speeds = Constants.m_kinematics.toChassisSpeeds(state);
-
-                setChassisState(Constants.m_kinematics.toSwerveModuleStates(new ChassisSpeeds(currentManualSetChassisSpeeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond)));
+                setChassisState(state);
         }
 
         public void setAutoLock(boolean lock) {

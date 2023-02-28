@@ -4,14 +4,17 @@
 
 package com.team6560.frc2023;
 
+
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 // import edu.wpi.first.math.geometry.Rotation3d;
 // import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 // import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Filesystem;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -48,7 +51,7 @@ public final class Constants {
   // public static final double FRONT_LEFT_MODULE_STEER_OFFSET =
   // -Math.toRadians(163.828 + 90.0 + 45.0 + 45.0 + 180.0 - 90.0);
   // public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(0);
-  public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(342.598);
+  public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(342.509);
 
   public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 5;
   public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 9;
@@ -56,7 +59,7 @@ public final class Constants {
   // public static final double FRONT_RIGHT_MODULE_STEER_OFFSET =
   // -Math.toRadians(77.168 + 90.0 + 45.0 - 45.0 + 180.0);
   // public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(0);
-  public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(256.152);
+  public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(256.552);
 
   public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 7;
   public static final int BACK_LEFT_MODULE_STEER_MOTOR = 12;
@@ -64,7 +67,7 @@ public final class Constants {
   // public static final double BACK_LEFT_MODULE_STEER_OFFSET =
   // -Math.toRadians(316.758 + 45.0 + 45.0 + 90.0);
   // public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(0);
-  public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(136.582);
+  public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(135.319);
 
   public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 6;
   public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 11;
@@ -72,7 +75,7 @@ public final class Constants {
   // public static final double BACK_RIGHT_MODULE_STEER_OFFSET =
   // -Math.toRadians(302.959 + 90.0 + 45.0 - 45.0 + 90.0 - 90.0 - 180.0);
   // public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(0);
-  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(178.770);
+  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(53.339 + 180.0);
 
   // The formula for calculating the theoretical maximum velocity is:
   // <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> *
@@ -126,15 +129,22 @@ public final class Constants {
   public static final double BREAK_TO_ARM = 350;
   public static final double BREAK_MOTOR_MULTIPLIER = 1.0;
 
-public static final int INTAKE_EXTENSION_MOTOR_LEFT = 17;
+  public static final int INTAKE_EXTENSION_MOTOR_LEFT = 17;
 
-public static final int INTAKE_EXTENSION_MOTOR_RIGHT = 16;
+  public static final int INTAKE_EXTENSION_MOTOR_RIGHT = 16;
 
-public static final int INTAKE_ROTATION_MOTOR = 15;
+  public static final int INTAKE_ROTATION_MOTOR = 15;
 
-public static final int CANdleId = 0;
+  public static final int CANdleId = 0;
 
-
+  public static AprilTagFieldLayout APRIL_TAG_FIELD_LAYOUT;
+  static {
+    try {
+      APRIL_TAG_FIELD_LAYOUT = new AprilTagFieldLayout(Filesystem.getDeployDirectory() + "/apriltaglayout.json");
+    } catch (Exception e) {
+      APRIL_TAG_FIELD_LAYOUT = null;
+    }
+  }
 
   public static final class VisionConstants {
     public static final double LIMELIGHT_TO_ROBOT_X = -0.1966595;
@@ -162,8 +172,6 @@ public static final int CANdleId = 0;
     public static final int XBOX_X_BUTTON = 3;
     public static final int XBOX_B_BUTTON = 2;
     public static final int XBOX_A_BUTTON = 1;
-
-    
 
     public static final int DRIVER_STATION_TOGGLE_1 = 2;
     public static final int DRIVER_STATION_TOGGLE_2 = 5;

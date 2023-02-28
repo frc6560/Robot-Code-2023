@@ -102,6 +102,22 @@ public class Limelight extends SubsystemBase {
     forceOff = value;
   }
 
+  public Pose3d getTargetPoseRobotSpace() {
+    double[] limelightBotPoseArray = networkTable.getEntry("targetpose_robotspace").getDoubleArray(new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+
+    if (limelightBotPoseArray == null || limelightBotPoseArray.length < 6) return null;
+
+    if (new double[] {0.0, 0.0, 0.0, 0.0, 0.0}.equals(Arrays.copyOf(limelightBotPoseArray, limelightBotPoseArray.length - 1)))
+      return null;
+    
+    return new Pose3d(new Translation3d(limelightBotPoseArray[0], limelightBotPoseArray[1], limelightBotPoseArray[2]), new Rotation3d(Math.toRadians(limelightBotPoseArray[3]), Math.toRadians(limelightBotPoseArray[4]), Math.toRadians(limelightBotPoseArray[5])));
+
+  }
+
+  public int getCurrentApriltagId() {
+    return (int) networkTable.getEntry("tid").getInteger(0l);
+  }
+
   public double getEstimatedRobotXDistanceFromTargetMeters() {
     return convertAngleToHorizontalDistMeters(getHorizontalAngle());
   }
