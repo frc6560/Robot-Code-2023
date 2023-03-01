@@ -203,24 +203,22 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   }
 
   @Override
-  public boolean isIntakeDown() {
-    return false;
-    // return xbox.getLeftBumper();
+  public boolean runIntake() {
+    return controlStation.getRightTriggerAxis() > 0.25;
   }
 
-  @Override
-  public double intakeSpeed() {
-    return isCubeMode() ? 0.5 : -0.5;
+  @Override 
+  public boolean reverseIntake(){
+    return controlStation.getRawButton(10);
   }
 
-  @Override
-  public double moveIntakeSpeed() {
-    double out = 0.0;
-    out += xbox.getBButton() ? 0.35 : 0.0;
-    out -= xbox.getXButton() ? 0.35 : 0.0;
-    return out;
+  @Override 
+  public boolean handOff(){
+    return controlStation.getPOV() == 0;
   }
-  
+
+
+
   public double armRotationOverride(){
     return modifyAxis(controlStation.getLeftY());
   }

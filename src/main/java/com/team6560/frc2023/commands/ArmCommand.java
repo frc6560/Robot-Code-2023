@@ -5,9 +5,10 @@
 package com.team6560.frc2023.commands;
 
 import com.team6560.frc2023.subsystems.Arm;
-
+import com.team6560.frc2023.subsystems.ArmState;
 import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.Constants.*;
+import com.team6560.frc2023.Constants.ArmConstants.ArmPose;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -45,7 +46,10 @@ public class ArmCommand extends CommandBase {
   private NetworkTable ntTable = NetworkTableInstance.getDefault().getTable("Arm");
   private NetworkTableEntry rotationSpeed;
   private NetworkTableEntry clawSpeed;
-  private boolean lock;
+
+  private Constants.ArmConstants.ArmPose targetState;
+  
+  private boolean groundIntake;
 
   /** Creates a new ArmCommand. */
   public ArmCommand(Arm arm, Controls controls) {
@@ -59,6 +63,8 @@ public class ArmCommand extends CommandBase {
 
     clawSpeed = ntTable.getEntry("Claw Speed (MOTOR RPM)");
     clawSpeed.setDouble(6560);
+
+    targetState = Constants.ArmConstants.ArmPose.NONE;
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -66,21 +72,26 @@ public class ArmCommand extends CommandBase {
   @Override
   public void initialize() {
     arm.setArmRotationVelocity(0.0);
+    
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (lock)
-      return;
-
     if (controls.resetArmZero()) {
       arm.resetArmZero();
     }
+    
+    if(groundIntake){
+      arm.setClawSpeed(Constants.ArmConstants.armPoseMap.get(targetState).getClawSpeedMultiplier());
+
+      return;
+    }
+
 
     double armSpeedMultiplyer;
     if (controls.armState() == Constants.ArmConstants.ArmPose.NONE) { // If going manual mode
-      armSpeedMultiplyer = controls.runClaw() > 0.0 ? 1.0696942069 : 0.26969;
+      armSpeedMultiplyer = controls.runClaw() > 0.0 ? 1.0 : 0.25;
     } else
       armSpeedMultiplyer = Constants.ArmConstants.armPoseMap.get(controls.armState()).getClawSpeedMultiplier();
 
@@ -91,6 +102,8 @@ public class ArmCommand extends CommandBase {
         armSpeedMultiplyer *= 1.5;
     }
     arm.setClawSpeed(armSpeedMultiplyer * controls.runClaw());
+
+    
 
     // if(controls.runClaw() != 0) System.out.println("Running claw at " +
     // clawSpeed.getDouble(0.0));
@@ -103,7 +116,7 @@ public class ArmCommand extends CommandBase {
     }
 
     prevControlArmExt = controls.armExtentionOverride();
-    if (!controls.isOverridingArm() && controls.armState() != Constants.ArmConstants.ArmPose.NONE) {
+    if (!controls.isOverridingArm() && controls.armState() != Constants.ArmConstants.ArmPose.NONE  && !groundIntake) {
       // arm.setArmExtention(!arm.getExtentionStatus());
 
       arm.setArmState(controls.armState());
@@ -129,11 +142,16 @@ public class ArmCommand extends CommandBase {
   }
 
   public void setArmState(Constants.ArmConstants.ArmPose armPose) {
+    targetState = armPose;
     arm.setArmState(armPose);
   }
+  
+  public void setGroundIntakeMode(boolean status){
+    this.groundIntake = status;
+  }
 
-  public void setArmStateLock(boolean lock) {
-    this.lock = lock;
+  public boolean isArmAtSetpoint(){
+    return arm.isArmAtSetpoint();
   }
 
   // Called once the command ends or is interrupted.

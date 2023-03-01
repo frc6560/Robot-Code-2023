@@ -153,7 +153,12 @@ public final class Constants {
 
   public static final int CANdleId = 0;
 
-
+  public static final class IntakeConstants{
+    public static double INTAKE_CONE_FEED_RPM = 0.3;
+    public static double INTAKE_CUBE_FEED_RPM = 0.3;
+    public static double OUTTAKE_RPM = -0.3;
+    public static double HANDOFF_SPEED = -0.3;
+  }
 
   public static final class ArmConstants {
     public enum ArmPose {
@@ -182,11 +187,11 @@ public final class Constants {
       armPoseMap.put(ArmPose.MEDIUM_CUBE, new ArmState(0.7, false, 3.0 * 0.175));
       armPoseMap.put(ArmPose.HIGH_CUBE, new ArmState(1.0, false, 3.0 * 0.175));
 
-      armPoseMap.put(ArmPose.HUMAN_PLAYER_CUBE, new ArmState(0.85, false, 0.5));
+      armPoseMap.put(ArmPose.HUMAN_PLAYER_CUBE, new ArmState(0.825, false, 0.5));
       armPoseMap.put(ArmPose.HUMAN_PLAYER_CONE, new ArmState(0.85, false, 1.3));
 
-      armPoseMap.put(ArmPose.INTAKE_CONE, new ArmState(0.344, false, 1.3));
-      armPoseMap.put(ArmPose.INTAKE_CUBE, new ArmState(0.344, false, 0.5));
+      armPoseMap.put(ArmPose.INTAKE_CONE, new ArmState(0.344, false, 0.75));
+      armPoseMap.put(ArmPose.INTAKE_CUBE, new ArmState(0.15, false, 0.75));
     }
 
 
