@@ -380,8 +380,13 @@ public class Drivetrain extends SubsystemBase {
          *                      rotational speed
          */
         public void drive(ChassisSpeeds chassisSpeeds) {
-                if (driveNoX(chassisSpeeds))
-                        setChassisState(DEFAULT_MODULE_STATES);
+                if (driveNoX(chassisSpeeds)) {
+                        SwerveModuleState[] speeds = m_kinematics.toSwerveModuleStates(currentManualSetChassisSpeeds);
+                        SwerveDriveKinematics.desaturateWheelSpeeds(speeds, 0.0);
+                        setChassisState(speeds);
+
+                }
+                        // setChassisState(DEFAULT_MODULE_STATES);
         }
 
         public boolean driveNoX(ChassisSpeeds chassisSpeeds) {

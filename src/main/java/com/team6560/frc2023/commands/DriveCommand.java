@@ -240,8 +240,11 @@ public class DriveCommand extends CommandBase {
         Optional<Pose3d> redHumanPlayerApriltag = Constants.APRIL_TAG_FIELD_LAYOUT.getTagPose(4);
         Optional<Pose3d> blueHumanPlayerApriltag = Constants.APRIL_TAG_FIELD_LAYOUT.getTagPose(5);
 
-        double getXDistMeters = 0.73;
-        double getYDistMeters = 1.0;
+        // double getXDistMeters = 0.804545;
+        // double getYDistMeters = 1.0;
+
+        double getXDistMeters = 0.9;
+        double getYDistMeters = 0.5588;
 
         if ((controls.isCubeMode())
                 || (blueHumanPlayerApriltag.isPresent()
@@ -298,9 +301,6 @@ public class DriveCommand extends CommandBase {
 
             return;
         } else {
-            if (goToPoseAutoCommand != null && !goToPoseAutoCommand.isFinished()) {
-                goToPoseAutoCommand.cancel();
-            }
             drivetrain.setAutoLock(false);
             goToPoseAutoCommand = null;
             goingToPose = false;
