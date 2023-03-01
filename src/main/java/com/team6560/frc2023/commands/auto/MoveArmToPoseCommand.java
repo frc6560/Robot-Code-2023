@@ -19,12 +19,19 @@ public class MoveArmToPoseCommand extends CommandBase {
   private Timer pistonTimer;
 
   private Timer clawTimer;
+  private int clawSpeedSign;
 
   /** Creates a new MoveArmToPoseCommand. */
   public MoveArmToPoseCommand(Arm arm, ArmPose pose) {
     this.arm = arm;
     this.armPose = pose;
     addRequirements(arm);
+
+    if (armPose == ArmPose.INTAKE_CONE || armPose == ArmPose.INTAKE_CUBE || armPose == ArmPose.GROUND_CONE || armPose == ArmPose.GROUND_CUBE) {
+      this.clawSpeedSign = 1;
+    } else {
+      this.clawSpeedSign = -1;
+    }
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -39,9 +46,19 @@ public class MoveArmToPoseCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    arm.setArmState(armPose);
-    
+
     boolean isExtended = Arm.armPoseMap.get(armPose).getExtentionStatus();
+    if (startExtentionStatus && !isExtended) {
+      arm.setArmExtention(false);
+      pistonTimer.start();
+
+      if (!pistonTimer.hasElapsed(isExtended ? 1.5 : 1.0)) {
+        return;
+      } else {
+        arm.setArmState(armPose);
+      }
+    }
+    arm.setArmState(armPose);
     // System.out.println(finished);
 
     if (arm.isArmAtSetpoint()) {
@@ -57,20 +74,19 @@ public class MoveArmToPoseCommand extends CommandBase {
         arm.setArmExtention(isExtended);
         pistonTimer.start();
 
-        if (pistonTimer.hasElapsed(isExtended ? 1.5 : 1.0)) {
-          double clawSpeed = Arm.armPoseMap.get(armPose).getClawSpeedMultiplier();
+        if (clawSpeedSign > 0 || pistonTimer.hasElapsed(isExtended ? 1.5 : 1.0)) {
+          double clawSpeed = Math.copySign(Arm.armPoseMap.get(armPose).getClawSpeedMultiplier(), clawSpeedSign);
           arm.setClawSpeed(clawSpeed);
           clawTimer.start();
         }
-        
+
         if (clawTimer.hasElapsed(1.5)) {
           arm.setClawSpeed(0.0);
           this.finished = true;
         }
 
-        
       } else {
-        arm.setClawSpeed(Arm.armPoseMap.get(armPose).getClawSpeedMultiplier());
+        arm.setClawSpeed(Math.copySign(Arm.armPoseMap.get(armPose).getClawSpeedMultiplier(), clawSpeedSign));
         clawTimer.start();
 
         if (clawTimer.hasElapsed(1.5)) {

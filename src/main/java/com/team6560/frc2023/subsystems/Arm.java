@@ -67,7 +67,7 @@ public class Arm extends SubsystemBase {
 
   public static HashMap<ArmPose, ArmState> armPoseMap = new HashMap<ArmPose, ArmState>();
 
-  private static final double DEFAULT_TOP_SOFT_LIMIT = 121.0956969;
+  private static final double DEFAULT_TOP_SOFT_LIMIT = 226.0;
   private static final double ALLOWED_ERROR = 2.06560;
 
   // private PIDController armPidController = new PIDController(25.0, 7.25, 6.0);
@@ -116,7 +116,7 @@ public class Arm extends SubsystemBase {
     armPoseMap.put(ArmPose.LOW_CUBE, new ArmState(0.245, false, 2.5 * 0.175));
     armPoseMap.put(ArmPose.LOW_CONE, new ArmState(0.245, false, 1.0 * 0.175));
 
-    armPoseMap.put(ArmPose.GROUND_CUBE, new ArmState(0.36, true, 0.5));
+    armPoseMap.put(ArmPose.GROUND_CUBE, new ArmState(0.37, true, 0.5));
     armPoseMap.put(ArmPose.GROUND_CONE, new ArmState(0.35, true, 1.0));
 
     armPoseMap.put(ArmPose.MEDIUM_CONE, new ArmState(0.79, false, 1.6 * 0.175));
@@ -129,7 +129,7 @@ public class Arm extends SubsystemBase {
     armPoseMap.put(ArmPose.HUMAN_PLAYER_CONE, new ArmState(0.85, false, 1.3));
 
     armPoseMap.put(ArmPose.INTAKE_CONE, new ArmState(0.344, false, 1.3));
-    armPoseMap.put(ArmPose.INTAKE_CUBE, new ArmState(0.344, false, 0.5));
+    armPoseMap.put(ArmPose.INTAKE_CUBE, new ArmState(0.35, false, 0.5));
 
     // armPidController.disableContinuousInput();
     // armPidController.setIntegratorRange(-0.5, 0.5);

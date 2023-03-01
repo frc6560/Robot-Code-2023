@@ -243,7 +243,8 @@ public class DriveCommand extends CommandBase {
         // double getXDistMeters = 0.804545;
         // double getYDistMeters = 1.0;
 
-        double getXDistMeters = 0.9;
+        double getXDistMeters_cone = 0.95;
+        double getXDistMeters_cube = 1.1;
         double getYDistMeters = 0.5588;
 
         if ((controls.isCubeMode())
@@ -253,18 +254,18 @@ public class DriveCommand extends CommandBase {
                         && redHumanPlayerApriltag.get().toPose2d().equals(apriltagPose))) {
             // the closest apriltag is the blue or red human player apriltag
             possibleLocations.add(apriltagPose
-                    .plus(new Transform2d(new Translation2d(getXDistMeters, 0.0), Rotation2d.fromRotations(0.5))));
+                    .plus(new Transform2d(new Translation2d(getXDistMeters_cube, 0.0), Rotation2d.fromRotations(0.5))));
             possibleLocations
-                    .add(apriltagPose.plus(new Transform2d(new Translation2d(-getXDistMeters, 0.0), new Rotation2d())));
+                    .add(apriltagPose.plus(new Transform2d(new Translation2d(-getXDistMeters_cube, 0.0), new Rotation2d())));
         } else {
             possibleLocations.add(apriltagPose.plus(
-                    new Transform2d(new Translation2d(getXDistMeters, getYDistMeters), Rotation2d.fromRotations(0.5))));
-            possibleLocations.add(apriltagPose.plus(new Transform2d(new Translation2d(getXDistMeters, -getYDistMeters),
+                    new Transform2d(new Translation2d(getXDistMeters_cone, getYDistMeters), Rotation2d.fromRotations(0.5))));
+            possibleLocations.add(apriltagPose.plus(new Transform2d(new Translation2d(getXDistMeters_cone, -getYDistMeters),
                     Rotation2d.fromRotations(0.5))));
             possibleLocations.add(apriltagPose
-                    .plus(new Transform2d(new Translation2d(-getXDistMeters, getYDistMeters), new Rotation2d())));
+                    .plus(new Transform2d(new Translation2d(-getXDistMeters_cone, getYDistMeters), new Rotation2d())));
             possibleLocations.add(apriltagPose
-                    .plus(new Transform2d(new Translation2d(-getXDistMeters, -getYDistMeters), new Rotation2d())));
+                    .plus(new Transform2d(new Translation2d(-getXDistMeters_cone, -getYDistMeters), new Rotation2d())));
         }
 
         Pose2d desiredPose = estimatedGlobalPose.nearest(possibleLocations);

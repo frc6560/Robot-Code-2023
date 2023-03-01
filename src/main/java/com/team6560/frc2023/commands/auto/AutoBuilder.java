@@ -97,6 +97,8 @@ public class AutoBuilder {
     eventMap.put("PICK_GROUND_CUBE", new MoveArmToPoseCommand(arm, ArmPose.GROUND_CUBE));
     eventMap.put("PICK_GROUND_CONE", new MoveArmToPoseCommand(arm, ArmPose.GROUND_CONE));
 
+    eventMap.put("DEFAULT", new MoveArmToPoseCommand(arm, ArmPose.DEFAULT));
+
     autoBuilder = new SwerveAutoBuilder(
         () -> drivetrain.getPose(), // Pose2d supplier
         (pose) -> drivetrain.resetOdometry(pose), // Pose2d consumer, used to reset odometry at the beginning of auto
@@ -163,6 +165,30 @@ public class AutoBuilder {
     //     ));
 
     return autoBuilder.fullAuto(pathGroup);
+
+  }
+
+  public Command getTestAutoCommand() {
+    // This will load the file "FullAuto.path" and generate it with a max velocity
+    // of 2.0 m/s and a max acceleration of 1.0 m/s^2 for every path in the group
+    pathGroup = PathPlanner.loadPathGroup("Test", new PathConstraints(1.5, 0.75));
+
+    // drivetrain.resetOdometry(pathGroup.get(0).getInitialHolonomicPose());
+
+    // List<String> stopEventList = new ArrayList<String>();
+
+    // stopEventList.add("Waypoint 1");
+
+    // autoBuilder.stopEventGroup(new StopEvent(new ArrayList<>(),
+    // ExecutionBehavior.SEQUENTIAL, WaitBehavior.AFTER, 1.0));
+
+    return new SequentialCommandGroup(
+        new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE),
+        new MoveArmPistonCommand(this.arm, false),
+        new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT),
+        autoBuilder.fullAuto(pathGroup),
+        new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CUBE));
+
 
   }
 
