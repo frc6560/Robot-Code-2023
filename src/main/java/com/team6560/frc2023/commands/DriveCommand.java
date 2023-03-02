@@ -59,6 +59,8 @@ public class DriveCommand extends CommandBase {
         boolean driveIsAutoRotating();
 
         boolean isCubeMode();
+
+        int desiredConeLocation();
     }
 
     private Controls controls;
@@ -244,7 +246,7 @@ public class DriveCommand extends CommandBase {
         // double getYDistMeters = 1.0;
 
         double getXDistMeters_cone = 0.95;
-        double getXDistMeters_cube = 1.1;
+        double getXDistMeters_cube = 1.2;
         double getYDistMeters = 0.5588;
 
         if ((controls.isCubeMode())

@@ -120,6 +120,16 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     return value;
   }
 
+  private static double modifyAxis2(double value) {
+    // Deadband
+    value = deadband(value, 0.1);
+
+    // Square the axis
+    value = Math.copySign(value * value, value);
+
+    return value;
+  }
+
   /**
    * Returns the x component of the robot's velocity, as controlled by the Xbox
    * controller.
@@ -318,6 +328,15 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   @Override
   public boolean driveIsAutoRotating() {
     return xbox.getLeftTriggerAxis() > 0.5;
+  }
+
+  @Override
+  public int desiredConeLocation() {
+    // if (modifyAxis2(controlStation.getLeftX()) > 0)
+    //   return 1;
+    // if (modifyAxis2(controlStation.getLeftX()) < 0)
+    //   return -1;
+    return 0;
   }
 
 }

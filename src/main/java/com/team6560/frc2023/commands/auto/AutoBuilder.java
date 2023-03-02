@@ -115,9 +115,9 @@ public class AutoBuilder {
         () -> drivetrain.getPose(), // Pose2d supplier
         (pose) -> drivetrain.resetOdometry(pose), // Pose2d consumer, used to reset odometry at the beginning of auto
         Constants.m_kinematics, // SwerveDriveKinematics
-        new PIDConstants(0.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
-        new PIDConstants(0.0, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
-        (state) -> drivetrain.teleopFinesseChassisState(state), // Module states consumer used to output to the drive
+        new PIDConstants(5.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
+        new PIDConstants(0.5, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
+        (state) -> drivetrain.autoSetChassisState(state), // Module states consumer used to output to the drive
                                                           // subsystem
         eventMap,
         drivetrain // The drive subsystem. Used to properly set the requirements of path following commands
@@ -185,7 +185,7 @@ public class AutoBuilder {
     return new SequentialCommandGroup(
         new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE),
         new MoveArmPistonCommand(this.arm, false),
-        new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT),
+        // new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT),
         autoBuilder.fullAuto(pathGroup),
         new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CUBE));
 
@@ -219,7 +219,7 @@ public class AutoBuilder {
         new PathPoint(currPose.getTranslation(), heading, currPose.getRotation(), currSpeed),
         new PathPoint(desiredPose.getTranslation(), heading, desiredPose.getRotation()));
 
-    return autoBuilder.followPath(traj);
+    return teleopAutoBuilder.followPath(traj);
   }
 
   public Command getAutoBalanceCommand() {

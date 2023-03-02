@@ -74,13 +74,13 @@ public class MoveArmToPoseCommand extends CommandBase {
         arm.setArmExtention(isExtended);
         pistonTimer.start();
 
-        if (clawSpeedSign > 0 || pistonTimer.hasElapsed(isExtended ? 1.5 : 1.0)) {
+        if (pistonTimer.hasElapsed(isExtended ? 0.7 : 0.5)) {
           double clawSpeed = Math.copySign(Arm.armPoseMap.get(armPose).getClawSpeedMultiplier(), clawSpeedSign);
           arm.setClawSpeed(clawSpeed);
           clawTimer.start();
         }
 
-        if (clawTimer.hasElapsed(1.5)) {
+        if (clawTimer.hasElapsed(clawSpeedSign > 0 ? 1.5 : 0.4)) {
           arm.setClawSpeed(0.0);
           this.finished = true;
         }
@@ -89,7 +89,7 @@ public class MoveArmToPoseCommand extends CommandBase {
         arm.setClawSpeed(Math.copySign(Arm.armPoseMap.get(armPose).getClawSpeedMultiplier(), clawSpeedSign));
         clawTimer.start();
 
-        if (clawTimer.hasElapsed(1.5)) {
+        if (clawTimer.hasElapsed(0.4)) {
           arm.setClawSpeed(0.0);
           this.finished = true;
         }
