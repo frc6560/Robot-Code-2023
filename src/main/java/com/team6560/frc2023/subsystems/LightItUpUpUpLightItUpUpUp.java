@@ -26,7 +26,7 @@ public class LightItUpUpUpLightItUpUpUp extends SubsystemBase {
     if (isCube) 
       candle.setLEDs(171, 32, 253);
     else
-      candle.setLEDs(255, 255, 0);
+      candle.setLEDs(255, 175, 0);
   }
 
   @Override
