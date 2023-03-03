@@ -201,7 +201,7 @@ public class AutoBuilder {
    * 
    * @return Command for autonomous action to go to the specified Pose2d.
    */
-  public Command goToPose(Pose2d desiredPose) {
+  public Command goToPose(Pose2d desiredPose, Rotation2d heading) {
 
     Pose2d currPose = drivetrain.getPose();
 
@@ -209,7 +209,7 @@ public class AutoBuilder {
 
     double currSpeed = Math.abs(Math.hypot(currChassisSpeeds.vxMetersPerSecond, currChassisSpeeds.vyMetersPerSecond));
 
-    Rotation2d heading = desiredPose.getTranslation().minus(currPose.getTranslation()).getAngle();
+    // Rotation2d heading = desiredPose.getTranslation().minus(currPose.getTranslation()).getAngle();
 
     // More complex path with holonomic rotation. Non-zero starting velocity of
     // currSpeed. Max velocity of 4 m/s and max accel of 3 m/s^2

@@ -309,7 +309,7 @@ public class DriveCommand extends CommandBase {
 
         Pose2d desiredPose = predictedRobotPose.nearest(possibleLocations);
 
-        goToPoseAutoCommand = autoBuilder.goToPose(desiredPose);
+        goToPoseAutoCommand = autoBuilder.goToPose(desiredPose, new Rotation2d(currentSetFieldRelativeSpeeds.vxMetersPerSecond, currentSetFieldRelativeSpeeds.vyMetersPerSecond));
 
     }
 
