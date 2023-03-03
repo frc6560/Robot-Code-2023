@@ -202,6 +202,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     return xbox.getYButton();
   }
 
+  
   @Override
   public boolean runIntake() {
     return controlStation.getRightTriggerAxis() > 0.25;

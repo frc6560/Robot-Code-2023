@@ -30,7 +30,7 @@ public class IntakeCommand extends CommandBase {
   private boolean handingOff = false;
   private int handoffDebounce = 0;
   
-  private boolean initializing = true;
+  private boolean initializing = false;
 
   public IntakeCommand(Intake intake, ArmCommand armCommand, Controls controls) {
     this.intake = intake;
@@ -47,14 +47,16 @@ public class IntakeCommand extends CommandBase {
   @Override
   public void execute() {
     if(initializing){
-      intake.setIntake(IntakeState.EXTENDED_CONE);
+      intake.setIntakeState(IntakeState.RETRACTED);
 
-      if(intake.getCurrentState() != IntakeState.RETRACTED) {
+      if(intake.isAtTargetState()) {
         armCommand.setArmState(ArmPose.MEDIUM_CONE);
 
+
         if(armCommand.isArmAtSetpoint()){
+          intake.setIntakeState(IntakeState.NONE);
           initializing = false;
-          intake.setIntakeState(IntakeState.RETRACTED);
+          // intake.setIntakeState(IntakeState.RETRACTED);
         }
       }
       
@@ -70,19 +72,20 @@ public class IntakeCommand extends CommandBase {
 
     } else {
       handoffDebounce = 0;
+      handingOff = false;
     }
 
     if(controls.runIntake()){
-      armCommand.setGroundIntakeMode(true);
+      // armCommand.setGroundIntakeMode(true);
       
       if(controls.isCubeMode()){
         intake.setIntakeState(IntakeState.EXTENDED_CUBE);
 
-        armCommand.setArmState(ArmPose.INTAKE_CUBE);
+        // armCommand.setArmState(ArmPose.INTAKE_CUBE);
 
       } else {
         if(handingOff){
-          armCommand.setArmState(ArmPose.INTAKE_CONE);
+          // armCommand.setArmState(ArmPose.INTAKE_CONE);
           intake.setIntakeState(IntakeState.HANDOFF_CONE);
 
         } else{
@@ -95,7 +98,7 @@ public class IntakeCommand extends CommandBase {
       handoffDebounce = 0;
 
       intake.setIntakeState(IntakeState.RETRACTED);
-      armCommand.setGroundIntakeMode(false);
+      // armCommand.setGroundIntakeMode(false);
     }
 
     intake.setInverted(controls.reverseIntake());

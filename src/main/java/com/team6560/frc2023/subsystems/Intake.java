@@ -34,7 +34,7 @@ public class Intake extends SubsystemBase {
 
 
   public enum IntakeState {
-    EXTENDED_CONE, EXTENDED_CUBE, RETRACTED, HANDOFF_CONE
+    NONE, EXTENDED_CONE, EXTENDED_CUBE, RETRACTED, HANDOFF_CONE
   }
 
   public Intake() {
@@ -58,12 +58,7 @@ public class Intake extends SubsystemBase {
       i.getPIDController().setD(0, 0);
       i.getPIDController().setFF(0.001, 0);
 
-      i.getPIDController().setSmartMotionMaxAccel(300, 0);
-      // i.getPIDController().setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal,
-      // 0);
-      i.getPIDController().setSmartMotionMaxVelocity(5000, 0);
-      // i.getPIDController().setSmartMotionMinOutputVelocity(50, 0);
-      i.getPIDController().setSmartMotionAllowedClosedLoopError(0.5, 0);
+      i.setOpenLoopRampRate(IntakeConstants.INTAKE_ACCEL_RATE);
     }
 
     rotationMotor = new CANSparkMax(Constants.INTAKE_ROTATION_MOTOR, MotorType.kBrushless);
@@ -71,21 +66,22 @@ public class Intake extends SubsystemBase {
 
     ntDispTab("Intake")
         .add("Rotation Motor Current Draw", this::getFeedMotorCurrent)
-        .add("Intake extension pose", this::getIntakePosition);
+        .add("Intake extension pose", this::getIntakePosition)
+        .add("Intake extension percent", ()->convertPositionToPercent(getIntakePosition()));
 
-    intakeStateMap.put(IntakeState.EXTENDED_CONE, 1.0);
-    intakeStateMap.put(IntakeState.EXTENDED_CUBE, 0.85);
+    intakeStateMap.put(IntakeState.EXTENDED_CONE, 1.03);
+    intakeStateMap.put(IntakeState.EXTENDED_CUBE, 0.95);
     intakeStateMap.put(IntakeState.RETRACTED, 0.0);
-    intakeStateMap.put(IntakeState.HANDOFF_CONE, 0.75);
+    intakeStateMap.put(IntakeState.HANDOFF_CONE, 0.60);
 
-    leftExtensionMotor.getEncoder().setPosition(-5.0);
+    leftExtensionMotor.getEncoder().setPosition(IntakeConstants.INTAKE_START_POSITION);
 
-    targetState = IntakeState.RETRACTED;
+    targetState = IntakeState.NONE;
   }
 
   @Override
   public void periodic() {
-    setIntakeState(targetState);
+    setIntake(targetState);
   }
 
 
@@ -93,9 +89,27 @@ public class Intake extends SubsystemBase {
     targetState = intakeState;
   }
 
-  public void setIntake(IntakeState intakeState) {
-    setLeftExtensionMotorPosition(intakeStateMap.get(intakeState));
-    setRightExtensionMotorPosition(-intakeStateMap.get(intakeState));
+  private void setIntake(IntakeState intakeState) {
+    // setLeftExtensionMotorPosition(intakeStateMap.get(intakeState));
+    // setRightExtensionMotorPosition(intakeStateMap.get(intakeState));
+
+    if(intakeState == IntakeState.NONE){
+      setExtensionOutput(0.0);
+      setFeedMotor(0.0);
+      return;
+    }
+
+    int direction = getDistToTarget() < 0 ? -1 : 1;
+
+    if(isAtTargetState()){
+      setExtensionOutput(0.0);
+
+    } else if (Math.abs(getDistToTarget()) < IntakeConstants.INTAKE_APPROACH_DIST) {
+      setExtensionOutput(IntakeConstants.INTAKE_APPROACH_SPEED * direction);
+
+    } else {
+      setExtensionOutput(IntakeConstants.INTAKE_MOVE_SPEED * direction);
+    }
 
     double output;
 
@@ -113,8 +127,8 @@ public class Intake extends SubsystemBase {
     }
 
     if(reverseMotor){
-      output *= -1;
-    } else if((intakeState == IntakeState.EXTENDED_CONE ||  intakeState == IntakeState.EXTENDED_CUBE) && hasPiece()){
+      output *= IntakeConstants.OUTTAKE_RPM_RATIO;
+    } else if((intakeState == IntakeState.EXTENDED_CONE || intakeState == IntakeState.EXTENDED_CUBE) && hasPiece()){
       output = 0;
     }
 
@@ -123,16 +137,16 @@ public class Intake extends SubsystemBase {
 
   public void setLeftExtensionMotorPosition(double position) {
     System.out.println(position);
-    leftExtensionMotor.getPIDController().setReference(convertPositionToPercent(position), ControlType.kSmartMotion);
+    leftExtensionMotor.getPIDController().setReference(convertPositionToPercent(-position), ControlType.kPosition);
   }
 
   public void setRightExtensionMotorPosition(double position) {
-    rightExtensionMotor.getPIDController().setReference(convertPositionToPercent(position), ControlType.kSmartMotion);
+    rightExtensionMotor.getPIDController().setReference(convertPositionToPercent(-position), ControlType.kPosition);
   }
 
   public void setExtensionOutput(double percentOutput) {
-    leftExtensionMotor.set(-percentOutput);
-    rightExtensionMotor.set(percentOutput);
+    leftExtensionMotor.set(percentOutput);
+    rightExtensionMotor.set(-percentOutput);
   }
 
   public void setFeedMotor(double percentOutput) {
@@ -144,15 +158,17 @@ public class Intake extends SubsystemBase {
   }
 
 
-  public static double convertPositionToPercent(double position) {
-    double high = 3.6;
-    double low = 0;
-    return (position - low) / (high - low);
+  public double convertPositionToPercent(double position) {
+    return (position - IntakeConstants.INTAKE_LOW_POS) / (IntakeConstants.INTAKE_HIGH_POS - IntakeConstants.INTAKE_LOW_POS);
 
   }
 
+  public double convertPercentToPosition(double percent){
+    return (percent * (IntakeConstants.INTAKE_HIGH_POS - IntakeConstants.INTAKE_LOW_POS)) + IntakeConstants.INTAKE_LOW_POS ;
+  }
+
   public double getIntakePosition() {
-    return leftExtensionMotor.getEncoder().getPosition();
+    return -leftExtensionMotor.getEncoder().getPosition();
   }
 
   public double getFeedMotorVelocity() {
@@ -164,13 +180,23 @@ public class Intake extends SubsystemBase {
   }
 
   public IntakeState getCurrentState() {
-    double pos = convertPositionToPercent(Math.abs(leftExtensionMotor.getEncoder().getPosition()));
+    double pos = convertPositionToPercent(getIntakePosition());
     if (pos < 0.3)
       return IntakeState.RETRACTED;
-    return pos < 0.98 ? IntakeState.EXTENDED_CUBE : IntakeState.EXTENDED_CONE;
+    return pos < 0.94 ? IntakeState.EXTENDED_CUBE : IntakeState.EXTENDED_CONE;
+  }
+
+  public boolean isAtTargetState(){
+    return Math.abs(convertPositionToPercent(getDistToTarget())) < IntakeConstants.INTAKE_ACCEPTABLE_ERROR;
   }
 
   public boolean hasPiece(){
     return getFeedMotorCurrent() > OBJECT_CURRENT;
+  }
+
+  public double getDistToTarget(){
+    double dist = getIntakePosition();
+    
+    return (dist - convertPercentToPosition(intakeStateMap.get(targetState)));
   }
 }
