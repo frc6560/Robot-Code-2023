@@ -30,7 +30,7 @@ public class IntakeCommand extends CommandBase {
   private boolean handingOff = false;
   private int handoffDebounce = 0;
   
-  private boolean initializing = false;
+  private boolean initializing = true;
 
   public IntakeCommand(Intake intake, ArmCommand armCommand, Controls controls) {
     this.intake = intake;
@@ -44,24 +44,26 @@ public class IntakeCommand extends CommandBase {
   public void initialize() {
   }
 
+  private void init_sequence(){
+    intake.setIntakeState(IntakeState.CLEARANCE);
+
+    if(intake.isAtTargetState()) {
+      armCommand.setArmState(ArmPose.MEDIUM_CONE);
+
+      if(armCommand.canRunIntake()){
+        intake.setIntakeState(IntakeState.RETRACTED);
+        initializing = false;
+      }
+    }
+  }
+
   @Override
   public void execute() {
     if(initializing){
-      intake.setIntakeState(IntakeState.RETRACTED);
-
-      if(intake.isAtTargetState()) {
-        armCommand.setArmState(ArmPose.MEDIUM_CONE);
-
-
-        if(armCommand.isArmAtSetpoint()){
-          intake.setIntakeState(IntakeState.NONE);
-          initializing = false;
-          // intake.setIntakeState(IntakeState.RETRACTED);
-        }
-      }
-      
+      init_sequence();
       return;
     }
+
 
     if(!handingOff && controls.handOff()){ // incase operator accidentally clicks the handoff
       handoffDebounce++;
@@ -75,19 +77,20 @@ public class IntakeCommand extends CommandBase {
       handingOff = false;
     }
 
+
     if(controls.runIntake()){
-      // armCommand.setGroundIntakeMode(true);
+      armCommand.setGroundIntakeMode(true);
       
       if(controls.isCubeMode()){
         intake.setIntakeState(IntakeState.EXTENDED_CUBE);
 
-        // armCommand.setArmState(ArmPose.INTAKE_CUBE);
+        armCommand.setArmState(ArmPose.INTAKE_CUBE);
 
       } else {
-        if(handingOff){
-          // armCommand.setArmState(ArmPose.INTAKE_CONE);
-          intake.setIntakeState(IntakeState.HANDOFF_CONE);
+        armCommand.setArmState(ArmPose.INTAKE_CONE);
 
+        if(handingOff){
+          intake.setIntakeState(IntakeState.HANDOFF_CONE);
         } else{
           intake.setIntakeState(IntakeState.EXTENDED_CONE);
         }
@@ -97,8 +100,12 @@ public class IntakeCommand extends CommandBase {
       handingOff = false;
       handoffDebounce = 0;
 
-      intake.setIntakeState(IntakeState.RETRACTED);
-      // armCommand.setGroundIntakeMode(false);
+      armCommand.setArmState(ArmPose.HUMAN_PLAYER_CONE);
+
+      if(armCommand.canRunIntake()){
+        intake.setIntakeState(IntakeState.RETRACTED);
+        armCommand.setGroundIntakeMode(false);
+      }
     }
 
     intake.setInverted(controls.reverseIntake());

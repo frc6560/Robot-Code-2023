@@ -145,6 +145,14 @@ public class ArmCommand extends CommandBase {
     targetState = armPose;
     arm.setArmState(armPose);
   }
+
+  public boolean canRunIntake(){
+    return arm.getArmPose() > IntakeConstants.ROTATION_ARM_CLEARANCE;
+  }
+
+  public boolean hasGamePiece(){
+    return arm.getClawCurrentOutput() > 25;
+  }
   
   public void setGroundIntakeMode(boolean status){
     this.groundIntake = status;

@@ -34,7 +34,7 @@ public class Intake extends SubsystemBase {
 
 
   public enum IntakeState {
-    NONE, EXTENDED_CONE, EXTENDED_CUBE, RETRACTED, HANDOFF_CONE
+    NONE, EXTENDED_CONE, EXTENDED_CUBE, RETRACTED, HANDOFF_CONE, CLEARANCE
   }
 
   public Intake() {
@@ -73,6 +73,7 @@ public class Intake extends SubsystemBase {
     intakeStateMap.put(IntakeState.EXTENDED_CUBE, 0.95);
     intakeStateMap.put(IntakeState.RETRACTED, 0.0);
     intakeStateMap.put(IntakeState.HANDOFF_CONE, 0.60);
+    intakeStateMap.put(IntakeState.CLEARANCE, 1.06);
 
     leftExtensionMotor.getEncoder().setPosition(IntakeConstants.INTAKE_START_POSITION);
 
