@@ -332,10 +332,10 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public int desiredConeLocation() {
-    if (modifyAxis2(controlStation.getLeftX()) > 0)
-      return 1;
-    if (modifyAxis2(controlStation.getLeftX()) < 0)
-      return -1;
+    // if (modifyAxis2(controlStation.getLeftX()) > 0)
+    //   return 1;
+    // if (modifyAxis2(controlStation.getLeftX()) < 0)
+    //   return -1;
     return 0;
   }
 

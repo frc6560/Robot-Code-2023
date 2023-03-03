@@ -164,10 +164,10 @@ public class Drivetrain extends SubsystemBase {
 
                 poseEstimator = new SwerveDrivePoseEstimator(m_kinematics,
                                 getRawGyroRotation(), getModulePositions(), new Pose2d(),
-                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.115, 0.115, 0.115), // State measurement
+                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.12, 0.12, 0.12), // State measurement
                                                                                                 // standard deviations.
                                                                                                 // X, Y, theta.
-                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(1.075, 1.075, 1.075)); // Vision
+                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.9, 0.9, 0.9)); // Vision
                                                                                                     // measurement
                                                                                                     // standard
                                                                                                     // deviations.
@@ -381,12 +381,12 @@ public class Drivetrain extends SubsystemBase {
          */
         public void drive(ChassisSpeeds chassisSpeeds) {
                 if (driveNoX(chassisSpeeds)) {
-                        SwerveModuleState[] speeds = m_kinematics.toSwerveModuleStates(currentManualSetChassisSpeeds);
-                        SwerveDriveKinematics.desaturateWheelSpeeds(speeds, 0.0);
-                        setChassisState(speeds);
+                        // SwerveModuleState[] speeds = m_kinematics.toSwerveModuleStates(currentManualSetChassisSpeeds);
+                        // SwerveDriveKinematics.desaturateWheelSpeeds(speeds, 0.0);
+                        // setChassisState(speeds);
+                        setChassisState(DEFAULT_MODULE_STATES);
 
                 }
-                        // setChassisState(DEFAULT_MODULE_STATES);
         }
 
         public boolean driveNoX(ChassisSpeeds chassisSpeeds) {

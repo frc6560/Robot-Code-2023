@@ -90,6 +90,8 @@ public class DriveCommand extends CommandBase {
 
     private boolean autoAlignReady;
 
+    private ChassisSpeeds currentSetFieldRelativeSpeeds;
+
     /**
      * Creates a new `DriveCommand` instance.
      *
@@ -220,8 +222,18 @@ public class DriveCommand extends CommandBase {
     }
 
     public void autoAlign2() {
-        Pose2d estimatedGlobalPose = drivetrain.getPose();
+        Pose2d predictedRobotPose = drivetrain.getPose();
 
+        // ChassisSpeeds currSpeed = this.currentSetFieldRelativeSpeeds;
+        // double speedMagnitude = Math.hypot(currSpeed.vxMetersPerSecond, currSpeed.vyMetersPerSecond);
+        // // double heading = Math.atan2(currSpeed.vyMetersPerSecond,
+        // // currSpeed.vxMetersPerSecond);
+        // double max_decel = 1.0; // m/s
+        // double predictedTranslation = speedMagnitude * speedMagnitude / (2 * max_decel);
+        // Translation2d predictedRobotTranslation = new Translation2d(predictedTranslation,
+        //         new Rotation2d(currSpeed.vxMetersPerSecond, currSpeed.vyMetersPerSecond));
+
+        // Pose2d predictedRobotPose = new Pose2d(predictedRobotTranslation, drivetrain.getGyroscopeRotation());
         ArrayList<Pose2d> allAprilTagPoses = new ArrayList<Pose2d>();
 
         Constants.APRIL_TAG_FIELD_LAYOUT.getTags().forEach((i) -> {
@@ -234,11 +246,11 @@ public class DriveCommand extends CommandBase {
         // Pose2d apriltagPose = optional.isPresent() ? optional.get().toPose2d() :
         // null;
 
-        Pose2d apriltagPose = estimatedGlobalPose.nearest(allAprilTagPoses);
+        Pose2d apriltagPose = predictedRobotPose.nearest(allAprilTagPoses);
 
-        allAprilTagPoses.remove(apriltagPose);
+        // allAprilTagPoses.remove(apriltagPose);
 
-        Pose2d[] nearestApriltagPoses = { apriltagPose, estimatedGlobalPose.nearest(allAprilTagPoses) };
+        Pose2d[] nearestApriltagPoses = { apriltagPose};
 
         if (apriltagPose == null)
             return;
@@ -253,8 +265,8 @@ public class DriveCommand extends CommandBase {
 
         double getXDistMeters_cone = 0.96;
         double getXDistMeters_cube = 1.2;
-        // double getYDistMeters = 0.5588;
-        double getYDistMeters = 0.5538;
+        double getYDistMeters = 0.5588;
+        // double getYDistMeters = 0.5538;
 
         // if ((blueHumanPlayerApriltag.isPresent()
         // && blueHumanPlayerApriltag.get().toPose2d().equals(apriltagPose))
@@ -295,7 +307,7 @@ public class DriveCommand extends CommandBase {
 
         }
 
-        Pose2d desiredPose = estimatedGlobalPose.nearest(possibleLocations);
+        Pose2d desiredPose = predictedRobotPose.nearest(possibleLocations);
 
         goToPoseAutoCommand = autoBuilder.goToPose(desiredPose);
 
@@ -391,12 +403,13 @@ public class DriveCommand extends CommandBase {
                     drivetrain.getAverageModuleDriveAngularTangentialSpeed() / Units.inchesToMeters(0.7)));
 
         } else {
+            this.currentSetFieldRelativeSpeeds = new ChassisSpeeds(controls.driveX() * controls.driveBoostMultiplier(),
+                    controls.driveY() * controls.driveBoostMultiplier(),
+                    controls.driveRotationX()
+                            * (controls.driveBoostMultiplier() > 1.0 ? 1.0 : controls.driveBoostMultiplier()));
             drivetrain.drive(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
-                            controls.driveX() * controls.driveBoostMultiplier(),
-                            controls.driveY() * controls.driveBoostMultiplier(),
-                            controls.driveRotationX()
-                                    * (controls.driveBoostMultiplier() > 1.0 ? 1.0 : controls.driveBoostMultiplier()),
+                            this.currentSetFieldRelativeSpeeds,
                             drivetrain.getGyroscopeRotation())); // perhaps use getRawGyroRotation() instead?
         }
 
