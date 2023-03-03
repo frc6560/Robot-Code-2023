@@ -164,10 +164,10 @@ public class Drivetrain extends SubsystemBase {
 
                 poseEstimator = new SwerveDrivePoseEstimator(m_kinematics,
                                 getRawGyroRotation(), getModulePositions(), new Pose2d(),
-                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.1), // State measurement
+                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.115, 0.115, 0.115), // State measurement
                                                                                                 // standard deviations.
                                                                                                 // X, Y, theta.
-                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(1.75, 1.75, 1.75)); // Vision
+                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(1.075, 1.075, 1.075)); // Vision
                                                                                                     // measurement
                                                                                                     // standard
                                                                                                     // deviations.
