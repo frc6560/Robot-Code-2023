@@ -12,6 +12,9 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
+/**
+ * A command that controls the arm subsystem.
+ */
 public class ArmCommand extends CommandBase {
 
   /**
@@ -19,37 +22,32 @@ public class ArmCommand extends CommandBase {
    */
   public static interface Controls {
     ArmPose armState();
-
     double runClaw();
-
     boolean isCubeMode();
-
     boolean isOverridingArm();
-
     double armRotationOverride();
-
     boolean armExtentionOverride();
-
     boolean resetArmZero();
-
     boolean overrideArmSoftLimits();
   }
 
   private Arm arm;
   private Controls controls;
-
   private boolean prevControlArmExt = false;
-
   private NetworkTable ntTable = NetworkTableInstance.getDefault().getTable("Arm");
   private NetworkTableEntry rotationSpeed;
   private NetworkTableEntry clawSpeed;
   private boolean lock;
 
-  /** Creates a new ArmCommand. */
+  /** 
+   * Constructs a new ArmCommand object.
+   *
+   * @param arm the arm subsystem object
+   * @param controls the controls object that defines how the arm should be controlled
+   */
   public ArmCommand(Arm arm, Controls controls) {
     this.arm = arm;
     this.controls = controls;
-
     addRequirements(arm);
 
     rotationSpeed = ntTable.getEntry("Rotation Speed (ARM RPM)");
@@ -57,16 +55,21 @@ public class ArmCommand extends CommandBase {
 
     clawSpeed = ntTable.getEntry("Claw Speed (MOTOR RPM)");
     clawSpeed.setDouble(6560);
-    // Use addRequirements() here to declare subsystem dependencies.
   }
 
-  // Called when the command is initially scheduled.
+  /** 
+   * Initializes the command. Sets the arm's rotation velocity to 0.
+   */
   @Override
   public void initialize() {
     arm.setArmRotationVelocity(0.0);
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
+  /**
+   * Executes the command. 
+   * 
+   * Reads the control inputs and sets the arm's position and/or velocity based on them.
+   */
   @Override
   public void execute() {
     if (lock)
@@ -79,8 +82,9 @@ public class ArmCommand extends CommandBase {
     double armSpeedMultiplyer;
     if (controls.armState() == ArmPose.NONE) { // If going manual mode
       armSpeedMultiplyer = controls.runClaw() > 0.0 ? 1.0696942069 : 0.26969;
-    } else
+    } else {
       armSpeedMultiplyer = Arm.armPoseMap.get(controls.armState()).getClawSpeedMultiplier();
+    }
 
     if (controls.isCubeMode()) {
       if (controls.runClaw() > 0.0)
@@ -90,38 +94,29 @@ public class ArmCommand extends CommandBase {
     }
     arm.setClawSpeed(armSpeedMultiplyer * controls.runClaw());
 
-    // if(controls.runClaw() != 0) System.out.println("Running claw at " +
-    // clawSpeed.getDouble(0.0));
-
     if (controls.armExtentionOverride() && !prevControlArmExt) {
-      // System.out.println("Setting extention piston " + (!arm.getExtentionStatus() ?
-      // "out." : "in."));
-
       arm.setArmExtention(!arm.getExtentionStatus());
     }
 
     prevControlArmExt = controls.armExtentionOverride();
     if (!controls.isOverridingArm() && controls.armState() != ArmPose.NONE) {
-      // arm.setArmExtention(!arm.getExtentionStatus());
-
       arm.setArmState(controls.armState());
-
       return;
     }
 
-    // if(controls.armRotationOverride() != 0) System.out.println("rotating arm at "
-    // + controls.armRotationOverride() * rotationSpeed.getDouble(0.0));
-
     if (controls.overrideArmSoftLimits()) {
       arm.setArmRotationVelocityOverrideSoftLimits(controls.armRotationOverride() * rotationSpeed.getDouble(0.0));
-
     } else {
       arm.setArmRotationVelocity(controls.armRotationOverride() * rotationSpeed.getDouble(0.0));
-
     }
-
   }
 
+  /**
+   * Transfers a cube from the intake to the arm at the specified claw speed.
+   *
+   * @param clawSpeed the speed at which to transfer the cube
+   * @return true if the transfer was successful, false otherwise
+   */
   public boolean transferFromIntake(double clawSpeed) {
     return arm.transferFromIntake(clawSpeed);
   }
