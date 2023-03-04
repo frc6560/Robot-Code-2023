@@ -71,8 +71,8 @@ public class Intake extends SubsystemBase {
 
     intakeStateMap.put(IntakeState.EXTENDED_CONE, 1.03);
     intakeStateMap.put(IntakeState.EXTENDED_CUBE, 0.95);
-    intakeStateMap.put(IntakeState.RETRACTED, 0.0);
-    intakeStateMap.put(IntakeState.HANDOFF_CONE, 0.60);
+    intakeStateMap.put(IntakeState.RETRACTED, 0.13);
+    intakeStateMap.put(IntakeState.HANDOFF_CONE, 0.65);
 
     leftExtensionMotor.getEncoder().setPosition(IntakeConstants.INTAKE_START_POSITION);
 
