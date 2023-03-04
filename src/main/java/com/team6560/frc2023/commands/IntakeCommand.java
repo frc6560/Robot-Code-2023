@@ -4,6 +4,7 @@ import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.Constants.*;
 import com.team6560.frc2023.Constants.ArmConstants.ArmPose;
 import com.team6560.frc2023.subsystems.Arm;
+import com.team6560.frc2023.subsystems.ArmState;
 import com.team6560.frc2023.subsystems.GamePiece;
 import com.team6560.frc2023.subsystems.Intake;
 import com.team6560.frc2023.subsystems.Intake.IntakeState;
@@ -58,6 +59,42 @@ public class IntakeCommand extends CommandBase {
     }
   }
 
+  private void handOff_sequence(boolean cubeMode){
+    if(cubeMode){
+      intake.setIntakeState(IntakeState.CLEARANCE);
+
+      if(intake.isAtTargetState()){
+        armCommand.setArmState(ArmPose.HUMAN_PLAYER_CUBE);
+      }
+
+      if(armCommand.canRunIntake()){
+        intake.setIntakeState(IntakeState.RETRACTED);
+      }
+
+      if(intake.getCurrentState() == IntakeState.RETRACTED){
+        armCommand.setArmState(ArmPose.LOW_CUBE);
+      }
+
+
+    } else{
+      intake.setIntakeState(IntakeState.HANDOFF_CONE);
+      armCommand.setArmState(ArmPose.INTAKE_CONE);
+
+      if(armCommand.hasGamePiece()){
+        intake.setIntakeState(IntakeState.RETRACTED);
+        intake.setFeedMotor(IntakeConstants.HANDOFF_SPEED);
+      }
+
+      if(intake.getCurrentState() == IntakeState.RETRACTED){ // once fully done retracting
+        armCommand.setArmState(ArmPose.DEFAULT);
+        armCommand.setGroundIntakeMode(false);
+
+        intake.setFeedMotor(0.0);
+      }
+
+    }
+  }
+
   @Override
   public void execute() {
     if(initializing){
@@ -84,9 +121,11 @@ public class IntakeCommand extends CommandBase {
 
       boolean cubeMode = controls.isCubeMode();
       
-      if(cubeMode){
-        intake.setIntakeState(IntakeState.EXTENDED_CUBE);
+      if(handing){
+        handOff_sequence(cubeMode);
 
+      } else if(cubeMode){
+        intake.setIntakeState(IntakeState.EXTENDED_CUBE);
         armCommand.setArmState(ArmPose.INTAKE_CUBE);
 
         if(armCommand.hasGamePiece()){
@@ -94,26 +133,17 @@ public class IntakeCommand extends CommandBase {
         }
 
       } else {
+        intake.setIntakeState(IntakeState.EXTENDED_CONE);
 
-        if(handOff){
-          intake.setIntakeState(IntakeState.HANDOFF_CONE);
-          if(armCommand.hasGamePiece()){ // Spit out the cone and go back
-            handing = true;
-          }
-
-        } else{
-          intake.setIntakeState(IntakeState.EXTENDED_CONE);
+        if(intake.hasPiece()){
+          handing = true;
         }
-
-        armCommand.setArmState(ArmPose.INTAKE_CONE);
-      }
-
-      if(armCommand.hasGamePiece()){
-        armCommand.setArmState(IntakeConstants.ROTATION_ARM_CLEARANCE + 0.1);
       }
 
     } else {
       handOff = false;
+      handing = false;
+
       handoffDebounce = 0;
 
       armCommand.setArmState(ArmPose.HUMAN_PLAYER_CONE);

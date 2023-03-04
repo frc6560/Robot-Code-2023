@@ -159,7 +159,7 @@ public final class Constants {
 
     public static final double OUTTAKE_RPM_RATIO = -0.75;
 
-    public static final double HANDOFF_SPEED = 0.5;
+    public static final double HANDOFF_SPEED = 0.0;
 
     public static final double INTAKE_START_POSITION = -5.4;
 
