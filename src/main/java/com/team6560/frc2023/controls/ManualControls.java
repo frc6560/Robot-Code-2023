@@ -7,11 +7,12 @@ package com.team6560.frc2023.controls;
 import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.Constants.*;
 import com.team6560.frc2023.subsystems.Arm.ArmPose;
+import com.team6560.frc2023.subsystems.Intake.IntakePose;
 import com.team6560.frc2023.subsystems.Limelight;
 import com.team6560.frc2023.commands.DriveCommand;
-import com.team6560.frc2023.commands.IntakeCommand;
 import com.team6560.frc2023.utility.NumberStepper;
 import com.team6560.frc2023.commands.ArmCommand;
+import com.team6560.frc2023.commands.IntakeCommand;
 import com.team6560.frc2023.utility.PovNumberStepper;
 import com.team6560.frc2023.commands.LightItUpUpUpLightItUpUpUpCommand;
 import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab;
@@ -214,24 +215,6 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     return xbox.getYButton();
   }
 
-  @Override
-  public boolean isIntakeDown() {
-    return false;
-    // return xbox.getLeftBumper();
-  }
-
-  @Override
-  public double intakeSpeed() {
-    return isCubeMode() ? 0.5 : -0.5;
-  }
-
-  @Override
-  public double moveIntakeSpeed() {
-    double out = 0.0;
-    out += xbox.getBButton() ? 0.35 : 0.0;
-    out -= xbox.getXButton() ? 0.35 : 0.0;
-    return out;
-  }
   
   public double armRotationOverride(){
     return modifyAxis(controlStation.getLeftY());
@@ -337,6 +320,11 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     // if (modifyAxis2(controlStation.getLeftX()) < 0)
     //   return -1;
     return 0;
+  }
+
+  @Override
+  public IntakePose intakePose() {
+    return controlStation.getRightTriggerAxis() > 0.5 ? IntakePose.EXTENDED_CONE : IntakePose.RETRACTED;
   }
 
 }

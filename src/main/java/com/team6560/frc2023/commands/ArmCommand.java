@@ -130,6 +130,10 @@ public class ArmCommand extends CommandBase {
     arm.setArmState(armPose);
   }
 
+  public boolean isArmAtSetpoint() {
+    return arm.isArmAtSetpoint();
+  }
+
   public void setArmStateLock(boolean lock) {
     this.lock = lock;
   }

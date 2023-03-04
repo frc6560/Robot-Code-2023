@@ -62,7 +62,7 @@ public class Arm extends SubsystemBase {
 
   public enum ArmPose {
     ZERO, DEFAULT, GROUND_CONE, LOW_CUBE, LOW_CONE, MEDIUM_CONE, HIGH_CONE, MEDIUM_CUBE, HIGH_CUBE, HUMAN_PLAYER_CONE,
-    NONE, HUMAN_PLAYER_CUBE, GROUND_CUBE, INTAKE_CONE, INTAKE_CUBE
+    NONE, HUMAN_PLAYER_CUBE, GROUND_CUBE, INTAKE_CONE, INTAKE_CUBE, CLEARANCE
   }
 
   public static HashMap<ArmPose, ArmState> armPoseMap = new HashMap<ArmPose, ArmState>();
@@ -131,6 +131,7 @@ public class Arm extends SubsystemBase {
     armPoseMap.put(ArmPose.INTAKE_CONE, new ArmState(0.344, false, 1.3));
     armPoseMap.put(ArmPose.INTAKE_CUBE, new ArmState(0.35, false, 0.5));
 
+    armPoseMap.put(ArmPose.CLEARANCE, new ArmState(0.5, false, 1.0));
     // armPidController.disableContinuousInput();
     // armPidController.setIntegratorRange(-0.5, 0.5);
     // armPidController.setTolerance(0.05);
