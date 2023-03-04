@@ -164,10 +164,10 @@ public class Drivetrain extends SubsystemBase {
 
                 poseEstimator = new SwerveDrivePoseEstimator(m_kinematics,
                                 getRawGyroRotation(), getModulePositions(), new Pose2d(),
-                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.115, 0.115, 0.115), // State measurement
+                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.115, 0.12, 0.12), // State measurement
                                                                                                 // standard deviations.
                                                                                                 // X, Y, theta.
-                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(1.075, 1.075, 1.075)); // Vision
+                                new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.95, 0.95, 0.95)); // Vision
                                                                                                     // measurement
                                                                                                     // standard
                                                                                                     // deviations.
@@ -537,13 +537,12 @@ public class Drivetrain extends SubsystemBase {
                 if (camPose == null || camPose == new Pose2d())
                         return;
                 
-                if (camPose.minus(getPose()).getTranslation().getNorm() > 1.5 && !overrideMaxVisionPoseCorrection)
-                        return;
+                // if (camPose.minus(getPose()).getTranslation().getNorm() > 1.5 && !overrideMaxVisionPoseCorrection)
+                //         return;
 
-                if (!overrideMaxVisionPoseCorrection) {
-                        // TODO: test this line of code and see if it's stupid or not
-                        camPose = new Pose2d(camPose.getTranslation(), getGyroscopeRotation());
-                }
+                // if (!overrideMaxVisionPoseCorrection) {
+                //         camPose = new Pose2d(camPose.getTranslation(), getGyroscopeRotation());
+                // }
 
                 double camPoseObsTime = result.getSecond();
                 poseEstimator.addVisionMeasurement(camPose, camPoseObsTime);

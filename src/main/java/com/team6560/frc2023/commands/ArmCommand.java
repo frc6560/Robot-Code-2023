@@ -53,7 +53,7 @@ public class ArmCommand extends CommandBase {
     addRequirements(arm);
 
     rotationSpeed = ntTable.getEntry("Rotation Speed (ARM RPM)");
-    rotationSpeed.setDouble(0.015);
+    rotationSpeed.setDouble(0.025);
 
     clawSpeed = ntTable.getEntry("Claw Speed (MOTOR RPM)");
     clawSpeed.setDouble(6560);

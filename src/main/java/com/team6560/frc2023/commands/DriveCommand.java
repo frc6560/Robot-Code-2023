@@ -253,8 +253,9 @@ public class DriveCommand extends CommandBase {
 
         double getXDistMeters_cone = 0.96;
         double getXDistMeters_cube = 1.2;
-        // double getYDistMeters = 0.5588;
-        double getYDistMeters = 0.5538;
+        double getYDistMeters_up = 0.5588;
+        double getYDistMeters_down = 0.5588;
+        // double getYDistMeters = 0.5538;
 
         // if ((blueHumanPlayerApriltag.isPresent()
         // && blueHumanPlayerApriltag.get().toPose2d().equals(apriltagPose))
@@ -276,19 +277,19 @@ public class DriveCommand extends CommandBase {
             } else {
                 if (controls.desiredConeLocation() >= 0) {
                     possibleLocations.add(i.plus(
-                            new Transform2d(new Translation2d(getXDistMeters_cone, getYDistMeters),
+                            new Transform2d(new Translation2d(getXDistMeters_cone, getYDistMeters_up),
                                     Rotation2d.fromRotations(0.5))));
                     possibleLocations.add(i
-                            .plus(new Transform2d(new Translation2d(-getXDistMeters_cone, getYDistMeters),
+                            .plus(new Transform2d(new Translation2d(-getXDistMeters_cone, getYDistMeters_up),
                                     new Rotation2d())));
                 }
                 if (controls.desiredConeLocation() <= 0) {
                     possibleLocations
-                            .add(i.plus(new Transform2d(new Translation2d(getXDistMeters_cone, -getYDistMeters),
+                            .add(i.plus(new Transform2d(new Translation2d(getXDistMeters_cone, -getYDistMeters_down),
                                     Rotation2d.fromRotations(0.5))));
 
                     possibleLocations.add(i
-                            .plus(new Transform2d(new Translation2d(-getXDistMeters_cone, -getYDistMeters),
+                            .plus(new Transform2d(new Translation2d(-getXDistMeters_cone, -getYDistMeters_down),
                                     new Rotation2d())));
                 }
             }
@@ -327,6 +328,7 @@ public class DriveCommand extends CommandBase {
                 goToPoseAutoCommand = null;
                 goingToPose = false;
                 drivetrain.setAutoLock(false);
+                drivetrain.stopModules();
             }
 
             return;
