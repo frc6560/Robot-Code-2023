@@ -114,6 +114,9 @@ public class IntakeCommand extends CommandBase {
       if(handing){
         handoff_sequence(cubeMode);
 
+      } else if (intake.getCurrentState() == IntakeState.RETRACTED && !armCommand.canRunIntake()){
+        armCommand.setArmState(IntakeConstants.ROTATION_ARM_CLEARANCE + 0.1);
+
       } else if(cubeMode){
         intake.setIntakeState(IntakeState.EXTENDED_CUBE);
         armCommand.setArmState(ArmPose.INTAKE_CUBE);
@@ -142,6 +145,7 @@ public class IntakeCommand extends CommandBase {
           intake.setIntakeState(IntakeState.RETRACTED);
 
         } else{
+          intake.setIntakeState(IntakeState.CLEARANCE);
           armCommand.setArmState(IntakeConstants.ROTATION_ARM_CLEARANCE + 0.1);
         }
       } else{
