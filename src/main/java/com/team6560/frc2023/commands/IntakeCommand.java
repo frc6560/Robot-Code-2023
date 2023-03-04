@@ -27,10 +27,11 @@ public class IntakeCommand extends CommandBase {
   private Controls controls;
   private ArmCommand armCommand;
 
-  private boolean handingOff = false;
+  private boolean handOff = false;
   private int handoffDebounce = 0;
   
   private boolean initializing = true;
+  private boolean handing = false;
 
   public IntakeCommand(Intake intake, ArmCommand armCommand, Controls controls) {
     this.intake = intake;
@@ -65,39 +66,54 @@ public class IntakeCommand extends CommandBase {
     }
 
 
-    if(!handingOff && controls.handOff()){ // incase operator accidentally clicks the handoff
+    if(!handOff && controls.handOff()){ // incase operator accidentally clicks the handoff
       handoffDebounce++;
 
       if(handoffDebounce > 15) {
-        handingOff = true;
+        handOff = true;
       }
 
     } else {
       handoffDebounce = 0;
-      handingOff = false;
+      // handOff = false;
     }
 
 
     if(controls.runIntake()){
       armCommand.setGroundIntakeMode(true);
+
+      boolean cubeMode = controls.isCubeMode();
       
-      if(controls.isCubeMode()){
+      if(cubeMode){
         intake.setIntakeState(IntakeState.EXTENDED_CUBE);
 
         armCommand.setArmState(ArmPose.INTAKE_CUBE);
 
-      } else {
-        armCommand.setArmState(ArmPose.INTAKE_CONE);
+        if(armCommand.hasGamePiece()){
+          handing = true;
+        }
 
-        if(handingOff){
+      } else {
+
+        if(handOff){
           intake.setIntakeState(IntakeState.HANDOFF_CONE);
+          if(armCommand.hasGamePiece()){ // Spit out the cone and go back
+            handing = true;
+          }
+
         } else{
           intake.setIntakeState(IntakeState.EXTENDED_CONE);
         }
+
+        armCommand.setArmState(ArmPose.INTAKE_CONE);
+      }
+
+      if(armCommand.hasGamePiece()){
+        armCommand.setArmState(IntakeConstants.ROTATION_ARM_CLEARANCE + 0.1);
       }
 
     } else {
-      handingOff = false;
+      handOff = false;
       handoffDebounce = 0;
 
       armCommand.setArmState(ArmPose.HUMAN_PLAYER_CONE);
