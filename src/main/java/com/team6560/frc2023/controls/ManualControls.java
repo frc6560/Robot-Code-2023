@@ -323,8 +323,18 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   }
 
   @Override
-  public IntakePose intakePose() {
-    return controlStation.getRightTriggerAxis() > 0.5 ? IntakePose.EXTENDED_CONE : IntakePose.RETRACTED;
+  public boolean runIntake() {
+    return controlStation.getRightTriggerAxis() > 0.25;
+  }
+
+  @Override 
+  public boolean reverseIntake(){
+    return controlStation.getRawButton(10);
+  }
+
+  @Override 
+  public boolean handOff(){
+    return controlStation.getPOV() == 0;
   }
 
 }

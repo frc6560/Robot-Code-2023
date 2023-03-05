@@ -196,7 +196,31 @@ public final class Constants {
 
   // }
 
-  public static class FieldConstants {
+  public static final class IntakeConstants{
+    public static final double INTAKE_CONE_FEED_RPM = -0.8;
+    public static final double INTAKE_CUBE_FEED_RPM = 1.0;
+
+    public static final double OUTTAKE_RPM_RATIO = -0.75;
+
+    public static final double HANDOFF_SPEED = 0.0;
+
+    public static final double INTAKE_START_POSITION = -5.4;
+
+    public static final double INTAKE_LOW_POS = -0;
+    public static final double INTAKE_HIGH_POS = 17.7;
+
+    public static final double INTAKE_ACCEPTABLE_ERROR = 0.03;
+    public static final double INTAKE_APPROACH_DIST = 0.1;
+
+    public static final double INTAKE_MOVE_SPEED = 0.19;
+    public static final double INTAKE_APPROACH_SPEED = 0.035;
+  
+    public static final double INTAKE_ACCEL_RATE = 0.2; // seconds it takes to get to full speed
+
+    public static final double ROTATION_ARM_CLEARANCE = 0.5; // minimum arm pos for intake clearance
+  }
+
+  public static final class FieldConstants {
     public static final double length = Units.feetToMeters(54);
     public static final double width = Units.feetToMeters(27);
 

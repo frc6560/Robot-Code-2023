@@ -29,11 +29,13 @@ public class Intake extends SubsystemBase {
   }
 
   public static enum IntakePose {
-    EXTENDED_CUBE, EXTENDED_CONE, CONE_TRANSFER, CUBE_TRANSFER, RETRACTED,
+    EXTENDED_CUBE, EXTENDED_CONE, HANDOFF_CONE, HANDOFF_CUBE, RETRACTED,
   }
 
   public HashMap<IntakePose, IntakeState> intakePoseMap = new HashMap<IntakePose, IntakeState>();
   private IntakeState currSetIntakeState = new IntakeState(0.0, 0.0, ArmPose.NONE);
+  private IntakePose currSetIntakePose = IntakePose.RETRACTED;
+  private boolean inverted;
 
   /** Creates a new Intake. */
   public Intake() {
@@ -63,33 +65,34 @@ public class Intake extends SubsystemBase {
 
     leftIntakeMotor.follow(rightIntakeMotor, true);
     
-    rightIntakeMotor.getEncoder().setPositionConversionFactor(1.0/MAX_OUTAKE_POSITION);
+    rightIntakeMotor.getEncoder().setPositionConversionFactor(1.0 / MAX_OUTAKE_POSITION);
     // rightIntakeMotor.getEncoder().setVelocityConversionFactor(1);
 
     NtValueDisplay.ntDispTab("Intake")
-      .add("leftPos", () -> this.leftIntakeMotor.getEncoder().getPosition())
-      .add("rightPos", () -> this.rightIntakeMotor.getEncoder().getPosition());
+      .add("Position", () -> this.rightIntakeMotor.getEncoder().getPosition());
     
       intakePoseMap.put(IntakePose.EXTENDED_CUBE, new IntakeState(1.0, -0.5, ArmPose.DEFAULT));
       intakePoseMap.put(IntakePose.EXTENDED_CONE, new IntakeState(1.0, -0.5, ArmPose.DEFAULT));
       intakePoseMap.put(IntakePose.RETRACTED, new IntakeState(0.0, 0.0, ArmPose.NONE));
-      intakePoseMap.put(IntakePose.CUBE_TRANSFER, new IntakeState(1.0, 0.0, ArmPose.INTAKE_CUBE));
-      intakePoseMap.put(IntakePose.CONE_TRANSFER, new IntakeState(1.0, 0.0, ArmPose.INTAKE_CONE));
+      intakePoseMap.put(IntakePose.HANDOFF_CUBE, new IntakeState(1.0, 0.0, ArmPose.INTAKE_CUBE));
+      intakePoseMap.put(IntakePose.HANDOFF_CONE, new IntakeState(1.0, 0.0, ArmPose.INTAKE_CONE));
     }
 
   public void setIntakePosition(double intakePosition) {
     rightIntakeMotor.getPIDController().setReference(intakePosition, ControlType.kSmartMotion, 0);
   }
 
-  public void setIntakeState(IntakeState intakeState) {
+  private void setIntakeState(IntakeState intakeState) {
     this.currSetIntakeState = intakeState;
   }
 
   public void setIntakeState(IntakePose intakePose) {
     setIntakeState(intakePoseMap.get(intakePose));
+    this.currSetIntakePose = intakePose;
   }
 
   public void setSuckMotor(double velocity) {
+    velocity = inverted ? -velocity : velocity;
     intakeSuckMotor.set(velocity);
   }
 
@@ -122,6 +125,18 @@ public class Intake extends SubsystemBase {
     return Math.abs(getCurrentDraw()) > 10.0;
   }
 
+  public boolean atSetpoint() {
+    return Math.abs(getIntakePosition() - currSetIntakeState.getPosition()) < rightIntakeMotor.getPIDController().getSmartMotionAllowedClosedLoopError(0);
+  }
+
+  public IntakeState getCurrentState() {
+    return currSetIntakeState;
+  }
+
+  public IntakePose getCurrentPose() {
+    return currSetIntakePose;
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -129,5 +144,9 @@ public class Intake extends SubsystemBase {
     if (Math.abs(currSetIntakeState.getPosition() - rightIntakeMotor.getEncoder().getPosition()) < rightIntakeMotor.getPIDController().getSmartMotionAllowedClosedLoopError(0)) {
       setSuckMotor(currSetIntakeState.getSuckSpeed());
     }
+  }
+
+  public void setInverted(boolean inverted) {
+    this.inverted = inverted;
   }
 }

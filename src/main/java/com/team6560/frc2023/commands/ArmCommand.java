@@ -4,6 +4,7 @@
 
 package com.team6560.frc2023.commands;
 
+import com.team6560.frc2023.Constants.IntakeConstants;
 import com.team6560.frc2023.subsystems.Arm;
 import com.team6560.frc2023.subsystems.Arm.ArmPose;
 
@@ -130,6 +131,10 @@ public class ArmCommand extends CommandBase {
     arm.setArmState(armPose);
   }
 
+  public void setArmState(double armPose) {
+    arm.setArmState(armPose);
+  }
+
   public boolean isArmAtSetpoint() {
     return arm.isArmAtSetpoint();
   }
@@ -149,5 +154,9 @@ public class ArmCommand extends CommandBase {
   @Override
   public boolean isFinished() {
     return false;
+  }
+
+  public boolean canRunIntake(){
+    return arm.getArmPose() > IntakeConstants.ROTATION_ARM_CLEARANCE;
   }
 }
