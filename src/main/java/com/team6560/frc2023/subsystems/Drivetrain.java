@@ -33,6 +33,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
@@ -83,6 +84,8 @@ public class Drivetrain extends SubsystemBase {
         private final Supplier<Pair<Pose2d, Double>> poseSupplier;
 
         private final SwerveDrivePoseEstimator poseEstimator;
+
+        private final SwerveDriveOdometry odometry;
 
         private Pose2d lastPose = new Pose2d();
 
@@ -165,48 +168,46 @@ public class Drivetrain extends SubsystemBase {
                 poseEstimator = new SwerveDrivePoseEstimator(m_kinematics,
                                 getRawGyroRotation(), getModulePositions(), new Pose2d(),
                                 new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.115, 0.12, 0.12), // State measurement
-                                                                                                // standard deviations.
-                                                                                                // X, Y, theta.
+                                                                                                    // standard
+                                                                                                    // deviations.
+                                                                                                    // X, Y, theta.
                                 new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.95, 0.95, 0.95)); // Vision
                                                                                                     // measurement
                                                                                                     // standard
                                                                                                     // deviations.
                                                                                                     // X, Y, theta.
 
+                odometry = new SwerveDriveOdometry(m_kinematics, getRawGyroRotation(), getModulePositions());
+
                 climbExtensionMotorLeft = new CANSparkMax(24, CANSparkMaxLowLevel.MotorType.kBrushless);
-                climbExtensionMotorLeft.setInverted(true);
 
                 climbExtensionMotorRight = new CANSparkMax(22, CANSparkMaxLowLevel.MotorType.kBrushless);
+
+
+                climbExtensionMotorLeft.setInverted(true);
                 climbExtensionMotorRight.setInverted(true);
 
                 climbDriveMotorLeft = new CANSparkMax(23, CANSparkMaxLowLevel.MotorType.kBrushless);
                 climbDriveMotorRight = new CANSparkMax(21, CANSparkMaxLowLevel.MotorType.kBrushless);
 
-                climbDriveMotors = new CANSparkMax[] {climbDriveMotorLeft, climbDriveMotorRight};
-                // for (CANSparkMax i : new CANSparkMax[] {climbExtensionMotorLeft,
-                //                 climbExtensionMotorRight }) {
-                //         i.getPIDController().setP(0.005);
-                //         i.getPIDController().setI(0.00005);
-                //         i.getPIDController().setD(0.0);
-
-                //         i.getPIDController().setIZone(0.0);
-                // }
 
                 
-                for (CANSparkMax i : climbDriveMotors) {
-                        i.restoreFactoryDefaults();
-                        i.getPIDController().setFF(0.001);
-                        i.getPIDController().setP(0.0);
-                        i.getPIDController().setI(0.0);
-                        i.getPIDController().setD(0.0);
 
-                        i.getPIDController().setIZone(0.0);
-                }
+                        climbDriveMotorLeft.restoreFactoryDefaults();
+                        climbDriveMotorLeft.getPIDController().setFF(0.001);
+                        climbDriveMotorLeft.getPIDController().setP(0.0);
+                        climbDriveMotorLeft.getPIDController().setI(0.0);
+                        climbDriveMotorLeft.getPIDController().setD(0.0);
+
+                        climbDriveMotorLeft.getPIDController().setIZone(0.0);
                 
-                climbDriveMotorLeft.setInverted(false);
-                climbDriveMotorRight.setInverted(false);
+                        climbDriveMotorLeft.setIdleMode(IdleMode.kBrake);
+                        climbDriveMotorRight.setIdleMode(IdleMode.kBrake);
 
-                batteryBullshit = new Solenoid(PneumaticsModuleType.CTREPCM, 1); //TODO: CHANGE
+                
+                climbDriveMotorRight.follow(climbDriveMotorLeft);
+
+                batteryBullshit = new Solenoid(PneumaticsModuleType.CTREPCM, 1); // TODO: CHANGE
 
                 resetOdometry(new Pose2d());
 
@@ -241,10 +242,7 @@ public class Drivetrain extends SubsystemBase {
         }
 
         public void setClimbDriveMotorVelocity(double velocityRPM) {
-                
-                for (CANSparkMax i : climbDriveMotors)
-                        // i.set(velocityRPM/5100);
-                        i.getPIDController().setReference(velocityRPM, ControlType.kVelocity);
+                climbDriveMotorLeft.getPIDController().setReference(velocityRPM, ControlType.kVelocity);
         }
 
         public double getClimbDriveMotorVelocityRPM() {
@@ -279,6 +277,7 @@ public class Drivetrain extends SubsystemBase {
                 // if (poseEstimator == null)
                 // m_navx.zeroYaw();
                 resetOdometry(new Pose2d(getPose().getTranslation(), new Rotation2d(0.0)));
+
         }
 
         public Rotation2d getRawGyroRotation() {
@@ -309,6 +308,10 @@ public class Drivetrain extends SubsystemBase {
 
                 return poseEstimator.getEstimatedPosition().getRotation();
                 // return getRawGyroRotation();
+        }
+
+        public Rotation2d getGyroscopeRotationNoApriltags() {
+                return odometry.getPoseMeters().getRotation();
         }
 
         public SwerveModulePosition[] getModulePositions() {
@@ -386,7 +389,7 @@ public class Drivetrain extends SubsystemBase {
                         setChassisState(speeds);
 
                 }
-                        // setChassisState(DEFAULT_MODULE_STATES);
+                // setChassisState(DEFAULT_MODULE_STATES);
         }
 
         public boolean driveNoX(ChassisSpeeds chassisSpeeds) {
@@ -502,6 +505,7 @@ public class Drivetrain extends SubsystemBase {
          *             estimator
          */
         public void resetOdometry(Pose2d pose) {
+                odometry.resetPosition(getRawGyroRotation(), getModulePositions(), pose);
                 poseEstimator.resetPosition(
                                 getRawGyroRotation(),
                                 getModulePositions(), pose);
@@ -525,6 +529,7 @@ public class Drivetrain extends SubsystemBase {
         private void updateOdometry() {
                 poseEstimator.update(getRawGyroRotation(), getModulePositions());
 
+                odometry.update(getRawGyroRotation(), getModulePositions());
                 // Also apply vision measurements. We use 0.3 seconds in the past as an example
                 // -- on
                 // a real robot, this must be calculated based either on latency or timestamps.
@@ -533,16 +538,15 @@ public class Drivetrain extends SubsystemBase {
                         return;
 
                 Pose2d camPose = result.getFirst();
-                
+
                 if (camPose == null || camPose == new Pose2d())
                         return;
-                
-                // if (camPose.minus(getPose()).getTranslation().getNorm() > 1.5 && !overrideMaxVisionPoseCorrection)
-                //         return;
 
-                // if (!overrideMaxVisionPoseCorrection) {
-                //         camPose = new Pose2d(camPose.getTranslation(), getGyroscopeRotation());
-                // }
+                if (!overrideMaxVisionPoseCorrection) {
+                        camPose = new Pose2d(camPose.getTranslation(), getGyroscopeRotation());
+                }
+                if (camPose.minus(getPose()).getTranslation().getNorm() > 1.5 && !overrideMaxVisionPoseCorrection)
+                        return;
 
                 double camPoseObsTime = result.getSecond();
                 poseEstimator.addVisionMeasurement(camPose, camPoseObsTime);
@@ -555,4 +559,25 @@ public class Drivetrain extends SubsystemBase {
         public void setAutoLock(boolean lock) {
                 this.autoLock = lock;
         }
+
+        public Pose2d getLimelightEstimatedPosition() {
+                Pair<Pose2d, Double> result = poseSupplier.get();
+                if (result == null)
+                        return null;
+
+                Pose2d camPose = result.getFirst();
+
+                if (camPose == null || camPose == new Pose2d())
+                        return null;
+
+                if (!overrideMaxVisionPoseCorrection) {
+                        camPose = new Pose2d(camPose.getTranslation(), getGyroscopeRotation());
+                }
+                // if (camPose.minus(getPose()).getTranslation().getNorm() > 1.5 && !overrideMaxVisionPoseCorrection)
+                //         return null;
+                return camPose;
+
+        }
+
+        
 }

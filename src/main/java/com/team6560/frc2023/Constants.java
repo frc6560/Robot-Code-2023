@@ -51,7 +51,7 @@ public final class Constants {
   // public static final double FRONT_LEFT_MODULE_STEER_OFFSET =
   // -Math.toRadians(163.828 + 90.0 + 45.0 + 45.0 + 180.0 - 90.0);
   // public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(0);
-  public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(343.5644);
+  public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(342.773);
 
   public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 5;
   public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 9;
@@ -59,7 +59,7 @@ public final class Constants {
   // public static final double FRONT_RIGHT_MODULE_STEER_OFFSET =
   // -Math.toRadians(77.168 + 90.0 + 45.0 - 45.0 + 180.0);
   // public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(0);
-  public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(256.0254);
+  public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(255.146);
 
   public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 7;
   public static final int BACK_LEFT_MODULE_STEER_MOTOR = 12;
@@ -67,7 +67,7 @@ public final class Constants {
   // public static final double BACK_LEFT_MODULE_STEER_OFFSET =
   // -Math.toRadians(316.758 + 45.0 + 45.0 + 90.0);
   // public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(0);
-  public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(136.6699);
+  public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(136.230);
 
   public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 6;
   public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 11;
@@ -75,7 +75,7 @@ public final class Constants {
   // public static final double BACK_RIGHT_MODULE_STEER_OFFSET =
   // -Math.toRadians(302.959 + 90.0 + 45.0 - 45.0 + 90.0 - 90.0 - 180.0);
   // public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(0);
-  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(235.8984);
+  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(307.617);
 
   // The formula for calculating the theoretical maximum velocity is:
   // <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> *
