@@ -329,7 +329,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override 
   public boolean reverseIntake(){
-    return controlStation.getRawButton(10);
+    return controlStation.getRightStickButton();
   }
 
   @Override 

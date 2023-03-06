@@ -12,6 +12,7 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxPIDController.AccelStrategy;
 import com.team6560.frc2023.Constants;
+import com.team6560.frc2023.Constants.IntakeConstants;
 import com.team6560.frc2023.subsystems.Arm.ArmPose;
 import com.team6560.frc2023.utility.NetworkTable.NtValueDisplay;
 
@@ -22,14 +23,10 @@ public class Intake extends SubsystemBase {
   private CANSparkMax rightIntakeMotor;
   private CANSparkMax intakeSuckMotor;
 
-  public static final double MAX_OUTAKE_POSITION = 16.5;
-
-  public static enum SuckState {
-    SUCK, OUTAKE, NOTHING
-  }
+  public static final double MAX_OUTAKE_POSITION = 16.5 * 0.7268 * 1.0457;
 
   public static enum IntakePose {
-    EXTENDED_CUBE, EXTENDED_CONE, HANDOFF_CONE, HANDOFF_CUBE, RETRACTED,
+    EXTENDED_CUBE, EXTENDED_CONE, HANDOFF_CONE, HANDOFF_CUBE, RETRACTED, CLEARANCE
   }
 
   public HashMap<IntakePose, IntakeState> intakePoseMap = new HashMap<IntakePose, IntakeState>();
@@ -69,13 +66,16 @@ public class Intake extends SubsystemBase {
     // rightIntakeMotor.getEncoder().setVelocityConversionFactor(1);
 
     NtValueDisplay.ntDispTab("Intake")
-      .add("Position", () -> this.rightIntakeMotor.getEncoder().getPosition());
+    .add("Position", () -> this.rightIntakeMotor.getEncoder().getPosition())
+    .add("curretn", this::getCurrentDraw)
+    .add("target current", ()->23)
+    .add("has ball", this::hasObject);
     
-      intakePoseMap.put(IntakePose.EXTENDED_CUBE, new IntakeState(1.0, -0.5, ArmPose.DEFAULT));
-      intakePoseMap.put(IntakePose.EXTENDED_CONE, new IntakeState(1.0, -0.5, ArmPose.DEFAULT));
-      intakePoseMap.put(IntakePose.RETRACTED, new IntakeState(0.0, 0.0, ArmPose.NONE));
-      intakePoseMap.put(IntakePose.HANDOFF_CUBE, new IntakeState(1.0, 0.0, ArmPose.INTAKE_CUBE));
-      intakePoseMap.put(IntakePose.HANDOFF_CONE, new IntakeState(1.0, 0.0, ArmPose.INTAKE_CONE));
+      intakePoseMap.put(IntakePose.EXTENDED_CUBE, new IntakeState(0.85, 0.0, ArmPose.DEFAULT));
+      intakePoseMap.put(IntakePose.EXTENDED_CONE, new IntakeState(1.0, -0.8, ArmPose.DEFAULT));
+      intakePoseMap.put(IntakePose.RETRACTED, new IntakeState(-0.22, 0.0, ArmPose.NONE));
+      intakePoseMap.put(IntakePose.HANDOFF_CONE, new IntakeState(0.45, -0.6, ArmPose.INTAKE_CONE));
+      intakePoseMap.put(IntakePose.CLEARANCE, new IntakeState(1.015, 0.0, ArmPose.CLEARANCE));
     }
 
   public void setIntakePosition(double intakePosition) {
@@ -96,37 +96,20 @@ public class Intake extends SubsystemBase {
     intakeSuckMotor.set(velocity);
   }
 
-  public void setSuckMotor(SuckState suckState) {
-    switch (suckState) {
-      case NOTHING:
-        intakeSuckMotor.set(0.0);
-        break;
-      case SUCK:
-        intakeSuckMotor.set(0.5);
-        break;
-      case OUTAKE:
-        intakeSuckMotor.set(-0.5);
-        break;
-      default:
-        intakeSuckMotor.set(0.0);
-        break;
-    }
-  }
-
   public double getIntakePosition() {
     return rightIntakeMotor.getEncoder().getPosition();
   }
 
   public double getCurrentDraw() {
-    return rightIntakeMotor.getOutputCurrent();
+    return intakeSuckMotor.getOutputCurrent();
   }
 
   public boolean hasObject() {
-    return Math.abs(getCurrentDraw()) > 10.0;
+    return Math.abs(getCurrentDraw()) > 24.0;
   }
 
   public boolean atSetpoint() {
-    return Math.abs(getIntakePosition() - currSetIntakeState.getPosition()) < rightIntakeMotor.getPIDController().getSmartMotionAllowedClosedLoopError(0);
+    return Math.abs(getIntakePosition() - currSetIntakeState.getPosition()) < IntakeConstants.INTAKE_ACCEPTABLE_ERROR;
   }
 
   public IntakeState getCurrentState() {
@@ -141,9 +124,10 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     setIntakePosition(currSetIntakeState.getPosition());
-    if (Math.abs(currSetIntakeState.getPosition() - rightIntakeMotor.getEncoder().getPosition()) < rightIntakeMotor.getPIDController().getSmartMotionAllowedClosedLoopError(0)) {
-      setSuckMotor(currSetIntakeState.getSuckSpeed());
-    }
+
+    // if (Math.abs(currSetIntakeState.getPosition() - rightIntakeMotor.getEncoder().getPosition()) < rightIntakeMotor.getPIDController().getSmartMotionAllowedClosedLoopError(0)) {
+    setSuckMotor(currSetIntakeState.getSuckSpeed());
+    // }
   }
 
   public void setInverted(boolean inverted) {

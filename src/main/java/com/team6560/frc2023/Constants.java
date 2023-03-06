@@ -202,7 +202,7 @@ public final class Constants {
 
     public static final double OUTTAKE_RPM_RATIO = -0.75;
 
-    public static final double HANDOFF_SPEED = 0.0;
+    public static final double HANDOFF_SPEED = 0.5;
 
     public static final double INTAKE_START_POSITION = -5.4;
 
@@ -217,7 +217,7 @@ public final class Constants {
   
     public static final double INTAKE_ACCEL_RATE = 0.2; // seconds it takes to get to full speed
 
-    public static final double ROTATION_ARM_CLEARANCE = 0.5; // minimum arm pos for intake clearance
+    public static final double ROTATION_ARM_CLEARANCE = 0.45; // minimum arm pos for intake clearance
   }
 
   public static final class FieldConstants {

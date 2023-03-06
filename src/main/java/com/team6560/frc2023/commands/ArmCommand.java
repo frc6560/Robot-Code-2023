@@ -70,8 +70,10 @@ public class ArmCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (lock)
+    if (lock){
       return;
+    }
+
 
     if (controls.resetArmZero()) {
       arm.resetArmZero();
@@ -126,6 +128,11 @@ public class ArmCommand extends CommandBase {
   public boolean transferFromIntake(double clawSpeed) {
     return arm.transferFromIntake(clawSpeed);
   }
+  
+  public boolean hasObject() {
+    return arm.hasObject();
+    // return false;
+  }
 
   public void setArmState(ArmPose armPose) {
     arm.setArmState(armPose);
@@ -133,6 +140,10 @@ public class ArmCommand extends CommandBase {
 
   public void setArmState(double armPose) {
     arm.setArmState(armPose);
+  }
+
+  public void setClawSpeed(double output){
+    arm.setClawSpeed(output);
   }
 
   public boolean isArmAtSetpoint() {
@@ -157,6 +168,6 @@ public class ArmCommand extends CommandBase {
   }
 
   public boolean canRunIntake(){
-    return arm.getArmPose() > IntakeConstants.ROTATION_ARM_CLEARANCE;
+    return Math.abs(arm.getArmPose() - IntakeConstants.ROTATION_ARM_CLEARANCE) < arm.convertRawArmPoseToArmPose(Arm.ALLOWED_ERROR);
   }
 }
