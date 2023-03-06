@@ -311,7 +311,11 @@ public class Drivetrain extends SubsystemBase {
         }
 
         public Rotation2d getGyroscopeRotationNoApriltags() {
-                return odometry.getPoseMeters().getRotation();
+                return getOdometryPose2dNoApriltags().getRotation();
+        }
+
+        public Pose2d getOdometryPose2dNoApriltags() {
+                return odometry.getPoseMeters();
         }
 
         public SwerveModulePosition[] getModulePositions() {
