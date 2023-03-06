@@ -263,27 +263,27 @@ public class DriveCommand extends CommandBase {
 
 
         if (controls.isCubeMode()) {
-            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 4.6560), 1.0715, Rotation2d.fromRotations(0.5)));
-            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 4.6560), 4.4243, Rotation2d.fromRotations(0.5)));
-            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 4.6560), 2.7479, Rotation2d.fromRotations(0.5)));
+            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 1.0715, Rotation2d.fromRotations(0.5)));
+            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 4.4243, Rotation2d.fromRotations(0.5)));
+            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 2.7479, Rotation2d.fromRotations(0.5)));
     
-            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 4.6560), 1.0715, Rotation2d.fromRotations(0.0)));
-            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 4.6560), 4.4243, Rotation2d.fromRotations(0.0)));
-            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 4.6560), 2.7479, Rotation2d.fromRotations(0.0)));
+            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 1.0715, Rotation2d.fromRotations(0.0)));
+            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 4.4243, Rotation2d.fromRotations(0.0)));
+            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 2.7479, Rotation2d.fromRotations(0.0)));
         } else {
-            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 4.6560), 0.5127, Rotation2d.fromRotations(0.5)));
-            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 4.6560), 1.6303, Rotation2d.fromRotations(0.5)));
-            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 4.6560), 2.1891, Rotation2d.fromRotations(0.5)));
-            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 4.6560), 3.3091, Rotation2d.fromRotations(0.5)));
-            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 4.6560), 3.8655, Rotation2d.fromRotations(0.5)));
-            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 4.6560), 4.9847, Rotation2d.fromRotations(0.5)));
+            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 0.5127, Rotation2d.fromRotations(0.5)));
+            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 1.6303, Rotation2d.fromRotations(0.5)));
+            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 2.1891, Rotation2d.fromRotations(0.5)));
+            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 3.3091, Rotation2d.fromRotations(0.5)));
+            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 3.8655, Rotation2d.fromRotations(0.5)));
+            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 4.9847, Rotation2d.fromRotations(0.5)));
     
-            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 4.6560), 0.5127, Rotation2d.fromRotations(0.0)));
-            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 4.6560), 1.6303, Rotation2d.fromRotations(0.0)));
-            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 4.6560), 2.1891, Rotation2d.fromRotations(0.0)));
-            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 4.6560), 3.3091, Rotation2d.fromRotations(0.0)));
-            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 4.6560), 3.8655, Rotation2d.fromRotations(0.0)));
-            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 4.6560), 4.9847, Rotation2d.fromRotations(0.0)));
+            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 0.5127, Rotation2d.fromRotations(0.0)));
+            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 1.6303, Rotation2d.fromRotations(0.0)));
+            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 2.1891, Rotation2d.fromRotations(0.0)));
+            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 3.3091, Rotation2d.fromRotations(0.0)));
+            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 3.8655, Rotation2d.fromRotations(0.0)));
+            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 4.9847, Rotation2d.fromRotations(0.0)));
         }
         
 
