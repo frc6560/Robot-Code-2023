@@ -52,7 +52,7 @@ public class Intake extends SubsystemBase {
     pid.setP(5e-6, 0);
     pid.setI(0, 0);
     pid.setD(0, 0);
-    pid.setFF(0.001, 0);
+    pid.setFF(0.002, 0);
 
     pid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
 
@@ -72,10 +72,11 @@ public class Intake extends SubsystemBase {
     .add("target current", ()->23)
     .add("has ball", this::hasObject);
     
-      intakePoseMap.put(IntakePose.EXTENDED_CUBE, new IntakeState(0.88, 0.0, ArmPose.DEFAULT));
+      intakePoseMap.put(IntakePose.EXTENDED_CUBE, new IntakeState(0.92, 0.8, ArmPose.DEFAULT));
       intakePoseMap.put(IntakePose.EXTENDED_CONE, new IntakeState(1.0, -0.8, ArmPose.DEFAULT));
       intakePoseMap.put(IntakePose.RETRACTED, new IntakeState(-0.22, 0.0, ArmPose.NONE));
       intakePoseMap.put(IntakePose.HANDOFF_CONE, new IntakeState(0.45, -0.6, ArmPose.INTAKE_CONE));
+      intakePoseMap.put(IntakePose.HANDOFF_CUBE, new IntakeState(0.88, -0.6, ArmPose.DEFAULT));
       intakePoseMap.put(IntakePose.CLEARANCE, new IntakeState(1.015, 0.0, ArmPose.CLEARANCE));
     }
 
@@ -110,7 +111,9 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean atSetpoint() {
-    return Math.abs(getIntakePosition() - currSetIntakeState.getPosition()) < IntakeConstants.INTAKE_ACCEPTABLE_ERROR || getIntakePosition() > 1.0 || getIntakePosition() < 0.0;
+    boolean thing = Math.abs(getIntakePosition() - currSetIntakeState.getPosition()) < IntakeConstants.INTAKE_ACCEPTABLE_ERROR; // || getIntakePosition() > 1.0 || getIntakePosition() < 0.0;
+    System.out.println("INTAKE AT SETPOINT: " + thing);
+    return thing;
   }
 
   public IntakeState getCurrentState() {

@@ -209,7 +209,7 @@ public final class Constants {
     public static final double INTAKE_LOW_POS = -0;
     public static final double INTAKE_HIGH_POS = 17.7;
 
-    public static final double INTAKE_ACCEPTABLE_ERROR = 0.03;
+    public static final double INTAKE_ACCEPTABLE_ERROR = 0.05; //TODO: used to be 0.03
     public static final double INTAKE_APPROACH_DIST = 0.1;
 
     public static final double INTAKE_MOVE_SPEED = 0.19;
