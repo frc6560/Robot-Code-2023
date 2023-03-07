@@ -44,25 +44,26 @@ public class Intake extends SubsystemBase {
 
   
     rightIntakeMotor.restoreFactoryDefaults();
+    rightIntakeMotor.getEncoder().setPositionConversionFactor(1.0 / MAX_OUTAKE_POSITION);
     rightIntakeMotor.getEncoder().setPosition(0.255);
 
     SparkMaxPIDController pid = rightIntakeMotor.getPIDController();
 
-    pid.setP(1e-5, 0);
+    pid.setP(5e-6, 0);
     pid.setI(0, 0);
     pid.setD(0, 0);
-    pid.setFF(0.002, 0);
+    pid.setFF(0.001, 0);
 
     pid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
 
     pid.setSmartMotionMaxAccel(750, 0);
     pid.setSmartMotionMaxVelocity(1600, 0);
-    pid.setSmartMotionAllowedClosedLoopError(0.02, 0);
+    pid.setSmartMotionAllowedClosedLoopError(0.1, 0); //TODO: check if it should be 1 rot or 0.1% of the thing
     
 
     leftIntakeMotor.follow(rightIntakeMotor, true);
     
-    rightIntakeMotor.getEncoder().setPositionConversionFactor(1.0 / MAX_OUTAKE_POSITION);
+
     // rightIntakeMotor.getEncoder().setVelocityConversionFactor(1);
 
     NtValueDisplay.ntDispTab("Intake")
@@ -71,7 +72,7 @@ public class Intake extends SubsystemBase {
     .add("target current", ()->23)
     .add("has ball", this::hasObject);
     
-      intakePoseMap.put(IntakePose.EXTENDED_CUBE, new IntakeState(0.85, 0.0, ArmPose.DEFAULT));
+      intakePoseMap.put(IntakePose.EXTENDED_CUBE, new IntakeState(0.88, 0.0, ArmPose.DEFAULT));
       intakePoseMap.put(IntakePose.EXTENDED_CONE, new IntakeState(1.0, -0.8, ArmPose.DEFAULT));
       intakePoseMap.put(IntakePose.RETRACTED, new IntakeState(-0.22, 0.0, ArmPose.NONE));
       intakePoseMap.put(IntakePose.HANDOFF_CONE, new IntakeState(0.45, -0.6, ArmPose.INTAKE_CONE));
@@ -105,11 +106,11 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean hasObject() {
-    return Math.abs(getCurrentDraw()) > 24.0;
+    return Math.abs(getCurrentDraw()) > 23.0;
   }
 
   public boolean atSetpoint() {
-    return Math.abs(getIntakePosition() - currSetIntakeState.getPosition()) < IntakeConstants.INTAKE_ACCEPTABLE_ERROR;
+    return Math.abs(getIntakePosition() - currSetIntakeState.getPosition()) < IntakeConstants.INTAKE_ACCEPTABLE_ERROR || getIntakePosition() > 1.0 || getIntakePosition() < 0.0;
   }
 
   public IntakeState getCurrentState() {

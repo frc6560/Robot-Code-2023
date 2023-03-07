@@ -171,6 +171,10 @@ public class Arm extends SubsystemBase {
     extentionPiston.set(status);
   }
 
+  /**
+   * @deprecated
+   * PROBABLY BROKEN
+   */
   public double convertRawArmPoseToArmPose(double rawArmPose) {
     double low = ntBottomLimit.getDouble(0.0);
     double high = ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT);
@@ -262,8 +266,8 @@ public class Arm extends SubsystemBase {
   }
 
   public boolean isArmAtSetpoint() {
-    boolean isAtReference = Math.abs(currentReference - getArmPose()) < convertRawArmPoseToArmPose(ALLOWED_ERROR);
-    // System.out.println(isAtReference);
+    boolean isAtReference = Math.abs(currentReference - getArmPose()) < 0.1;
+    System.out.println(isAtReference);
     return isAtReference;
   }
 
