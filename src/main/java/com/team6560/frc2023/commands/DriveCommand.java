@@ -90,8 +90,6 @@ public class DriveCommand extends CommandBase {
 
     private boolean autoAlignReady;
 
-    private ChassisSpeeds currentSetFieldRelativeSpeeds;
-
     /**
      * Creates a new `DriveCommand` instance.
      *
@@ -139,8 +137,8 @@ public class DriveCommand extends CommandBase {
         if (isOverridingAngle)
             drivetrain.driveNoX(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
-                            controls.driveX(),
-                            controls.driveY(),
+                            controls.driveX() * controls.driveBoostMultiplier(),
+                            controls.driveY() * controls.driveBoostMultiplier(),
                             calculated,
                             drivetrain.getGyroscopeRotation()));
     }
@@ -222,23 +220,13 @@ public class DriveCommand extends CommandBase {
     }
 
     public void autoAlign2() {
-        Pose2d predictedRobotPose = drivetrain.getPose();
+        Pose2d estimatedGlobalPose = drivetrain.getPose();
 
-        // ChassisSpeeds currSpeed = this.currentSetFieldRelativeSpeeds;
-        // double speedMagnitude = Math.hypot(currSpeed.vxMetersPerSecond, currSpeed.vyMetersPerSecond);
-        // // double heading = Math.atan2(currSpeed.vyMetersPerSecond,
-        // // currSpeed.vxMetersPerSecond);
-        // double max_decel = 1.0; // m/s
-        // double predictedTranslation = speedMagnitude * speedMagnitude / (2 * max_decel);
-        // Translation2d predictedRobotTranslation = new Translation2d(predictedTranslation,
-        //         new Rotation2d(currSpeed.vxMetersPerSecond, currSpeed.vyMetersPerSecond));
+        // ArrayList<Pose2d> allAprilTagPoses = new ArrayList<Pose2d>();
 
-        // Pose2d predictedRobotPose = new Pose2d(predictedRobotTranslation, drivetrain.getGyroscopeRotation());
-        ArrayList<Pose2d> allAprilTagPoses = new ArrayList<Pose2d>();
-
-        Constants.APRIL_TAG_FIELD_LAYOUT.getTags().forEach((i) -> {
-            allAprilTagPoses.add(i.pose.toPose2d());
-        });
+        // Constants.APRIL_TAG_FIELD_LAYOUT.getTags().forEach((i) -> {
+            // allAprilTagPoses.add(i.pose.toPose2d());
+        // });
 
         // int currTargetId = limelight.getCurrentApriltagId();
         // Optional<Pose3d> optional =
@@ -246,26 +234,23 @@ public class DriveCommand extends CommandBase {
         // Pose2d apriltagPose = optional.isPresent() ? optional.get().toPose2d() :
         // null;
 
-        Pose2d apriltagPose = predictedRobotPose.nearest(allAprilTagPoses);
+        // Pose2d apriltagPose = estimatedGlobalPose.nearest(allAprilTagPoses);
 
-        // allAprilTagPoses.remove(apriltagPose);
 
-        Pose2d[] nearestApriltagPoses = { apriltagPose};
+        // Pose2d[] nearestApriltagPoses = { apriltagPose};
 
-        if (apriltagPose == null)
-            return;
+        // if (apriltagPose == null || nearestApriltagPoses == null)
+            // return;
 
         ArrayList<Pose2d> possibleLocations = new ArrayList<Pose2d>();
-
-        Optional<Pose3d> redHumanPlayerApriltag = Constants.APRIL_TAG_FIELD_LAYOUT.getTagPose(4);
-        Optional<Pose3d> blueHumanPlayerApriltag = Constants.APRIL_TAG_FIELD_LAYOUT.getTagPose(5);
 
         // double getXDistMeters = 0.804545;
         // double getYDistMeters = 1.0;
 
-        double getXDistMeters_cone = 0.96;
-        double getXDistMeters_cube = 1.2;
-        double getYDistMeters = 0.5588;
+        // double getXDistMeters_cone = 0.94;
+        // double getXDistMeters_cube = 1.2;
+        // double getYDistMeters_up = 0.5558;
+        // double getYDistMeters_down = 0.5558;
         // double getYDistMeters = 0.5538;
 
         // if ((blueHumanPlayerApriltag.isPresent()
@@ -276,40 +261,66 @@ public class DriveCommand extends CommandBase {
 
         // }
 
-        for (Pose2d i : nearestApriltagPoses) {
-            if ((controls.isCubeMode())) {
 
-                possibleLocations.add(i
-                        .plus(new Transform2d(new Translation2d(getXDistMeters_cube, 0.0),
-                                Rotation2d.fromRotations(0.5))));
-                possibleLocations
-                        .add(apriltagPose
-                                .plus(new Transform2d(new Translation2d(-getXDistMeters_cube, 0.0), new Rotation2d())));
-            } else {
-                if (controls.desiredConeLocation() >= 0) {
-                    possibleLocations.add(i.plus(
-                            new Transform2d(new Translation2d(getXDistMeters_cone, getYDistMeters),
-                                    Rotation2d.fromRotations(0.5))));
-                    possibleLocations.add(i
-                            .plus(new Transform2d(new Translation2d(-getXDistMeters_cone, getYDistMeters),
-                                    new Rotation2d())));
-                }
-                if (controls.desiredConeLocation() <= 0) {
-                    possibleLocations
-                            .add(i.plus(new Transform2d(new Translation2d(getXDistMeters_cone, -getYDistMeters),
-                                    Rotation2d.fromRotations(0.5))));
-
-                    possibleLocations.add(i
-                            .plus(new Transform2d(new Translation2d(-getXDistMeters_cone, -getYDistMeters),
-                                    new Rotation2d())));
-                }
-            }
-
+        if (controls.isCubeMode()) {
+            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 1.0715, Rotation2d.fromRotations(0.5)));
+            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 4.4243, Rotation2d.fromRotations(0.5)));
+            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 2.7479, Rotation2d.fromRotations(0.5)));
+    
+            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 1.0715, Rotation2d.fromRotations(0.0)));
+            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 4.4243, Rotation2d.fromRotations(0.0)));
+            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 2.7479, Rotation2d.fromRotations(0.0)));
+        } else {
+            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 0.5127, Rotation2d.fromRotations(0.5)));
+            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 1.6303, Rotation2d.fromRotations(0.5)));
+            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 2.1891, Rotation2d.fromRotations(0.5)));
+            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 3.3091, Rotation2d.fromRotations(0.5)));
+            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 3.8655, Rotation2d.fromRotations(0.5)));
+            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 4.9847, Rotation2d.fromRotations(0.5)));
+    
+            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 0.5127, Rotation2d.fromRotations(0.0)));
+            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 1.6303, Rotation2d.fromRotations(0.0)));
+            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 2.1891, Rotation2d.fromRotations(0.0)));
+            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 3.3091, Rotation2d.fromRotations(0.0)));
+            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 3.8655, Rotation2d.fromRotations(0.0)));
+            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 4.9847, Rotation2d.fromRotations(0.0)));
         }
+        
 
-        Pose2d desiredPose = predictedRobotPose.nearest(possibleLocations);
+        // for (Pose2d i : nearestApriltagPoses) {
+        //     if ((controls.isCubeMode())) {
 
-        goToPoseAutoCommand = autoBuilder.goToPose(desiredPose, new Rotation2d(currentSetFieldRelativeSpeeds.vxMetersPerSecond, currentSetFieldRelativeSpeeds.vyMetersPerSecond));
+        //         possibleLocations.add(i
+        //                 .plus(new Transform2d(new Translation2d(getXDistMeters_cube, 0.0),
+        //                         Rotation2d.fromRotations(0.5))));
+        //         possibleLocations
+        //                 .add(apriltagPose
+        //                         .plus(new Transform2d(new Translation2d(-getXDistMeters_cube, 0.0), new Rotation2d())));
+        //     } else {
+        //         if (controls.desiredConeLocation() >= 0) {
+        //             possibleLocations.add(i.plus(
+        //                     new Transform2d(new Translation2d(getXDistMeters_cone, getYDistMeters_up),
+        //                             Rotation2d.fromRotations(0.5))));
+        //             possibleLocations.add(i
+        //                     .plus(new Transform2d(new Translation2d(-getXDistMeters_cone, getYDistMeters_up),
+        //                             new Rotation2d())));
+        //         }
+        //         if (controls.desiredConeLocation() <= 0) {
+        //             possibleLocations
+        //                     .add(i.plus(new Transform2d(new Translation2d(getXDistMeters_cone, -getYDistMeters_down),
+        //                             Rotation2d.fromRotations(0.5))));
+
+        //             possibleLocations.add(i
+        //                     .plus(new Transform2d(new Translation2d(-getXDistMeters_cone, -getYDistMeters_down),
+        //                             new Rotation2d())));
+        //         }
+        //     }
+
+        // }
+
+        Pose2d desiredPose = estimatedGlobalPose.nearest(possibleLocations);
+
+        goToPoseAutoCommand = autoBuilder.goToPose(desiredPose);
 
     }
 
@@ -329,7 +340,7 @@ public class DriveCommand extends CommandBase {
             if (!goingToPose) {
                 drivetrain.setAutoLock(true);
                 goToPoseAutoCommand.initialize();
-                System.out.println("TEST!!!");
+                // System.out.println("TEST!!!");
                 goingToPose = true;
             } else if (autoAlignReady)
                 goToPoseAutoCommand.execute();
@@ -339,6 +350,7 @@ public class DriveCommand extends CommandBase {
                 goToPoseAutoCommand = null;
                 goingToPose = false;
                 drivetrain.setAutoLock(false);
+                drivetrain.stopModules();
             }
 
             return;
@@ -379,8 +391,22 @@ public class DriveCommand extends CommandBase {
         if (controls.driveResetGlobalPose())
             drivetrain.resetOdometry(new Pose2d());
 
-        // drivetrain.setOverrideMaxVisionPoseCorrection(controls.overrideMaxVisionPoseCorrection());
-        drivetrain.setOverrideMaxVisionPoseCorrection(true);
+        double poseX = drivetrain.getPose().getX();
+        Pose2d estPose = drivetrain.getLimelightEstimatedPosition();
+        Double poseXEstimated = estPose == null ? null : estPose.getX();
+        Pose2d odometryEstimatedPose = drivetrain.getOdometryPose2dNoApriltags();
+        Double odometryEstX = odometryEstimatedPose == null ? null : odometryEstimatedPose.getX();
+
+        if ((poseX > 0 && poseX < Constants.FieldConstants.length * 0.25) || (poseX > Constants.FieldConstants.length * 0.75 && poseX < Constants.FieldConstants.length)) {
+            drivetrain.setOverrideMaxVisionPoseCorrection(true);
+
+        } else if (poseXEstimated != null && ((poseXEstimated > 0 && poseXEstimated < Constants.FieldConstants.length * 0.25) || (poseXEstimated > Constants.FieldConstants.length * 0.75 && poseXEstimated < Constants.FieldConstants.length))) {
+            drivetrain.setOverrideMaxVisionPoseCorrection(true);
+        } else if (odometryEstX != null && ((odometryEstX > 0 && odometryEstX < Constants.FieldConstants.length * 0.25) || (odometryEstX > Constants.FieldConstants.length * 0.75 && odometryEstX < Constants.FieldConstants.length)))
+            drivetrain.setOverrideMaxVisionPoseCorrection(true);
+        else {
+            drivetrain.setOverrideMaxVisionPoseCorrection(controls.overrideMaxVisionPoseCorrection());
+        }
 
         setClimbExtension(controls.driveIsClimbing());
 
@@ -403,14 +429,13 @@ public class DriveCommand extends CommandBase {
                     drivetrain.getAverageModuleDriveAngularTangentialSpeed() / Units.inchesToMeters(0.7)));
 
         } else {
-            this.currentSetFieldRelativeSpeeds = new ChassisSpeeds(controls.driveX() * controls.driveBoostMultiplier(),
-                    controls.driveY() * controls.driveBoostMultiplier(),
-                    controls.driveRotationX()
-                            * (controls.driveBoostMultiplier() > 1.0 ? 1.0 : controls.driveBoostMultiplier()));
             drivetrain.drive(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
-                            this.currentSetFieldRelativeSpeeds,
-                            drivetrain.getGyroscopeRotation())); // perhaps use getRawGyroRotation() instead?
+                            controls.driveX() * controls.driveBoostMultiplier(),
+                            controls.driveY() * controls.driveBoostMultiplier(),
+                            controls.driveRotationX()
+                                    * (controls.driveBoostMultiplier() > 1.0 ? 1.0 : controls.driveBoostMultiplier()),
+                            drivetrain.getGyroscopeRotationNoApriltags())); // perhaps use getRawGyroRotation() instead?
         }
 
     }

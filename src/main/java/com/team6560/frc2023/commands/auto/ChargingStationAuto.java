@@ -74,8 +74,8 @@ public class ChargingStationAuto extends CommandBase {
     double speed_x = 0.0;
     double speed_y = 0.0;
     if (Math.hypot(drivetrain.getPitch().getDegrees() - pitchOffsetDegrees, drivetrain.getRoll().getDegrees() - rollOffsetDegrees) > 1.5) {
-      speed_x = -(drivetrain.getPitch().getDegrees() - pitchOffsetDegrees)* k;
-      speed_y = -(drivetrain.getRoll().getDegrees() - rollOffsetDegrees)* k;
+      speed_x = (drivetrain.getRoll().getDegrees() - rollOffsetDegrees)* k;
+      speed_y = (drivetrain.getPitch().getDegrees() - pitchOffsetDegrees)* k;
     }
 
     drivetrain.drive(

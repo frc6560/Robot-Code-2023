@@ -35,6 +35,11 @@ public class MoveArmToPoseCommand extends CommandBase {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
+  public MoveArmToPoseCommand(Arm arm, ArmPose pose, boolean runWhileMoving) {
+    this(arm, pose);
+    finished = true;
+  }
+
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {

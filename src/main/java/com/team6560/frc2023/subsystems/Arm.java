@@ -116,7 +116,7 @@ public class Arm extends SubsystemBase {
     armPoseMap.put(ArmPose.LOW_CUBE, new ArmState(0.245, false, 2.5 * 0.175));
     armPoseMap.put(ArmPose.LOW_CONE, new ArmState(0.245, false, 1.0 * 0.175));
 
-    armPoseMap.put(ArmPose.GROUND_CUBE, new ArmState(0.37, true, 0.85));
+    armPoseMap.put(ArmPose.GROUND_CUBE, new ArmState(0.37, true, 1.0));
     armPoseMap.put(ArmPose.GROUND_CONE, new ArmState(0.35, true, 1.0));
 
     armPoseMap.put(ArmPose.MEDIUM_CONE, new ArmState(0.79, false, 1.4 * 0.175));
@@ -126,7 +126,7 @@ public class Arm extends SubsystemBase {
     armPoseMap.put(ArmPose.HIGH_CUBE, new ArmState(0.9, false, 2.0 * 0.175));
 
     armPoseMap.put(ArmPose.HUMAN_PLAYER_CUBE, new ArmState(0.804, false, 0.85));
-    armPoseMap.put(ArmPose.HUMAN_PLAYER_CONE, new ArmState(0.825, false, 1.3));
+    armPoseMap.put(ArmPose.HUMAN_PLAYER_CONE, new ArmState(0.798, false, 1.3));
 
     armPoseMap.put(ArmPose.INTAKE_CONE, new ArmState(0.344, false, 1.3));
     armPoseMap.put(ArmPose.INTAKE_CUBE, new ArmState(0.35, false, 0.5));
@@ -135,18 +135,18 @@ public class Arm extends SubsystemBase {
     // armPidController.setIntegratorRange(-0.5, 0.5);
     // armPidController.setTolerance(0.05);
 
-    final double zeroToFullTime = 0.5;
+    final double zeroToFullTime = 0.35;
     breakMotor.setOpenLoopRampRate(zeroToFullTime);
 
     breakMotorPid.setP(6.560e-8, 0);
     breakMotorPid.setI(1.06560e-9, 0);
     breakMotorPid.setD(6.560e-12, 0);
-    breakMotorPid.setFF(0.001, 0);
+    breakMotorPid.setFF(0.004, 0);
 
-    breakMotorPid.setSmartMotionMaxAccel(656.0, 0);
+    breakMotorPid.setSmartMotionMaxAccel(756.0, 0);
     breakMotorPid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
     // breakMotorPid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
-    breakMotorPid.setSmartMotionMaxVelocity(1000, 0);
+    breakMotorPid.setSmartMotionMaxVelocity(1100, 0);
     // breakMotorPid.setSmartMotionMinOutputVelocity(50, 0);
     // breakMotorPid.setSmartMotionAllowedClosedLoopError(ALLOWED_ERROR, 0);
 
