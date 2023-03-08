@@ -139,7 +139,7 @@ public class IntakeCommand extends CommandBase {
         armGotObject = true;
 
         intake.setIntakeState(IntakePose.RETRACTED);
-        intake.setSuckMotor(0.5);
+        intake.setSuckMotor(0.7);
       }
 
       if(intake.getCurrentPose() == IntakePose.RETRACTED && intake.atSetpoint()){ // once fully done retracting
