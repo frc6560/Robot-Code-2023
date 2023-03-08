@@ -318,7 +318,7 @@ public class DriveCommand extends CommandBase {
             if (!goingToPose) {
                 drivetrain.setAutoLock(true);
                 goToPoseAutoCommand.initialize();
-                System.out.println("TEST!!!");
+                // System.out.println("TEST!!!");
                 goingToPose = true;
             } else if (autoAlignReady)
                 goToPoseAutoCommand.execute();

@@ -99,8 +99,7 @@ public class IntakeCommand extends CommandBase {
         armCommand.setArmState(intake.intakePoseMap.get(IntakePose.CLEARANCE).getArmPose());
       }
 
-    }
-    else if (intake.getCurrentPose() == IntakePose.RETRACTED) {
+    } else if (intake.getCurrentPose() == IntakePose.RETRACTED) {
       armCommand.setArmState(ArmPose.CLEARANCE);
       armCommand.setArmStateLock(false);
 
@@ -139,12 +138,30 @@ public class IntakeCommand extends CommandBase {
       armCommand.setClawSpeed(0.5);
     }
 
-    System.out.println("has object " + armCommand.hasObject());
+    // System.out.println("has object " + armCommand.hasObject());
 
     if (armCommand.hasObject() || armGotObject) {
       armGotObject = true;
 
-      intake.setIntakeState(IntakePose.RETRACTED);
+      if (cubeMode) {
+        intake.setIntakeState(IntakePose.CLEARANCE);
+        if (intake.atSetpoint() && intake.getCurrentPose() == IntakePose.CLEARANCE) {
+          armCommand.setArmStateLock(true);
+          armCommand.setArmState(ArmPose.CLEARANCE);
+          if (armCommand.isArmAtSetpoint()) {
+            armCommand.setArmStateLock(false);
+            intake.setIntakeState(IntakePose.RETRACTED);
+          }
+          // else
+          // return;
+        }
+
+      } else {
+        armCommand.setArmStateLock(true);
+        intake.setIntakeState(IntakePose.RETRACTED);
+        if (armCommand.isArmAtSetpoint())
+          armCommand.setArmStateLock(false);
+      }
       intake.setSuckMotor(0.5);
     }
 
@@ -195,6 +212,7 @@ public class IntakeCommand extends CommandBase {
 
       if (handing) {
         handoff_sequence(cubeMode);
+        return;
 
       } else if ((intake.getCurrentPose() == IntakePose.RETRACTED && intake.atSetpoint())
           && !armCommand.canRunIntake()) {

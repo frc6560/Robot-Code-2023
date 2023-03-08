@@ -135,10 +135,12 @@ public class ArmCommand extends CommandBase {
   }
 
   public void setArmState(ArmPose armPose) {
+    System.out.println("target state: " + armPose);
     arm.setArmState(armPose);
   }
 
   public void setArmState(double armPose) {
+    System.out.println("target state: " + armPose);
     arm.setArmState(armPose);
   }
 

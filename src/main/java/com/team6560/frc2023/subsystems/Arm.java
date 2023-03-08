@@ -267,7 +267,7 @@ public class Arm extends SubsystemBase {
 
   public boolean isArmAtSetpoint() {
     boolean isAtReference = Math.abs(currentReference - getArmPose()) < 0.1;
-    System.out.println(isAtReference);
+    // System.out.println(isAtReference);
     return isAtReference;
   }
 
@@ -316,7 +316,7 @@ public class Arm extends SubsystemBase {
 
   public boolean transferFromIntake(double clawSpeed) {
     setClawSpeed(clawSpeed);
-    System.out.println(Math.abs(getClawCurrentOutput()));
+    // System.out.println(Math.abs(getClawCurrentOutput()));
     return hasObject();
 
   }
