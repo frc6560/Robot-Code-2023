@@ -12,6 +12,8 @@ import com.team6560.frc2023.commands.DriveCommand;
 import com.team6560.frc2023.commands.IntakeCommand;
 import com.team6560.frc2023.commands.LightItUpUpUpLightItUpUpUpCommand;
 import com.team6560.frc2023.commands.auto.AutoBuilder;
+import com.team6560.frc2023.commands.auto.IntakeInitAuto;
+import com.team6560.frc2023.commands.auto.IntakePickupAuto;
 import com.team6560.frc2023.controls.ManualControls;
 import com.team6560.frc2023.subsystems.Arm;
 import com.team6560.frc2023.subsystems.Drivetrain;
@@ -26,6 +28,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 // import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class RobotContainer {
         // The robot's subsystems and commands are defined here...
@@ -78,7 +81,7 @@ public class RobotContainer {
 
 
                 intakeCommand = new IntakeCommand(intake, armCommand, manualControls);
-                intake.setDefaultCommand(intakeCommand);
+                // intake.setDefaultCommand(intakeCommand);
 
 
                 autoChooser = new SendableChooser<String>();
@@ -118,7 +121,13 @@ public class RobotContainer {
          * @return the command to run in autonomous
          */
         public Command getAutonomousCommand() {
-                return autoBuilder.getTestAutoCommand();
+                // return autoBuilder.getTestAutoCommand();
+                // return autoBuilder.getRadin2Ball();
+                // return new IntakeInitAuto(intake, arm);
+                return new SequentialCommandGroup(
+                        new IntakeInitAuto(intake, arm),
+                        new IntakePickupAuto(intake, arm, true)
+                );
                 // return autoBuilder.getAutoCommand(autoChooser.getSelected());
         }
 
