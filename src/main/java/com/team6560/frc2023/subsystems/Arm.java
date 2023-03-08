@@ -62,13 +62,13 @@ public class Arm extends SubsystemBase {
 
   public enum ArmPose {
     ZERO, DEFAULT, GROUND_CONE, LOW_CUBE, LOW_CONE, MEDIUM_CONE, HIGH_CONE, MEDIUM_CUBE, HIGH_CUBE, HUMAN_PLAYER_CONE,
-    NONE, HUMAN_PLAYER_CUBE, GROUND_CUBE, INTAKE_CONE, INTAKE_CUBE
+    NONE, HUMAN_PLAYER_CUBE, GROUND_CUBE, INTAKE_CONE, INTAKE_CUBE, CLEARANCE
   }
 
   public static HashMap<ArmPose, ArmState> armPoseMap = new HashMap<ArmPose, ArmState>();
 
   private static final double DEFAULT_TOP_SOFT_LIMIT = 226.0;
-  private static final double ALLOWED_ERROR = 2.06560;
+  public static final double ALLOWED_ERROR = 2.06560;
 
   // private PIDController armPidController = new PIDController(25.0, 7.25, 6.0);
 
@@ -90,6 +90,8 @@ public class Arm extends SubsystemBase {
         .add("Break Motor Speed", this::getBreakMotorSpeed)
         .add("Claw Speed Left", this::getClawSpeedL)
         .add("Claw Speed Right", this::getClawSpeedR)
+        .add("Claw current", this::getClawCurrentOutput)
+        .add("target current", ()->20)
         .add("Extention Status", this::getExtentionStatus)
         .add("raw arm pos", this::getRawArmPose)
         .add("armPose", this::getArmPose)
@@ -109,6 +111,7 @@ public class Arm extends SubsystemBase {
 
     // position, outSpeedMultiplier
     armPoseMap.put(ArmPose.ZERO, new ArmState(0.0, false, 1.0));
+    armPoseMap.put(ArmPose.NONE, new ArmState(0.0, false, 1.0));
 
     // armPoseMap.put(ArmPose.DEFAULT, new Pair<Double, Double>(0.06321, 1.0));
     armPoseMap.put(ArmPose.DEFAULT, new ArmState(0.1, false, 1.0));
@@ -128,9 +131,10 @@ public class Arm extends SubsystemBase {
     armPoseMap.put(ArmPose.HUMAN_PLAYER_CUBE, new ArmState(0.804, false, 0.85));
     armPoseMap.put(ArmPose.HUMAN_PLAYER_CONE, new ArmState(0.798, false, 1.3));
 
-    armPoseMap.put(ArmPose.INTAKE_CONE, new ArmState(0.344, false, 1.3));
-    armPoseMap.put(ArmPose.INTAKE_CUBE, new ArmState(0.35, false, 0.5));
+    armPoseMap.put(ArmPose.INTAKE_CONE, new ArmState(0.365, false, 1.3));
+    armPoseMap.put(ArmPose.INTAKE_CUBE, new ArmState(0.135, false, 0.5));
 
+    armPoseMap.put(ArmPose.CLEARANCE, new ArmState(IntakeConstants.ROTATION_ARM_CLEARANCE, false, 1.0));
     // armPidController.disableContinuousInput();
     // armPidController.setIntegratorRange(-0.5, 0.5);
     // armPidController.setTolerance(0.05);
@@ -302,10 +306,14 @@ public class Arm extends SubsystemBase {
         clawMotorL.getOutputCurrent() + clawMotorR.getOutputCurrent());
   }
 
+  public boolean hasObject() {
+    return Math.abs(getClawSpeedR()) > 3000 && Math.abs(getClawCurrentOutput()) > 10.0;
+  }
+
   public boolean transferFromIntake(double clawSpeed) {
     setClawSpeed(clawSpeed);
     System.out.println(Math.abs(getClawCurrentOutput()));
-    return Math.abs(getClawCurrentOutput()) > 15.0;
+    return hasObject();
 
   }
 

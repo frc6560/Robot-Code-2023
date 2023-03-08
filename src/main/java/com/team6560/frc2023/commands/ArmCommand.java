@@ -4,6 +4,7 @@
 
 package com.team6560.frc2023.commands;
 
+import com.team6560.frc2023.Constants.IntakeConstants;
 import com.team6560.frc2023.subsystems.Arm;
 import com.team6560.frc2023.subsystems.Arm.ArmPose;
 
@@ -72,8 +73,10 @@ public class ArmCommand extends CommandBase {
    */
   @Override
   public void execute() {
-    if (lock)
+    if (lock){
       return;
+    }
+
 
     if (controls.resetArmZero()) {
       arm.resetArmZero();
@@ -120,9 +123,26 @@ public class ArmCommand extends CommandBase {
   public boolean transferFromIntake(double clawSpeed) {
     return arm.transferFromIntake(clawSpeed);
   }
+  
+  public boolean hasObject() {
+    return arm.hasObject();
+    // return false;
+  }
 
   public void setArmState(ArmPose armPose) {
     arm.setArmState(armPose);
+  }
+
+  public void setArmState(double armPose) {
+    arm.setArmState(armPose);
+  }
+
+  public void setClawSpeed(double output){
+    arm.setClawSpeed(output);
+  }
+
+  public boolean isArmAtSetpoint() {
+    return arm.isArmAtSetpoint();
   }
 
   public void setArmStateLock(boolean lock) {
@@ -140,5 +160,9 @@ public class ArmCommand extends CommandBase {
   @Override
   public boolean isFinished() {
     return false;
+  }
+
+  public boolean canRunIntake(){
+    return Math.abs(arm.getArmPose() - IntakeConstants.ROTATION_ARM_CLEARANCE) < arm.convertRawArmPoseToArmPose(Arm.ALLOWED_ERROR);
   }
 }

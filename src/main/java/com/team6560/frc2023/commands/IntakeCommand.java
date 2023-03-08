@@ -1,108 +1,246 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package com.team6560.frc2023.commands;
 
+import com.team6560.frc2023.Constants;
+import com.team6560.frc2023.Constants.*;
 import com.team6560.frc2023.subsystems.Arm;
+import com.team6560.frc2023.subsystems.Arm.ArmPose;
+import com.team6560.frc2023.subsystems.ArmState;
 import com.team6560.frc2023.subsystems.GamePiece;
 import com.team6560.frc2023.subsystems.Intake;
-import com.team6560.frc2023.subsystems.Arm.ArmPose;
-import com.team6560.frc2023.subsystems.Intake.IntakeState;
+import com.team6560.frc2023.subsystems.Intake.IntakePose;
+import com.team6560.frc2023.utility.NetworkTable.NtValueDisplay;
+import com.team6560.frc2023.subsystems.IntakeState;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class IntakeCommand extends CommandBase {
 
   public interface Controls {
-    boolean isIntakeDown();
+    boolean runIntake();
 
-    double moveIntakeSpeed();
+    boolean reverseIntake();
 
-    double intakeSpeed();
+    boolean handOff();
+
+    boolean isCubeMode();
   }
 
   private Intake intake;
   private Controls controls;
   private ArmCommand armCommand;
-  private int rotationMotorFrames;
-  private boolean initializeComplete;
-  private int newThingFrames;
-  private int newNewThingFrames;
+  
+  private boolean initializing = true;
+  private boolean closing = true;
 
-  /** Creates a new IntakeCommand. */
+  private boolean handing = false;
+
+  private boolean armGotObject = false;
+
+  private NetworkTable nTable = NetworkTableInstance.getDefault().getTable("Intake");
+  private NetworkTableEntry override;
+
   public IntakeCommand(Intake intake, ArmCommand armCommand, Controls controls) {
     this.intake = intake;
     this.controls = controls;
     this.armCommand = armCommand;
 
-    initializeComplete = false;
-
     addRequirements(intake);
+
+    override = nTable.getEntry("Overide");
+    override.setBoolean(false);
   }
 
-  // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    
+    override.setBoolean(false);
+    // initializing = true;
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
+  private void init_sequence(){
+    armCommand.setArmStateLock(true);
+
+    if(armCommand.canRunIntake()){
+      intake.setIntakeState(IntakePose.RETRACTED);
+      
+      if(intake.atSetpoint() && intake.getCurrentPose() == IntakePose.RETRACTED){
+        initializing = false;
+        armCommand.setArmState(ArmPose.DEFAULT);
+      }
+    } else {
+      intake.setIntakeState(IntakePose.CLEARANCE);
+    }
+
+    if(intake.getCurrentPose() == IntakePose.CLEARANCE && intake.atSetpoint()) {
+      armCommand.setArmState(intake.intakePoseMap.get(IntakePose.CLEARANCE).getArmPose());
+      
+    }
+
+  }
+
+  private void closing_sequence(){
+
+    handing = false;
+    armGotObject = false;
+
+    armCommand.setArmStateLock(true);
+    armCommand.setArmState(intake.intakePoseMap.get(IntakePose.CLEARANCE).getArmPose());
+
+    if(intake.getCurrentPose() != IntakePose.RETRACTED){
+      if(armCommand.canRunIntake()){
+        intake.setIntakeState(IntakePose.RETRACTED);
+
+      } else{
+        intake.setIntakeState(IntakePose.CLEARANCE);
+        armCommand.setArmState(intake.intakePoseMap.get(IntakePose.CLEARANCE).getArmPose());
+      }
+
+    } else{
+      armCommand.setArmState(ArmPose.CLEARANCE);
+      armCommand.setArmStateLock(false);
+
+      closing = false;
+    }
+
+  }
+
+  private void handoff_sequence(boolean cubeMode){
+    intake.setInverted(false);
+
+    if(cubeMode){
+      if(armCommand.canRunIntake()){
+        intake.setIntakeState(IntakePose.RETRACTED);
+      } else {
+        intake.setIntakeState(IntakePose.CLEARANCE);
+      }
+
+      if(intake.getCurrentPose() == IntakePose.RETRACTED && intake.atSetpoint()){
+        armCommand.setArmState(ArmPose.LOW_CUBE);
+
+      } else if(intake.getCurrentPose() == IntakePose.CLEARANCE && intake.atSetpoint()){
+        armCommand.setArmState(ArmPose.HUMAN_PLAYER_CUBE);
+      }
+
+
+
+    } else{
+      if(!armGotObject){
+        intake.setIntakeState(IntakePose.HANDOFF_CONE);
+        armCommand.setClawSpeed(0.5);
+      }
+
+      System.out.println("has object " + armCommand.hasObject());
+
+      if(armCommand.hasObject() || armGotObject){
+        armGotObject = true;
+
+        intake.setIntakeState(IntakePose.RETRACTED);
+        intake.setSuckMotor(0.7);
+      }
+
+      if(intake.getCurrentPose() == IntakePose.RETRACTED && intake.atSetpoint()){ // once fully done retracting
+        armCommand.setArmState(ArmPose.NONE);
+        armCommand.setArmStateLock(false);
+        armCommand.setClawSpeed(0.0);
+        
+
+        intake.setSuckMotor(0.0);
+      }
+
+    }
+  }
+
+  private void collapse_sequence(){
+    armCommand.setArmStateLock(true);
+    intake.setIntakeState(IntakePose.CLEARANCE);
+
+    if(intake.getCurrentPose() == IntakePose.CLEARANCE && intake.atSetpoint()){
+      armCommand.setArmState(ArmPose.DEFAULT);
+    } 
+    if(!armCommand.canRunIntake() && armCommand.isArmAtSetpoint()){
+      intake.setIntakePosition(0.2);
+    }
+  }
+
   @Override
   public void execute() {
-    // if (rotationMotorFrames > 25) {
-    //   intake.moveIntake(0.0);
-    //   arm.setArmState(ArmPose.MEDIUM_CONE);
-    //   newThingFrames++;
-    //   if (newThingFrames > 15) {
-    //     intake.moveIntake(-0.3);
-    //     newNewThingFrames++;
-    //     if (newNewThingFrames > 15) {
-    //       intake.moveIntake(0.0);
-    //       arm.setArmState(ArmPose.DEFAULT);
-    //       initializeComplete = true;
-    //     }
-          
-    //   }
-    // } else {
-    //   intake.moveIntake(0.3);
-    //   rotationMotorFrames++;
-    // }
+    if(override.getBoolean(false)){
+      intake.setIntakePosition(1.05);
+      armCommand.setArmStateLock(false);
+      return;
+    }
+
+    if(initializing){
+      init_sequence();
+      return;
+    }
+
+    if(controls.runIntake()){
+
+      closing = true;
+      armCommand.setArmStateLock(true);
+
+      boolean cubeMode = controls.isCubeMode();
       
-    // if (!initializeComplete)
-    //   return;
-    // if (intake.getCurrentState() == IntakeState.EXTENDED)
-    //   initializeComplete = true;
-    
-    
-    // if (!initializeComplete)
-    //   return;
+      if(handing){
+        handoff_sequence(cubeMode);
 
-    // intake.setIntakeState(controls.isIntakeDown() ? IntakeState.EXTENDED : IntakeState.RETRACTED);
-    intake.moveIntake(controls.moveIntakeSpeed());
-    // TODO: uncomment
-    // intake.setRotationMotor(Math.abs(intake.getIntakePosition()) > 10.0 ? controls.intakeSpeed() : 0.0);
-    // if () {
+      } else if ((intake.getCurrentPose() == IntakePose.RETRACTED && intake.atSetpoint()) && !armCommand.canRunIntake()){
+        armCommand.setArmState(intake.intakePoseMap.get(IntakePose.CLEARANCE).getArmPose());
 
-  //     armCommand.setArmStateLock(true);
-  //     armCommand.setArmState(ArmPose.INTAKE_CONE);
+      } else if(cubeMode){
+        // if(armCommand.canRunIntake() || intake.getCurrentPose() == IntakePose.EXTENDED_CUBE)
+          intake.setIntakeState(IntakePose.EXTENDED_CUBE);
+        // else 
+        //   armCommand.setArmState(ArmPose.CLEARANCE);
 
-  //     if (armCommand.transferFromIntake(Arm.armPoseMap.get(ArmPose.INTAKE_CONE).getClawSpeedMultiplier())) {
-  //       intake.setRotationMotor(-controls.intakeSpeed());
-  //       armCommand.transferFromIntake(0.0);
-  //       armCommand.setArmStateLock(false);
-  //     }
+        if(intake.getCurrentPose() == IntakePose.EXTENDED_CUBE && intake.atSetpoint()){
+          armCommand.setClawSpeed(0.5);
+          armCommand.setArmState(ArmPose.INTAKE_CUBE);
+          
+          if(armCommand.isArmAtSetpoint()){
+            intake.setSuckMotor(0.8);
+          }
+        }
 
-    // }
+        if(armCommand.hasObject()){
+          handing = true;
+          armCommand.setClawSpeed(0.05);
+        }
+
+      } else {
+        intake.setIntakeState(IntakePose.EXTENDED_CONE);
+        
+        if(intake.getCurrentPose() == IntakePose.EXTENDED_CONE && intake.atSetpoint())
+          armCommand.setArmState(ArmPose.INTAKE_CONE);
+
+        if(intake.hasObject()){
+          handing = true;
+        }
+      }
+      
+      intake.setInverted(controls.reverseIntake());
+
+    } else if(closing){
+
+      closing_sequence();
+    }
+
+
   }
 
-  // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    intake.setIntakeState(IntakePose.RETRACTED);
+  }
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return false;
   }
 }
+

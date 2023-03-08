@@ -4,149 +4,133 @@
 
 package com.team6560.frc2023.subsystems;
 
-import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab;
-
 import java.util.HashMap;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
-import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxPIDController.AccelStrategy;
 import com.team6560.frc2023.Constants;
+import com.team6560.frc2023.Constants.IntakeConstants;
+import com.team6560.frc2023.subsystems.Arm.ArmPose;
+import com.team6560.frc2023.utility.NetworkTable.NtValueDisplay;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
+  private CANSparkMax leftIntakeMotor;
+  private CANSparkMax rightIntakeMotor;
+  private CANSparkMax intakeSuckMotor;
 
-  private final CANSparkMax leftExtensionMotor;
-  private final CANSparkMax rightExtensionMotor;
+  public static final double MAX_OUTAKE_POSITION = 16.5 * 0.7268 * 1.0457;
 
-  private final CANSparkMax[] extensionMotors;
-  private final CANSparkMax rotationMotor;
-  private GamePiece currentGamePiece = GamePiece.NONE;
-
-  private HashMap<IntakeState, Double> intakeStateMap;
-  private IntakeState currIntakeState;
-
-  public enum IntakeState {
-    EXTENDED, RETRACTED
+  public static enum IntakePose {
+    EXTENDED_CUBE, EXTENDED_CONE, HANDOFF_CONE, HANDOFF_CUBE, RETRACTED, CLEARANCE
   }
 
+  public HashMap<IntakePose, IntakeState> intakePoseMap = new HashMap<IntakePose, IntakeState>();
+  private IntakeState currSetIntakeState = new IntakeState(0.0, 0.0, ArmPose.NONE);
+  private IntakePose currSetIntakePose = IntakePose.RETRACTED;
+  private boolean inverted;
+
+  /** Creates a new Intake. */
   public Intake() {
-    leftExtensionMotor = new CANSparkMax(Constants.INTAKE_EXTENSION_MOTOR_LEFT, MotorType.kBrushless);
-    rightExtensionMotor = new CANSparkMax(Constants.INTAKE_EXTENSION_MOTOR_RIGHT, MotorType.kBrushless);
+    this.leftIntakeMotor = new CANSparkMax(Constants.INTAKE_EXTENSION_MOTOR_LEFT, MotorType.kBrushless);
+    this.rightIntakeMotor = new CANSparkMax(Constants.INTAKE_EXTENSION_MOTOR_RIGHT, MotorType.kBrushless);
 
-    // leftExtensionMotor.setInverted(false);
-    // rightExtensionMotor.setInverted(true);
+    this.intakeSuckMotor = new CANSparkMax(Constants.INTAKE_ROTATION_MOTOR, MotorType.kBrushless);
+    
 
-    extensionMotors = new CANSparkMax[] { leftExtensionMotor, rightExtensionMotor };
+  
+    rightIntakeMotor.restoreFactoryDefaults();
+    rightIntakeMotor.getEncoder().setPosition(0.255);
 
-    intakeStateMap = new HashMap<IntakeState, Double>();
+    SparkMaxPIDController pid = rightIntakeMotor.getPIDController();
 
-    for (CANSparkMax i : extensionMotors) {
-      i.restoreFactoryDefaults();
+    pid.setP(1e-5, 0);
+    pid.setI(0, 0);
+    pid.setD(0, 0);
+    pid.setFF(0.002, 0);
 
-      i.setIdleMode(IdleMode.kBrake);
+    pid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
 
-      i.getPIDController().setP(6.560e-9, 0);
-      i.getPIDController().setI(1.06560e-10, 0);
-      i.getPIDController().setD(6.560e-12, 0);
-      i.getPIDController().setFF(0.001, 0);
+    pid.setSmartMotionMaxAccel(750, 0);
+    pid.setSmartMotionMaxVelocity(1600, 0);
+    pid.setSmartMotionAllowedClosedLoopError(0.02, 0);
+    
 
-      i.getPIDController().setSmartMotionMaxAccel(300, 0);
-      // i.getPIDController().setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal,
-      // 0);
-      i.getPIDController().setSmartMotionMaxVelocity(5000, 0);
-      // i.getPIDController().setSmartMotionMinOutputVelocity(50, 0);
-      i.getPIDController().setSmartMotionAllowedClosedLoopError(0.5, 0);
+    leftIntakeMotor.follow(rightIntakeMotor, true);
+    
+    rightIntakeMotor.getEncoder().setPositionConversionFactor(1.0 / MAX_OUTAKE_POSITION);
+    // rightIntakeMotor.getEncoder().setVelocityConversionFactor(1);
+
+    NtValueDisplay.ntDispTab("Intake")
+    .add("Position", () -> this.rightIntakeMotor.getEncoder().getPosition())
+    .add("curretn", this::getCurrentDraw)
+    .add("target current", ()->23)
+    .add("has ball", this::hasObject);
+    
+      intakePoseMap.put(IntakePose.EXTENDED_CUBE, new IntakeState(0.85, 0.0, ArmPose.DEFAULT));
+      intakePoseMap.put(IntakePose.EXTENDED_CONE, new IntakeState(1.0, -0.8, ArmPose.DEFAULT));
+      intakePoseMap.put(IntakePose.RETRACTED, new IntakeState(-0.22, 0.0, ArmPose.NONE));
+      intakePoseMap.put(IntakePose.HANDOFF_CONE, new IntakeState(0.45, -0.6, ArmPose.INTAKE_CONE));
+      intakePoseMap.put(IntakePose.CLEARANCE, new IntakeState(1.015, 0.0, ArmPose.CLEARANCE));
     }
 
-    rotationMotor = new CANSparkMax(Constants.INTAKE_ROTATION_MOTOR, MotorType.kBrushless);
-    rotationMotor.setIdleMode(IdleMode.kBrake);
+  public void setIntakePosition(double intakePosition) {
+    rightIntakeMotor.getPIDController().setReference(intakePosition, ControlType.kSmartMotion, 0);
+  }
 
-    // rotationMotor.setSmartCurrentLimit(2);
-    // rotationMotor.setSecondaryCurrentLimit(2);
+  private void setIntakeState(IntakeState intakeState) {
+    this.currSetIntakeState = intakeState;
+  }
 
-    ntDispTab("Intake")
-        .add("Rotation Motor Current Draw", this::getRotationMotorCurrent)
-        .add("Intake extension pose", this::getIntakePosition);
+  public void setIntakeState(IntakePose intakePose) {
+    setIntakeState(intakePoseMap.get(intakePose));
+    this.currSetIntakePose = intakePose;
+  }
 
-    intakeStateMap.put(IntakeState.EXTENDED, 1.0);
-    intakeStateMap.put(IntakeState.RETRACTED, 0.0);
+  public void setSuckMotor(double velocity) {
+    velocity = inverted ? -velocity : velocity;
+    intakeSuckMotor.set(velocity);
+  }
 
-    leftExtensionMotor.getEncoder().setPosition(-5.0);
+  public double getIntakePosition() {
+    return rightIntakeMotor.getEncoder().getPosition();
+  }
+
+  public double getCurrentDraw() {
+    return intakeSuckMotor.getOutputCurrent();
+  }
+
+  public boolean hasObject() {
+    return Math.abs(getCurrentDraw()) > 24.0;
+  }
+
+  public boolean atSetpoint() {
+    return Math.abs(getIntakePosition() - currSetIntakeState.getPosition()) < IntakeConstants.INTAKE_ACCEPTABLE_ERROR;
+  }
+
+  public IntakeState getCurrentState() {
+    return currSetIntakeState;
+  }
+
+  public IntakePose getCurrentPose() {
+    return currSetIntakePose;
   }
 
   @Override
   public void periodic() {
-    if (Math.abs(getRotationMotorCurrent()) > 25.0 && currIntakeState == IntakeState.EXTENDED) {
+    // This method will be called once per scheduler run
+    setIntakePosition(currSetIntakeState.getPosition());
 
-      this.currentGamePiece = GamePiece.CONE;
-    }
-
-    if (getRotationMotorVelocity() > 100.0)
-      this.currentGamePiece = GamePiece.NONE;
-
+    // if (Math.abs(currSetIntakeState.getPosition() - rightIntakeMotor.getEncoder().getPosition()) < rightIntakeMotor.getPIDController().getSmartMotionAllowedClosedLoopError(0)) {
+    setSuckMotor(currSetIntakeState.getSuckSpeed());
+    // }
   }
 
-  public double getIntakePosition() {
-    return leftExtensionMotor.getEncoder().getPosition();
+  public void setInverted(boolean inverted) {
+    this.inverted = inverted;
   }
-
-  public void setIntakeState(IntakeState intakeState) {
-    this.currIntakeState = intakeState;
-    setLeftExtensionMotorPosition(intakeStateMap.get(intakeState));
-    setRightExtensionMotorPosition(-intakeStateMap.get(intakeState));
-  }
-
-  public boolean isSafeToRunRotationMotor() {
-    if (currentGamePiece == GamePiece.CONE) {
-      return false;
-    }
-
-    return true;
-  }
-
-  public IntakeState getCurrentState() {
-    if (Math.abs(leftExtensionMotor.getEncoder().getPosition()) < 1.0)
-      return IntakeState.RETRACTED;
-    return IntakeState.EXTENDED;
-  }
-
-  public static double convertPositionToPercent(double position) {
-    double high = 3.6;
-    double low = 0;
-    return (position - low) / (high - low);
-
-  }
-
-  public void setLeftExtensionMotorPosition(double position) {
-    leftExtensionMotor.getPIDController().setReference(convertPositionToPercent(position), ControlType.kSmartMotion);
-  }
-
-  public void setRightExtensionMotorPosition(double position) {
-    rightExtensionMotor.getPIDController().setReference(convertPositionToPercent(position), ControlType.kSmartMotion);
-  }
-
-  public void moveIntake(double percentOutput) {
-    leftExtensionMotor.set(-percentOutput);
-    rightExtensionMotor.set(percentOutput);
-  }
-
-  public void setRotationMotor(double percentOutput) {
-    rotationMotor.set(percentOutput);
-  }
-
-  public double getRotationMotorVelocity() {
-    return rotationMotor.getEncoder().getVelocity();
-  }
-
-  public double getRotationMotorCurrent() {
-    return rotationMotor.getOutputCurrent();
-  }
-
-  public GamePiece getCurrentGamePiece() {
-    return currentGamePiece;
-  }
-
 }
