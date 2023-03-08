@@ -131,6 +131,10 @@ public class ArmCommand extends CommandBase {
     // return false;
   }
 
+  public double getArmPosition(){
+    return arm.getArmPose();
+  }
+
   public void setArmState(ArmPose armPose) {
     arm.setArmState(armPose);
   }

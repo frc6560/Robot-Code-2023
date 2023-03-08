@@ -20,6 +20,7 @@ import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.subsystems.Arm;
 import com.team6560.frc2023.subsystems.Drivetrain;
+import com.team6560.frc2023.subsystems.Intake;
 import com.team6560.frc2023.subsystems.Arm.ArmPose;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -28,6 +29,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -54,6 +56,7 @@ public class AutoBuilder {
    * autonomous action.
    */
   private List<PathPlannerTrajectory> pathGroup;
+  private List<PathPlannerTrajectory> pathGroup2;
 
   /**
    * 
@@ -68,6 +71,7 @@ public class AutoBuilder {
   private Drivetrain drivetrain;
 
   private Arm arm;
+  private Intake intake;
 
   private SwerveAutoBuilder teleopAutoBuilder;
 
@@ -79,9 +83,10 @@ public class AutoBuilder {
    * @param drivetrain An instance of Drivetrain that represents the drive
    *                   ubsystem.
    */
-  public AutoBuilder(Drivetrain drivetrain, Arm arm) {
+  public AutoBuilder(Drivetrain drivetrain, Arm arm, Intake intake) {
     this.drivetrain = drivetrain;
     this.arm = arm;
+    this.intake = intake;
 
     eventMap = new HashMap<>();
     eventMap.put("printCommand", new PrintCommand("test Print command"));
@@ -165,18 +170,28 @@ public class AutoBuilder {
     //     ));
 
     return autoBuilder.fullAuto(pathGroup);
-
   }
 
   public Command getRadin2Ball(){
-    pathGroup = PathPlanner.loadPathGroup("Radin2ball", new PathConstraints(3.5, 2.0));
+    pathGroup = PathPlanner.loadPathGroup("Radin1", new PathConstraints(3.5, 2.0));
+    pathGroup2 = PathPlanner.loadPathGroup("Radin2", new PathConstraints(3.5, 2.0));
     
     return new SequentialCommandGroup(
+      new IntakeInitAuto(intake, arm),
+
       new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE),
       new MoveArmPistonCommand(this.arm, false),
-      new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT, true),
-      autoBuilder.fullAuto(pathGroup.get(0)),
-      new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CUBE)
+
+      new ParallelCommandGroup(
+        new IntakePickupAuto(intake, arm, true),
+        autoBuilder.fullAuto(pathGroup.get(0))
+      ),
+
+      new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CUBE),
+      new MoveArmPistonCommand(this.arm, false),
+
+      // new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT)
+      new IntakeInitAuto(intake, arm, false)
     );
   }
 

@@ -74,14 +74,14 @@ public class RobotContainer {
                 armCommand = new ArmCommand(arm, manualControls);
                 arm.setDefaultCommand(armCommand);
 
-                autoBuilder = new AutoBuilder(drivetrain, arm);
+                autoBuilder = new AutoBuilder(drivetrain, arm, intake);
 
                 driveCommand = new DriveCommand(drivetrain, autoBuilder, limelight, manualControls);
                 drivetrain.setDefaultCommand(driveCommand);
 
 
                 intakeCommand = new IntakeCommand(intake, armCommand, manualControls);
-                // intake.setDefaultCommand(intakeCommand);
+                intake.setDefaultCommand(intakeCommand);
 
 
                 autoChooser = new SendableChooser<String>();
@@ -122,12 +122,8 @@ public class RobotContainer {
          */
         public Command getAutonomousCommand() {
                 // return autoBuilder.getTestAutoCommand();
-                // return autoBuilder.getRadin2Ball();
+                return autoBuilder.getRadin2Ball();
                 // return new IntakeInitAuto(intake, arm);
-                return new SequentialCommandGroup(
-                        new IntakeInitAuto(intake, arm),
-                        new IntakePickupAuto(intake, arm, true)
-                );
                 // return autoBuilder.getAutoCommand(autoChooser.getSelected());
         }
 

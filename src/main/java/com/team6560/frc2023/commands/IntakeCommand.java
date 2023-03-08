@@ -36,14 +36,15 @@ public class IntakeCommand extends CommandBase {
   private boolean initializing = true;
   private boolean closing = true;
 
+  private boolean flag1 = false;
+  private boolean flag2 = false;
+  private boolean flag3 = false;
+
   private boolean handing = false;
 
   private boolean armGotObject = false;
 
   private boolean cubeIntakeEngaged = false;
-
-  private NetworkTable nTable = NetworkTableInstance.getDefault().getTable("Intake");
-  private NetworkTableEntry override;
 
   public IntakeCommand(Intake intake, ArmCommand armCommand, Controls controls) {
     this.intake = intake;
@@ -51,19 +52,20 @@ public class IntakeCommand extends CommandBase {
     this.armCommand = armCommand;
 
     addRequirements(intake);
-
-    override = nTable.getEntry("Overide");
-    override.setBoolean(false);
   }
 
   @Override
   public void initialize() {
-    
-    override.setBoolean(false);
-    // initializing = true;
+    if(Math.abs(intake.getIntakePosition()) < IntakeConstants.INTAKE_ACCEPTABLE_ERROR && Math.abs(armCommand.getArmPosition()) < Arm.ALLOWED_ERROR){
+      initializing = true;
+    } else {
+      initializing = false;
+    }
   }
 
   private void init_sequence(){
+    // if(true) return;
+
     armCommand.setArmStateLock(true);
 
     if(armCommand.canRunIntake()){
@@ -157,27 +159,10 @@ public class IntakeCommand extends CommandBase {
     }
   }
 
-  private void collapse_sequence(){
-    armCommand.setArmStateLock(true);
-    intake.setIntakeState(IntakePose.CLEARANCE);
-
-    if(intake.getCurrentPose() == IntakePose.CLEARANCE && intake.atSetpoint()){
-      armCommand.setArmState(ArmPose.DEFAULT);
-    } 
-    if(!armCommand.canRunIntake() && armCommand.isArmAtSetpoint()){
-      intake.setIntakePosition(0.2);
-    }
-  }
-
   @Override
   public void execute() {
-    if(override.getBoolean(false)){
-      intake.setIntakePosition(1.05);
-      armCommand.setArmStateLock(false);
-      return;
-    }
-
     if(initializing){
+      // initializing = false;
       init_sequence();
       return;
     }
