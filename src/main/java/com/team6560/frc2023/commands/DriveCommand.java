@@ -320,7 +320,7 @@ public class DriveCommand extends CommandBase {
 
         Pose2d desiredPose = estimatedGlobalPose.nearest(possibleLocations);
 
-        goToPoseAutoCommand = autoBuilder.goToPose(desiredPose);
+        goToPoseAutoCommand = autoBuilder.goToPose(desiredPose, new Rotation2d(0));
 
     }
 
