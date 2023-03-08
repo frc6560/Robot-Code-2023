@@ -179,7 +179,11 @@ public class AutoBuilder {
     return new SequentialCommandGroup(
       new IntakeInitAuto(intake, arm),
 
+      new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE, false, false),
+
+      autoBuilder.fullAuto(pathGroup2.get(0)),
       new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE),
+      
       new MoveArmPistonCommand(this.arm, false),
 
       new ParallelCommandGroup(

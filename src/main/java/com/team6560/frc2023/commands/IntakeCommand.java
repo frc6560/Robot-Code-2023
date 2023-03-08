@@ -65,6 +65,9 @@ public class IntakeCommand extends CommandBase {
 
   private void init_sequence(){
     // if(true) return;
+    flag1 = false;
+    flag2 = false;
+    flag3 = false;
 
     armCommand.setArmStateLock(true);
 
@@ -87,26 +90,32 @@ public class IntakeCommand extends CommandBase {
   }
 
   private void closing_sequence(){
+    boolean fin = false;
+    
+    flag1 = false;
+    flag2 = false;
+    flag3 = false;
 
     handing = false;
-    armGotObject = false;
-    cubeIntakeEngaged = false;
 
+    if(intake.getCurrentPose() == IntakePose.RETRACTED && intake.atSetpoint()){
+      fin = true;
+    } 
+    
     armCommand.setArmStateLock(true);
-    armCommand.setArmState(intake.intakePoseMap.get(IntakePose.CLEARANCE).getArmPose());
 
-    if(intake.getCurrentPose() != IntakePose.RETRACTED){
-      if(armCommand.canRunIntake()){
-        intake.setIntakeState(IntakePose.RETRACTED);
+    armCommand.setArmState(ArmPose.CLEARANCE);
+    armCommand.setClawSpeed(0.05);
+    
+    if(armCommand.canRunIntake()){
+      intake.setIntakeState(IntakePose.RETRACTED);
+      intake.setSuckMotor(0.7);
+    }
 
-      } else{
-        intake.setIntakeState(IntakePose.CLEARANCE);
-        armCommand.setArmState(intake.intakePoseMap.get(IntakePose.CLEARANCE).getArmPose());
-      }
 
-    } else{
-      armCommand.setArmState(ArmPose.CLEARANCE);
+    if(fin){
       armCommand.setArmStateLock(false);
+      intake.setSuckMotor(0.0);
 
       closing = false;
     }
@@ -166,6 +175,9 @@ public class IntakeCommand extends CommandBase {
       init_sequence();
       return;
     }
+    boolean cubeMode = controls.isCubeMode();
+
+    /*
 
     if(controls.runIntake()){
 
@@ -214,12 +226,157 @@ public class IntakeCommand extends CommandBase {
       }
       
       intake.setInverted(controls.reverseIntake());
+*/
+    if(controls.runIntake()){
+      armCommand.setArmStateLock(true);
+
+      if(cubeMode){
+        runCube();
+      } else {
+        runCone();
+      }
+
+      closing = true;
 
     } else if(closing){
-
       closing_sequence();
+    } 
+  }
+
+  
+  private void runCone(){
+    if(handing) {
+      handOffCone();
+      return;
     }
 
+    armCommand.setArmState(ArmPose.CLEARANCE);
+
+    if(armCommand.isArmAtSetpoint()){
+      flag1 = true;
+    }
+    if(flag1){
+      intake.setIntakeState(IntakePose.EXTENDED_CONE);
+    }
+
+    if(flag1 && intake.atSetpoint()){
+      flag2 = true;
+    }
+    if(flag2){
+      armCommand.setArmState(ArmPose.INTAKE_CONE);
+      armCommand.setClawSpeed(0.0);
+    }
+
+    if(flag1 && flag2 && armCommand.isArmAtSetpoint()){
+      flag3 = true;
+    }
+
+    if(flag1 && flag2 && flag3 && intake.hasObject()){
+      handing = true;
+      
+      flag1 = false;
+      flag2 = false;
+      flag3 = false;
+    }
+  }
+
+  private void handOffCone(){
+    armCommand.setArmState(ArmPose.INTAKE_CONE);
+    armCommand.setClawSpeed(0.8);
+
+    if(armCommand.isArmAtSetpoint()){
+      flag1 = true;
+    }
+    if(flag1){
+      intake.setIntakeState(IntakePose.HANDOFF_CONE);
+    }
+
+    if(flag1 && armCommand.hasObject(false)){
+      flag2 = true;
+    }
+    if(flag2){
+      intake.setIntakeState(IntakePose.RETRACTED);
+      intake.setSuckMotor(0.8);
+
+      armCommand.setClawSpeed(0.5);
+    }
+
+    if(flag1 && flag2 && intake.atSetpoint()){
+      flag3 = true;
+    }
+    if(flag3){
+      intake.setSuckMotor(0.0);
+      armCommand.setClawSpeed(0.0);
+
+      armCommand.setArmStateLock(false);
+    }
+  }
+
+
+  private void runCube(){
+    if(handing) {
+      handOffCube();
+      return;
+    }
+
+    if(!flag2) armCommand.setArmState(ArmPose.CLEARANCE);
+
+    if(armCommand.isArmAtSetpoint()){
+      flag1 = true;
+    }
+    if(flag1){
+      intake.setIntakeState(IntakePose.CLEARANCE);
+    }
+
+    if(flag1 && intake.atSetpoint()){
+      flag2 = true;
+    }
+    if(flag2){
+      armCommand.setArmState(ArmPose.INTAKE_CUBE);
+      armCommand.setClawSpeed(0.8);
+    }
+
+    if(flag1 && flag2 && armCommand.isArmAtSetpoint()){
+      flag3 = true;
+    }
+    if(flag3){
+      intake.setIntakeState(IntakePose.EXTENDED_CUBE);
+      intake.setSuckMotor(0.8);
+    }
+
+    if(flag1 && flag2 && flag3 && armCommand.hasObject(true)){
+      handing = true;
+      
+      flag1 = false;
+      flag2 = false;
+      flag3 = false;
+    }
+
+  }
+
+  private void handOffCube(){
+    if(!flag2) intake.setIntakeState(IntakePose.CLEARANCE);
+
+    if(intake.atSetpoint()){
+      flag1 = true;
+    }
+    if(flag1){
+      armCommand.setArmState(ArmPose.CLEARANCE);
+      armCommand.setClawSpeed(0.05);
+    }
+
+    if(flag1 && armCommand.isArmAtSetpoint()){
+      flag2 = true;
+    }
+    if(flag2){
+      armCommand.setClawSpeed(0.0);
+      
+      intake.setIntakeState(IntakePose.RETRACTED);
+    }
+
+    if(flag1 && flag2 && intake.atSetpoint()){
+      armCommand.setArmStateLock(true);
+    }
 
   }
 

@@ -7,6 +7,7 @@ package com.team6560.frc2023.commands.auto;
 import com.team6560.frc2023.subsystems.Arm;
 import com.team6560.frc2023.subsystems.Arm.ArmPose;
 
+import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -14,6 +15,8 @@ public class MoveArmToPoseCommand extends CommandBase {
   private Arm arm;
   private ArmPose armPose;
   private boolean finished = false;
+  private boolean place = true;
+
   private boolean startExtentionStatus;
 
   private Timer pistonTimer;
@@ -38,6 +41,11 @@ public class MoveArmToPoseCommand extends CommandBase {
   public MoveArmToPoseCommand(Arm arm, ArmPose pose, boolean runWhileMoving) {
     this(arm, pose);
     finished = true;
+  }
+
+  public MoveArmToPoseCommand(Arm arm, ArmPose pose, boolean runWhileMoving, boolean place) {
+    this(arm, pose, runWhileMoving);
+    this.place = place;
   }
 
   // Called when the command is initially scheduled.
@@ -79,13 +87,13 @@ public class MoveArmToPoseCommand extends CommandBase {
         arm.setArmExtention(isExtended);
         pistonTimer.start();
 
-        if (pistonTimer.hasElapsed(isExtended ? 0.7 : 0.5)) {
+        if (pistonTimer.hasElapsed(isExtended ? 0.7 : 0.5) && place) {
           double clawSpeed = Math.copySign(Arm.armPoseMap.get(armPose).getClawSpeedMultiplier(), clawSpeedSign);
           arm.setClawSpeed(clawSpeed);
           clawTimer.start();
         }
 
-        if (clawTimer.hasElapsed(clawSpeedSign > 0 ? 1.5 : 0.4)) {
+        if ((clawTimer.hasElapsed(clawSpeedSign > 0 ? 1.5 : 0.4)) || !place) {
           arm.setClawSpeed(0.0);
           this.finished = true;
         }
