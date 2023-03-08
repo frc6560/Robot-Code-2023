@@ -124,8 +124,10 @@ public class ArmCommand extends CommandBase {
     return arm.transferFromIntake(clawSpeed);
   }
   
-  public boolean hasObject() {
-    return arm.hasObject();
+  public boolean hasObject(boolean cubeMode) {
+    if(cubeMode)
+      return arm.hasCube();
+    return arm.hasCone();
     // return false;
   }
 

@@ -71,8 +71,8 @@ public class Intake extends SubsystemBase {
     .add("target current", ()->23)
     .add("has ball", this::hasObject);
     
-      intakePoseMap.put(IntakePose.EXTENDED_CUBE, new IntakeState(0.85, 0.0, ArmPose.DEFAULT));
-      intakePoseMap.put(IntakePose.EXTENDED_CONE, new IntakeState(1.0, -0.8, ArmPose.DEFAULT));
+      intakePoseMap.put(IntakePose.EXTENDED_CUBE, new IntakeState(0.92, 0.0, ArmPose.DEFAULT));
+      intakePoseMap.put(IntakePose.EXTENDED_CONE, new IntakeState(1.05, -0.8, ArmPose.DEFAULT));
       intakePoseMap.put(IntakePose.RETRACTED, new IntakeState(-0.22, 0.0, ArmPose.NONE));
       intakePoseMap.put(IntakePose.HANDOFF_CONE, new IntakeState(0.45, -0.6, ArmPose.INTAKE_CONE));
       intakePoseMap.put(IntakePose.CLEARANCE, new IntakeState(1.015, 0.0, ArmPose.CLEARANCE));

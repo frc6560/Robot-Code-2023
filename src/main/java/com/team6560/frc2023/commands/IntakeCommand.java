@@ -40,6 +40,8 @@ public class IntakeCommand extends CommandBase {
 
   private boolean armGotObject = false;
 
+  private boolean cubeIntakeEngaged = false;
+
   private NetworkTable nTable = NetworkTableInstance.getDefault().getTable("Intake");
   private NetworkTableEntry override;
 
@@ -86,6 +88,7 @@ public class IntakeCommand extends CommandBase {
 
     handing = false;
     armGotObject = false;
+    cubeIntakeEngaged = false;
 
     armCommand.setArmStateLock(true);
     armCommand.setArmState(intake.intakePoseMap.get(IntakePose.CLEARANCE).getArmPose());
@@ -133,13 +136,13 @@ public class IntakeCommand extends CommandBase {
         armCommand.setClawSpeed(0.5);
       }
 
-      System.out.println("has object " + armCommand.hasObject());
+      System.out.println("has object " + armCommand.hasObject(cubeMode));
 
-      if(armCommand.hasObject() || armGotObject){
+      if(armCommand.hasObject(cubeMode) || armGotObject){
         armGotObject = true;
 
         intake.setIntakeState(IntakePose.RETRACTED);
-        intake.setSuckMotor(0.7);
+        intake.setSuckMotor(0.9);
       }
 
       if(intake.getCurrentPose() == IntakePose.RETRACTED && intake.atSetpoint()){ // once fully done retracting
@@ -193,21 +196,23 @@ public class IntakeCommand extends CommandBase {
         armCommand.setArmState(intake.intakePoseMap.get(IntakePose.CLEARANCE).getArmPose());
 
       } else if(cubeMode){
-        // if(armCommand.canRunIntake() || intake.getCurrentPose() == IntakePose.EXTENDED_CUBE)
-          intake.setIntakeState(IntakePose.EXTENDED_CUBE);
-        // else 
-        //   armCommand.setArmState(ArmPose.CLEARANCE);
+        if(armCommand.canRunIntake() || intake.getCurrentPose() == IntakePose.EXTENDED_CUBE)
+          intake.setIntakeState(IntakePose.CLEARANCE);
+        else 
+          armCommand.setArmState(ArmPose.CLEARANCE);
 
-        if(intake.getCurrentPose() == IntakePose.EXTENDED_CUBE && intake.atSetpoint()){
+        if((intake.getCurrentPose() == IntakePose.CLEARANCE && intake.atSetpoint()) || cubeIntakeEngaged){
           armCommand.setClawSpeed(0.5);
           armCommand.setArmState(ArmPose.INTAKE_CUBE);
           
           if(armCommand.isArmAtSetpoint()){
+            cubeIntakeEngaged = true;
+            intake.setIntakeState(IntakePose.EXTENDED_CUBE);
             intake.setSuckMotor(0.8);
           }
         }
 
-        if(armCommand.hasObject()){
+        if(armCommand.hasObject(cubeMode)){
           handing = true;
           armCommand.setClawSpeed(0.05);
         }

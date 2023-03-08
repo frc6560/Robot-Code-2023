@@ -131,8 +131,8 @@ public class Arm extends SubsystemBase {
     armPoseMap.put(ArmPose.HUMAN_PLAYER_CUBE, new ArmState(0.804, false, 0.85));
     armPoseMap.put(ArmPose.HUMAN_PLAYER_CONE, new ArmState(0.798, false, 1.3));
 
-    armPoseMap.put(ArmPose.INTAKE_CONE, new ArmState(0.365, false, 1.3));
-    armPoseMap.put(ArmPose.INTAKE_CUBE, new ArmState(0.135, false, 0.5));
+    armPoseMap.put(ArmPose.INTAKE_CONE, new ArmState(0.38, false, 1.3));
+    armPoseMap.put(ArmPose.INTAKE_CUBE, new ArmState(0.128, false, 0.5));
 
     armPoseMap.put(ArmPose.CLEARANCE, new ArmState(IntakeConstants.ROTATION_ARM_CLEARANCE, false, 1.0));
     // armPidController.disableContinuousInput();
@@ -306,14 +306,17 @@ public class Arm extends SubsystemBase {
         clawMotorL.getOutputCurrent() + clawMotorR.getOutputCurrent());
   }
 
-  public boolean hasObject() {
+  public boolean hasCube() {
     return Math.abs(getClawSpeedR()) > 3000 && Math.abs(getClawCurrentOutput()) > 10.0;
+  }
+  public boolean hasCone() {
+    return Math.abs(getClawSpeedR()) > 3000 && Math.abs(getClawCurrentOutput()) > 7.0;
   }
 
   public boolean transferFromIntake(double clawSpeed) {
     setClawSpeed(clawSpeed);
     System.out.println(Math.abs(getClawCurrentOutput()));
-    return hasObject();
+    return hasCube();
 
   }
 
