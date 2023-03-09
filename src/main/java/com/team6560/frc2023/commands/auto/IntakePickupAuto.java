@@ -143,7 +143,7 @@ public class IntakePickupAuto extends CommandBase {
     }
     if(flag3){
       intake.setIntakeState(IntakePose.EXTENDED_CUBE);
-      intake.setSuckMotor(0.8);
+      intake.setSuckMotor(0.9);
     }
 
     if(flag1 && flag2 && flag3 && arm.hasCube()){
@@ -163,7 +163,7 @@ public class IntakePickupAuto extends CommandBase {
       flag1 = true;
     }
     if(flag1){
-      arm.setArmState(ArmPose.CLEARANCE);
+      arm.setArmState(ArmPose.HIGH_CUBE);
       arm.setClawSpeed(0.05);
     }
 

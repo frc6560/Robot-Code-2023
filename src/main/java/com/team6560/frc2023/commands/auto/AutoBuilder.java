@@ -136,23 +136,25 @@ public class AutoBuilder {
     return autoBuilder.fullAuto(pathGroup);
   }
 
+
   public Command getTwoBall(){
-    pathGroup = PathPlanner.loadPathGroup("Radin1", new PathConstraints(1, 2.0));
+    pathGroup = PathPlanner.loadPathGroup("Radin1", new PathConstraints(2.0, 1.5));
     
     return new SequentialCommandGroup(
-      new IntakeInitAuto(intake, arm),
+      new IntakeInitAuto(intake, arm, false),
 
       new MoveArmToPoseCommand(arm, ArmPose.HIGH_CONE),
       new MoveArmPistonCommand(this.arm, false),
 
       autoBuilder.fullAuto(pathGroup.get(0)).alongWith(
-        new IntakePickupAuto(intake, arm, false)
+        new IntakePickupAuto(intake, arm, true)
       ),
 
       new MoveArmToPoseCommand(arm, ArmPose.HIGH_CUBE),
       new MoveArmPistonCommand(this.arm, false)
     );
   }
+
 
   public Command getTestAutoCommand() {
     pathGroup = PathPlanner.loadPathGroup("Test3", new PathConstraints(3.5, 2.0));

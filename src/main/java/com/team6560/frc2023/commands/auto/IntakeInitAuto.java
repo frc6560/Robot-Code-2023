@@ -16,6 +16,7 @@ public class IntakeInitAuto extends CommandBase {
   final Intake intake;
 
   final boolean closing;
+  final boolean cubeMode;
 
   boolean intakeCleared = false;
   boolean armCleared = false;
@@ -23,14 +24,15 @@ public class IntakeInitAuto extends CommandBase {
 
 
   /** Creates a new IntakeAuto. */
-  public IntakeInitAuto(Intake intake, Arm arm){
-    this(intake, arm, false);
+  public IntakeInitAuto(Intake intake, Arm arm, boolean cubeMode){
+    this(intake, arm, cubeMode, false);
   }
 
-  public IntakeInitAuto(Intake intake, Arm arm, boolean closing) {
+  public IntakeInitAuto(Intake intake, Arm arm, boolean cubeMode, boolean closing) {
     this.intake = intake;
     this.arm = arm;
     this.closing = closing;
+    this.cubeMode = cubeMode;
 
     addRequirements(intake, arm);
     // Use addRequirements() here to declare subsystem dependencies.
@@ -64,22 +66,27 @@ public class IntakeInitAuto extends CommandBase {
     if(armCleared){
       intake.setIntakeState(IntakePose.RETRACTED);
       intake.setSuckMotor(0.0);
-    }
-
-    if(armCleared && (intake.getCurrentPose() == IntakePose.RETRACTED && intake.atSetpoint())){
       fin = true;
     }
+
+    // if(armCleared && (intake.getCurrentPose() == IntakePose.RETRACTED && intake.atSetpoint())){
+    //   fin = true;
+    // }
   }
 
   public void open(){
     intake.setIntakeState(IntakePose.CLEARANCE);
+    arm.setClawSpeed(0.1);
 
     if(intake.getCurrentPose() == IntakePose.CLEARANCE && intake.atSetpoint()){
       intakeCleared = true;
       System.out.println("intake cleared");
     }
     if(intakeCleared){
-      arm.setArmState(ArmPose.CLEARANCE);
+      if(cubeMode)
+        arm.setArmState(ArmPose.HIGH_CUBE);
+      else 
+        arm.setArmState(ArmPose.HIGH_CONE);
     }
 
     if(intakeCleared && arm.isArmAtSetpoint()){
@@ -88,6 +95,7 @@ public class IntakeInitAuto extends CommandBase {
     }
     if(armCleared){
       intake.setIntakeState(IntakePose.RETRACTED);
+      arm.setClawSpeed(0.0);
     }
 
     if(intakeCleared && armCleared && intake.atSetpoint()){
