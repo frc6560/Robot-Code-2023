@@ -240,7 +240,12 @@ public class IntakeCommand extends CommandBase {
 
     } else if(closing){
       closing_sequence();
-    } 
+    } else {
+      
+      flag1 = false;
+      flag2 = false;
+      flag3 = false;
+    }
   }
 
   
@@ -332,11 +337,11 @@ public class IntakeCommand extends CommandBase {
       flag2 = true;
     }
     if(flag2){
-      // armCommand.setArmState(ArmPose.INTAKE_CUBE);
-      // armCommand.setClawSpeed(0.8);
+      armCommand.setArmState(ArmPose.INTAKE_CUBE);
+      armCommand.setClawSpeed(0.8);
 
-      armCommand.setArmState(0.0);
-      armCommand.setClawSpeed(0.0);
+      // armCommand.setArmState(0.0);
+      // armCommand.setClawSpeed(0.0);
     }
 
     if(flag1 && flag2 && armCommand.isArmAtSetpoint()){
