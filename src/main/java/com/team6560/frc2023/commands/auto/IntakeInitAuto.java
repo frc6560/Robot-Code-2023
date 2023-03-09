@@ -73,6 +73,7 @@ public class IntakeInitAuto extends CommandBase {
 
   public void open(){
     intake.setIntakeState(IntakePose.CLEARANCE);
+    arm.setClawSpeed(0.1);
 
     if(intake.getCurrentPose() == IntakePose.CLEARANCE && intake.atSetpoint()){
       intakeCleared = true;
@@ -88,6 +89,7 @@ public class IntakeInitAuto extends CommandBase {
     }
     if(armCleared){
       intake.setIntakeState(IntakePose.RETRACTED);
+      arm.setClawSpeed(0.0);
     }
 
     if(intakeCleared && armCleared && intake.atSetpoint()){

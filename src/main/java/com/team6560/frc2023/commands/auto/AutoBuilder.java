@@ -210,7 +210,7 @@ public class AutoBuilder {
   public Command getTestAutoCommand() {
     // This will load the file "FullAuto.path" and generate it with a max velocity
     // of 2.0 m/s and a max acceleration of 1.0 m/s^2 for every path in the group
-    pathGroup = PathPlanner.loadPathGroup("Radin1", new PathConstraints(1.5, 1.0));
+    pathGroup = PathPlanner.loadPathGroup("Radin1", new PathConstraints(1.0, 2.0));
 
     // drivetrain.resetOdometry(pathGroup.get(0).getInitialHolonomicPose());
 
@@ -225,7 +225,7 @@ public class AutoBuilder {
         new IntakeInitAuto(intake, arm),
         new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE),
         new MoveArmPistonCommand(this.arm, false),
-        new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT, true),
+        // new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT, true),
         autoBuilder.fullAuto(pathGroup.get(0)),
         new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CUBE),
         new MoveArmPistonCommand(this.arm, false),
