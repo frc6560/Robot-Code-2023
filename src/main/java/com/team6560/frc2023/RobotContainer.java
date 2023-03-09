@@ -121,8 +121,8 @@ public class RobotContainer {
          * @return the command to run in autonomous
          */
         public Command getAutonomousCommand() {
-                // return autoBuilder.getTestAutoCommand();
-                return autoBuilder.getRadin2Ball();
+                return autoBuilder.getTestAutoCommand();
+                // return autoBuilder.getRadin2Ball();
                 // return new IntakeInitAuto(intake, arm);
                 // return autoBuilder.getAutoCommand(autoChooser.getSelected());
         }

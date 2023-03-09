@@ -30,7 +30,8 @@ public class MoveArmToPoseCommand extends CommandBase {
     this.armPose = pose;
     addRequirements(arm);
 
-    if (armPose == ArmPose.INTAKE_CONE || armPose == ArmPose.INTAKE_CUBE || armPose == ArmPose.GROUND_CONE || armPose == ArmPose.GROUND_CUBE) {
+    if (armPose == ArmPose.INTAKE_CONE || armPose == ArmPose.INTAKE_CUBE || armPose == ArmPose.GROUND_CONE
+        || armPose == ArmPose.GROUND_CUBE) {
       this.clawSpeedSign = 1;
     } else {
       this.clawSpeedSign = -1;
@@ -38,13 +39,13 @@ public class MoveArmToPoseCommand extends CommandBase {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
-  public MoveArmToPoseCommand(Arm arm, ArmPose pose, boolean runWhileMoving) {
-    this(arm, pose);
-    finished = true;
-  }
+  // public MoveArmToPoseCommand(Arm arm, ArmPose pose, boolean runWhileMoving) {
+  // this(arm, pose);
+  // finished = true;
+  // }
 
-  public MoveArmToPoseCommand(Arm arm, ArmPose pose, boolean runWhileMoving, boolean place) {
-    this(arm, pose, runWhileMoving);
+  public MoveArmToPoseCommand(Arm arm, ArmPose pose, boolean place) {
+    this(arm, pose);
     this.place = place;
   }
 
@@ -93,19 +94,24 @@ public class MoveArmToPoseCommand extends CommandBase {
           clawTimer.start();
         }
 
-        if ((clawTimer.hasElapsed(clawSpeedSign > 0 ? 1.5 : 0.4)) || !place) {
+        if ((clawTimer.hasElapsed(clawSpeedSign > 0 ? 1.5 : 0.4))) {
           arm.setClawSpeed(0.0);
           this.finished = true;
         }
 
       } else {
-        arm.setClawSpeed(Math.copySign(Arm.armPoseMap.get(armPose).getClawSpeedMultiplier(), clawSpeedSign));
-        clawTimer.start();
+        if (place) {
+          arm.setClawSpeed(Math.copySign(Arm.armPoseMap.get(armPose).getClawSpeedMultiplier(), clawSpeedSign));
+          clawTimer.start();
 
-        if (clawTimer.hasElapsed(0.4)) {
-          arm.setClawSpeed(0.0);
+          if (clawTimer.hasElapsed(0.4)) {
+            arm.setClawSpeed(0.0);
+            this.finished = true;
+          }
+        } else {
           this.finished = true;
         }
+
       }
     }
   }
