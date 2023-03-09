@@ -48,7 +48,7 @@ public class RobotContainer {
 
 
         // A chooser for autonomous commands
-        private final SendableChooser<String> autoChooser;
+        private final SendableChooser<Command> autoChooser;
 
         private final AutoBuilder autoBuilder;
 
@@ -84,11 +84,11 @@ public class RobotContainer {
                 intake.setDefaultCommand(intakeCommand);
 
 
-                autoChooser = new SendableChooser<String>();
+                autoChooser = new SendableChooser<Command>();
 
                 // Add commands to the autonomous command chooser
-                String defaultAuto = "Straight";
-                autoChooser.setDefaultOption(defaultAuto, defaultAuto);
+                String defaultAuto = "Two ball Left";
+                autoChooser.setDefaultOption(defaultAuto, autoBuilder.getTwoBallLeft());
 
                 // for (String f : (new File(Filesystem.getDeployDirectory().getPath() + "/pathplanner")).list()) {
                 //         f = f.strip().replace(".path", "");
@@ -98,13 +98,14 @@ public class RobotContainer {
                 //         }
                 // }
 
-                autoChooser.addOption("StraightSpin", "StraightSpin");
-                autoChooser.addOption("StraightAndBackSpin", "StraightAndBackSpin");
-                autoChooser.addOption("StraightAndBack", "StraightAndBack");
-                autoChooser.addOption("Hamid", "Hamid");
-                autoChooser.addOption("HamidSharp", "HamidSharp");
-                autoChooser.addOption("ChargingStationAuto", "ChargingStationAuto");
-                autoChooser.addOption("NewPath", "NewPath");
+                
+                autoChooser.addOption("Taxi", autoBuilder.getTaxi());
+                autoChooser.addOption("Place and Taxi CUBE", autoBuilder.getPlaceTaxiCube());
+                autoChooser.addOption("Place and Taxi CONE", autoBuilder.getPlaceTaxiChargeCone());
+
+                autoChooser.addOption("Taxi and charge", autoBuilder.getTaxiCharge());
+                autoChooser.addOption("Place and Taxi and charge CUBE", autoBuilder.getPlaceTaxiChargeCube());
+                autoChooser.addOption("Place and Taxi and charge CONE", autoBuilder.getPlaceTaxiChargeCone());
 
                 // Put the chooser on the dashboard
                 Shuffleboard.getTab("Auto Choose").add(autoChooser);
@@ -121,10 +122,10 @@ public class RobotContainer {
          * @return the command to run in autonomous
          */
         public Command getAutonomousCommand() {
-                // return autoBuilder.getTestAutoCommand();
-                return autoBuilder.getTwoBall();
-                // return new IntakeInitAuto(intake, arm);
-                // return autoBuilder.getAutoCommand(autoChooser.getSelected());
+                // return autoBuilder.getTwoBall();
+                // return null;
+
+                return autoChooser.getSelected();
         }
 
 }

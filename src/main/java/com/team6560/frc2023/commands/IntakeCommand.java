@@ -301,7 +301,7 @@ public class IntakeCommand extends CommandBase {
     }
     if(flag2){
       intake.setIntakeState(IntakePose.RETRACTED);
-      intake.setSuckMotor(0.8);
+      intake.setSuckMotor(0.9);
 
       armCommand.setClawSpeed(0.5);
     }

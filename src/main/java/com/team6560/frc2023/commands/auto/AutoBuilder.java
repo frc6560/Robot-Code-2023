@@ -113,6 +113,7 @@ public class AutoBuilder {
         (state) -> drivetrain.autoSetChassisState(state), // Module states consumer used to output to the drive
                                                           // subsystem
         eventMap,
+        true,
         drivetrain // The drive subsystem. Used to properly set the requirements of path following commands
     );
 
@@ -125,6 +126,7 @@ public class AutoBuilder {
         (state) -> drivetrain.autoSetChassisState(state), // Module states consumer used to output to the drive
                                                           // subsystem
         eventMap,
+        true,
         drivetrain // The drive subsystem. Used to properly set the requirements of path following commands
     );
 
@@ -136,9 +138,24 @@ public class AutoBuilder {
     return autoBuilder.fullAuto(pathGroup);
   }
 
+  public Command getPlaceCone(){
+    return new SequentialCommandGroup(
+      new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE),
+      new MoveArmPistonCommand(this.arm, false),
+      new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT, true)
+    );
+  }
+  public Command getPlaceCube(){
+    return new SequentialCommandGroup(
+      new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE),
+      new MoveArmPistonCommand(this.arm, false),
+      new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT, true)
+    );
+  }
 
-  public Command getTwoBall(){
-    pathGroup = PathPlanner.loadPathGroup("Radin1", new PathConstraints(2.0, 1.5));
+
+  public Command getTwoBallLeft(){
+    pathGroup = PathPlanner.loadPathGroup("TwoBallLeft", new PathConstraints(2.0, 1.5));
     
     return new SequentialCommandGroup(
       new IntakeInitAuto(intake, arm, false),
@@ -155,6 +172,34 @@ public class AutoBuilder {
     );
   }
 
+  public Command getTaxiCharge(){
+    pathGroup = PathPlanner.loadPathGroup("TaxiCharge", new PathConstraints(2, 1));
+
+    return new SequentialCommandGroup(
+      autoBuilder.fullAuto(pathGroup.get(0)),
+      new ChargingStationAuto(drivetrain)
+    );
+  }
+
+  public Command getPlaceTaxiChargeCone(){
+    return getPlaceCone().andThen(getTaxiCharge());
+  }
+  public Command getPlaceTaxiChargeCube(){
+    return getPlaceCube().andThen(getTaxiCharge());
+  }
+
+  public Command getTaxi(){
+    pathGroup = PathPlanner.loadPathGroup("Taxi", new PathConstraints(2, 1));
+
+    return autoBuilder.fullAuto(pathGroup.get(0));
+  }
+  public Command getPlaceTaxiCone(){
+    return getPlaceCone().andThen(getTaxi());
+  }
+  public Command getPlaceTaxiCube(){
+    return getPlaceCube().andThen(getTaxi());
+  }
+
 
   public Command getTestAutoCommand() {
     pathGroup = PathPlanner.loadPathGroup("Test3", new PathConstraints(3.5, 2.0));
@@ -164,7 +209,7 @@ public class AutoBuilder {
         new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE),
         new MoveArmPistonCommand(this.arm, false),
         new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT, true),
-        autoBuilder.fullAuto(pathGroup.get(0)),
+        autoBuilder.fullAuto(pathGroup),
 
         new ChargingStationAuto(drivetrain));
   }
