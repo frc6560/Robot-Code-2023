@@ -129,120 +129,45 @@ public class AutoBuilder {
     );
 
   }
-
-  /**
-   * 
-   * Returns a command for autonomous action based on the specified path name.
-   * 
-   * @param pathName The name of the path file to be loaded and followed.
-   * 
-   * @return Command for autonomous action based on the specified path.
-   */
+  
   public Command getAutoCommand(String pathName) {
-    // This will load the file "FullAuto.path" and generate it with a max velocity
-    // of 2.0 m/s and a max acceleration of 1.0 m/s^2 for every path in the group
     pathGroup = PathPlanner.loadPathGroup(pathName, new PathConstraints(1.5, 0.75));
-
-    // drivetrain.resetOdometry(pathGroup.get(0).getInitialHolonomicPose());
-
-    // List<String> stopEventList = new ArrayList<String>();
-
-    // stopEventList.add("Waypoint 1");
-
-    // autoBuilder.stopEventGroup(new StopEvent(new ArrayList<>(),
-    // ExecutionBehavior.SEQUENTIAL, WaitBehavior.AFTER, 1.0));
-
-    // return new SequentialCommandGroup(
-    //     new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE),
-    //     new MoveArmPistonCommand(this.arm, false),
-    //     new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT),
-    //     autoBuilder.fullAuto(pathGroup.get(0)),
-    //     new SequentialCommandGroup(
-    //         new MoveArmToPoseCommand(this.arm, ArmPose.GROUND_CONE),
-    //         new MoveArmPistonCommand(arm, false),
-    //         new MoveArmToPoseCommand(arm, ArmPose.DEFAULT))
-    //         .alongWith(autoBuilder.fullAuto(pathGroup.get(1))),
-
-    //     new SequentialCommandGroup(
-    //         autoBuilder.fullAuto(pathGroup.get(2)),
-    //         new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CUBE)// ,
-    //     // new MoveArmPistonCommand(this.arm, false)
-    //     ));
 
     return autoBuilder.fullAuto(pathGroup);
   }
 
-  public Command getRadin2Ball(){
-    pathGroup = PathPlanner.loadPathGroup("Radin1", new PathConstraints(3.5, 2.0));
-    pathGroup2 = PathPlanner.loadPathGroup("Radin2", new PathConstraints(3.5, 2.0));
+  public Command getTwoBall(){
+    pathGroup = PathPlanner.loadPathGroup("Radin1", new PathConstraints(1, 2.0));
     
     return new SequentialCommandGroup(
       new IntakeInitAuto(intake, arm),
 
-      new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE, false, false),
-
-      autoBuilder.fullAuto(pathGroup2.get(0)),
-      new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE),
-      
+      new MoveArmToPoseCommand(arm, ArmPose.HIGH_CONE),
       new MoveArmPistonCommand(this.arm, false),
 
-      new ParallelCommandGroup(
-        new IntakePickupAuto(intake, arm, true),
-        autoBuilder.fullAuto(pathGroup.get(0))
+      autoBuilder.fullAuto(pathGroup.get(0)).alongWith(
+        new IntakePickupAuto(intake, arm, false)
       ),
 
-      new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CUBE),
-      new MoveArmPistonCommand(this.arm, false),
-
-      // new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT)
-      new IntakeInitAuto(intake, arm, false)
+      new MoveArmToPoseCommand(arm, ArmPose.HIGH_CUBE),
+      new MoveArmPistonCommand(this.arm, false)
     );
   }
 
   public Command getTestAutoCommand() {
-    // This will load the file "FullAuto.path" and generate it with a max velocity
-    // of 2.0 m/s and a max acceleration of 1.0 m/s^2 for every path in the group
     pathGroup = PathPlanner.loadPathGroup("Test3", new PathConstraints(3.5, 2.0));
 
-    // drivetrain.resetOdometry(pathGroup.get(0).getInitialHolonomicPose());
-
-    // List<String> stopEventList = new ArrayList<String>();
-
-    // stopEventList.add("Waypoint 1");
-
-    // autoBuilder.stopEventGroup(new StopEvent(new ArrayList<>(),
-    // ExecutionBehavior.SEQUENTIAL, WaitBehavior.AFTER, 1.0));
 
     return new SequentialCommandGroup(
         new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE),
         new MoveArmPistonCommand(this.arm, false),
         new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT, true),
         autoBuilder.fullAuto(pathGroup.get(0)),
-        // new SequentialCommandGroup(
-        //     new MoveArmToPoseCommand(this.arm, ArmPose.GROUND_CUBE),
-        //     new MoveArmPistonCommand(arm, false),
-        //     new MoveArmToPoseCommand(arm, ArmPose.DEFAULT))
-        //     .alongWith(autoBuilder.fullAuto(pathGroup.get(1))),
 
         new ChargingStationAuto(drivetrain));
-        // new SequentialCommandGroup(
-        //     new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CUBE),
-        //     new MoveArmPistonCommand(this.arm, false)
-        // ));
-
-
-
   }
 
-  /**
-   * 
-   * Returns a command for autonomous action to go to a specified Pose2d.
-   * 
-   * @param desiredPose The desired final position and orientation for the robot
-   *                    to reach.
-   * 
-   * @return Command for autonomous action to go to the specified Pose2d.
-   */
+  
   public Command goToPose(Pose2d desiredPose, Rotation2d heading) {
 
     Pose2d currPose = drivetrain.getPose();
@@ -251,10 +176,6 @@ public class AutoBuilder {
 
     double currSpeed = Math.abs(Math.hypot(currChassisSpeeds.vxMetersPerSecond, currChassisSpeeds.vyMetersPerSecond));
 
-    // Rotation2d heading = desiredPose.getTranslation().minus(currPose.getTranslation()).getAngle();
-
-    // More complex path with holonomic rotation. Non-zero starting velocity of
-    // currSpeed. Max velocity of 4 m/s and max accel of 3 m/s^2
     PathPlannerTrajectory traj = PathPlanner.generatePath(
         new PathConstraints(2.0, 1.0),
         // position, heading(direction of travel), holonomic rotation, velocity verride
@@ -265,8 +186,6 @@ public class AutoBuilder {
   }
 
   public Command getAutoBalanceCommand() {
-    // This will load the file "FullAuto.path" and generate it with a max velocity
-    // of 2.0 m/s and a max acceleration of 1.0 m/s^2 for every path in the group
     pathGroup = PathPlanner.loadPathGroup("ChargingStationAuto", new PathConstraints(1.5, 0.75));
 
     drivetrain.resetOdometry(pathGroup.get(0).getInitialHolonomicPose());

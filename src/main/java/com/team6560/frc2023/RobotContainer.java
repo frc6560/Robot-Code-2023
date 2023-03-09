@@ -122,7 +122,7 @@ public class RobotContainer {
          */
         public Command getAutonomousCommand() {
                 // return autoBuilder.getTestAutoCommand();
-                return autoBuilder.getRadin2Ball();
+                return autoBuilder.getTwoBall();
                 // return new IntakeInitAuto(intake, arm);
                 // return autoBuilder.getAutoCommand(autoChooser.getSelected());
         }
