@@ -87,7 +87,7 @@ public class RobotContainer {
                 autoChooser = new SendableChooser<Command>();
 
                 // Add commands to the autonomous command chooser
-                String defaultAuto = "Two ball Left";
+                String defaultAuto = "Two Piece - Cone, Cube - Left";
                 autoChooser.setDefaultOption(defaultAuto, autoBuilder.getTwoBallLeft());
 
                 // for (String f : (new File(Filesystem.getDeployDirectory().getPath() + "/pathplanner")).list()) {
@@ -106,6 +106,8 @@ public class RobotContainer {
                 autoChooser.addOption("Taxi and charge", autoBuilder.getTaxiCharge());
                 autoChooser.addOption("Place and Taxi and charge CUBE", autoBuilder.getPlaceTaxiChargeCube());
                 autoChooser.addOption("Place and Taxi and charge CONE", autoBuilder.getPlaceTaxiChargeCone());
+
+                autoChooser.addOption("Init Intake", autoBuilder.getInitiIntake());
 
                 // Put the chooser on the dashboard
                 Shuffleboard.getTab("Auto Choose").add(autoChooser);

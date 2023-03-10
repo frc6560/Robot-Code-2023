@@ -138,6 +138,10 @@ public class AutoBuilder {
     return autoBuilder.fullAuto(pathGroup);
   }
 
+  public  Command getInitiIntake(){
+    return new IntakeInitAuto(intake, arm, false);
+  }
+
   public Command getPlaceCone(){
     return new SequentialCommandGroup(
       new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE),
