@@ -89,7 +89,7 @@ public class IntakeCommand extends CommandBase {
 
   }
 
-  private void closing_sequence(){
+  private void closing_sequence(boolean cubeMode){
     boolean fin = false;
     
     flag1 = false;
@@ -98,23 +98,38 @@ public class IntakeCommand extends CommandBase {
 
     handing = false;
 
+    armCommand.setArmStateLock(true);
+    
+    armCommand.setClawSpeed(0.05);
+
     if(intake.getCurrentPose() == IntakePose.RETRACTED && intake.atSetpoint()){
       fin = true;
-    } 
-    
-    armCommand.setArmStateLock(true);
-
-    armCommand.setArmState(ArmPose.CLEARANCE);
-    armCommand.setClawSpeed(0.05);
-    
-    if(armCommand.canRunIntake()){
-      intake.setIntakeState(IntakePose.RETRACTED);
-      intake.setSuckMotor(0.7);
     }
 
+    if(cubeMode){
+      if(!armCommand.canRunIntake()){
+        intake.setIntakeState(IntakePose.CLEARANCE);
+
+        if(intake.atSetpoint()) {
+          armCommand.setArmState(ArmPose.CLEARANCE);
+        }
+
+      } else {
+        intake.setIntakeState(IntakePose.RETRACTED);
+      }
+    } else {
+      armCommand.setArmState(ArmPose.CLEARANCE);
+
+      if(armCommand.canRunIntake()){
+        intake.setIntakeState(IntakePose.RETRACTED);
+        intake.setSuckMotor(0.7);
+      }
+
+    }
 
     if(fin){
       armCommand.setArmStateLock(false);
+      armCommand.setClawSpeed(0.0);
       intake.setSuckMotor(0.0);
 
       closing = false;
@@ -239,7 +254,7 @@ public class IntakeCommand extends CommandBase {
       closing = true;
 
     } else if(closing){
-      closing_sequence();
+      closing_sequence(cubeMode);
     } else {
       
       flag1 = false;

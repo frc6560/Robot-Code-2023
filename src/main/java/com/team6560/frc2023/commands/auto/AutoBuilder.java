@@ -105,7 +105,7 @@ public class AutoBuilder {
     eventMap.put("DEFAULT", new MoveArmToPoseCommand(arm, ArmPose.DEFAULT));
 
     autoBuilder = new SwerveAutoBuilder(
-        () -> drivetrain.getPose(), // Pose2d supplier
+        () -> drivetrain.getOdometryPose2dNoApriltags(), // Pose2d supplier
         (pose) -> drivetrain.resetOdometry(pose), // Pose2d consumer, used to reset odometry at the beginning of auto
         Constants.m_kinematics, // SwerveDriveKinematics
         new PIDConstants(5.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)

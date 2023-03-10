@@ -197,9 +197,9 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public int getLimelightPipeline() {
+    if (DriverStation.isAutonomous())
+      return 1;
     return 0;
-    // if (!DriverStation.isTeleop())
-    //   return 0;
     // if (isCubeMode()) {
     //   return 0;
     // }
