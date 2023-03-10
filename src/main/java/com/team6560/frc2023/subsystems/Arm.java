@@ -68,7 +68,7 @@ public class Arm extends SubsystemBase {
   public static HashMap<ArmPose, ArmState> armPoseMap = new HashMap<ArmPose, ArmState>();
 
   private static final double DEFAULT_TOP_SOFT_LIMIT = 235.0;
-  public static final double ALLOWED_ERROR = 2.25;
+  public static final double ALLOWED_ERROR = 4.5;
 
   // private PIDController armPidController = new PIDController(25.0, 7.25, 6.0);
 

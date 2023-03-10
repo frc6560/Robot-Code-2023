@@ -25,6 +25,8 @@ public class Intake extends SubsystemBase {
 
   public static final double MAX_OUTAKE_POSITION = 16.5 * 0.7268 * 1.0457;
 
+  public static final double INTAKE_START_POSITION = 0.255;
+
   public static enum IntakePose {
     EXTENDED_CUBE, EXTENDED_CONE, HANDOFF_CONE, HANDOFF_CUBE, RETRACTED, CLEARANCE
   }
@@ -44,7 +46,7 @@ public class Intake extends SubsystemBase {
 
   
     rightIntakeMotor.restoreFactoryDefaults();
-    rightIntakeMotor.getEncoder().setPosition(0.255);
+    rightIntakeMotor.getEncoder().setPosition(INTAKE_START_POSITION);
 
     SparkMaxPIDController pid = rightIntakeMotor.getPIDController();
 
