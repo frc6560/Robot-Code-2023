@@ -67,7 +67,7 @@ public class Arm extends SubsystemBase {
 
   public static HashMap<ArmPose, ArmState> armPoseMap = new HashMap<ArmPose, ArmState>();
 
-  private static final double DEFAULT_TOP_SOFT_LIMIT = 226.0;
+  private static final double DEFAULT_TOP_SOFT_LIMIT = 235.0;
   public static final double ALLOWED_ERROR = 2.25;
 
   // private PIDController armPidController = new PIDController(25.0, 7.25, 6.0);
@@ -109,9 +109,9 @@ public class Arm extends SubsystemBase {
     invertClaw = ntTable.getEntry("Invert Claw?");
     invertClaw.setBoolean(false);
 
+
     // position, outSpeedMultiplier
     armPoseMap.put(ArmPose.ZERO, new ArmState(0.0, false, 1.0));
-    armPoseMap.put(ArmPose.NONE, new ArmState(0.0, false, 1.0));
 
     // armPoseMap.put(ArmPose.DEFAULT, new Pair<Double, Double>(0.06321, 1.0));
     armPoseMap.put(ArmPose.DEFAULT, new ArmState(0.1, false, 1.0));
@@ -123,7 +123,7 @@ public class Arm extends SubsystemBase {
     armPoseMap.put(ArmPose.GROUND_CONE, new ArmState(0.35, true, 1.0));
 
     armPoseMap.put(ArmPose.MEDIUM_CONE, new ArmState(0.79, false, 1.4 * 0.175));
-    armPoseMap.put(ArmPose.HIGH_CONE, new ArmState(0.96, true, 1.25 * 0.175));
+    armPoseMap.put(ArmPose.HIGH_CONE, new ArmState(1.0, true, 1.25 * 0.175));
 
     armPoseMap.put(ArmPose.MEDIUM_CUBE, new ArmState(0.7, false, 2.0 * 0.175));
     armPoseMap.put(ArmPose.HIGH_CUBE, new ArmState(0.9, false, 2.0 * 0.175));
@@ -145,20 +145,21 @@ public class Arm extends SubsystemBase {
     breakMotorPid.setP(6.560e-8, 0);
     breakMotorPid.setI(1.06560e-9, 0);
     breakMotorPid.setD(6.560e-12, 0);
-    breakMotorPid.setFF(0.004, 0);
+    breakMotorPid.setFF(0.003, 0);
 
-    breakMotorPid.setSmartMotionMaxAccel(756.0, 0);
+    breakMotorPid.setSmartMotionMaxAccel(600.0, 0);
     breakMotorPid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
     // breakMotorPid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
-    breakMotorPid.setSmartMotionMaxVelocity(1100, 0);
+    breakMotorPid.setSmartMotionMaxVelocity(9500, 0);
     // breakMotorPid.setSmartMotionMinOutputVelocity(50, 0);
     // breakMotorPid.setSmartMotionAllowedClosedLoopError(ALLOWED_ERROR, 0);
 
-    breakMotorPid.setP(0.05, 1);
-    breakMotorPid.setI(1e-6, 1);
+    breakMotorPid.setP(0.025, 1);
+    breakMotorPid.setI(1e-7, 1);
     breakMotorPid.setD(0, 1);
-    breakMotorPid.setFF(0.000156, 1);
+    breakMotorPid.setFF(0.00008, 1);
 
+    breakMotor.setSmartCurrentLimit(15);
   }
 
   @Override

@@ -126,7 +126,7 @@ public class AutoBuilder {
         (state) -> drivetrain.autoSetChassisState(state), // Module states consumer used to output to the drive
                                                           // subsystem
         eventMap,
-        true,
+        false,
         drivetrain // The drive subsystem. Used to properly set the requirements of path following commands
     );
 

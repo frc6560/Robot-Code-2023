@@ -103,8 +103,14 @@ public class ArmCommand extends CommandBase {
 
     prevControlArmExt = controls.armExtentionOverride();
     if (!controls.isOverridingArm() && controls.armState() != ArmPose.NONE) {
-      arm.setArmState(controls.armState());
-      return;
+      double desiredState = Arm.armPoseMap.get(controls.armState()).getPosition();
+      double currPose = arm.getArmPose();
+      double thing = Math.abs(desiredState - currPose);
+      System.out.println(thing);
+      if (Math.abs(desiredState - currPose) > 0.012) {
+        arm.setArmState(controls.armState());
+        return;
+      }
     }
 
     if (controls.overrideArmSoftLimits()) {
