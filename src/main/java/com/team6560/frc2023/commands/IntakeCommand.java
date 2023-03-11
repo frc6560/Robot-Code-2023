@@ -56,7 +56,7 @@ public class IntakeCommand extends CommandBase {
 
   @Override
   public void initialize() {
-    if(Math.abs(intake.getIntakePosition() - Intake.INTAKE_START_POSITION) < IntakeConstants.INTAKE_ACCEPTABLE_ERROR && Math.abs(armCommand.getArmPosition()) < Arm.ALLOWED_ERROR){
+    if(Math.abs(intake.getIntakePosition() ) < IntakeConstants.INTAKE_ACCEPTABLE_ERROR && Math.abs(armCommand.getArmPosition()) < Arm.ALLOWED_ERROR){
       initializing = true;
     } else {
       initializing = false;

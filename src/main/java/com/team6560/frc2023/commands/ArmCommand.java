@@ -107,7 +107,7 @@ public class ArmCommand extends CommandBase {
       double currPose = arm.getArmPose();
       double thing = Math.abs(desiredState - currPose);
       System.out.println(thing);
-      if (Math.abs(desiredState - currPose) > 0.012) {
+      if (Math.abs(desiredState - currPose) > arm.convertRawArmPoseToArmPose(Arm.ALLOWED_ERROR)) {
         arm.setArmState(controls.armState());
         return;
       }
