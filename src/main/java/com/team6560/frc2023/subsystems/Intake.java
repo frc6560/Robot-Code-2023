@@ -42,11 +42,12 @@ public class Intake extends SubsystemBase {
     this.rightIntakeMotor = new CANSparkMax(Constants.INTAKE_EXTENSION_MOTOR_RIGHT, MotorType.kBrushless);
 
     this.intakeSuckMotor = new CANSparkMax(Constants.INTAKE_ROTATION_MOTOR, MotorType.kBrushless);
-    
-
   
     rightIntakeMotor.restoreFactoryDefaults();
     rightIntakeMotor.getEncoder().setPosition(INTAKE_START_POSITION);
+
+    rightIntakeMotor.setSmartCurrentLimit(12);
+    leftIntakeMotor.setSmartCurrentLimit(12);
 
     SparkMaxPIDController pid = rightIntakeMotor.getPIDController();
 

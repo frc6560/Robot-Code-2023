@@ -40,6 +40,8 @@ public class ArmCommand extends CommandBase {
   private NetworkTableEntry clawSpeed;
   private boolean lock;
 
+  private NetworkTableEntry ignoreIntakeLock;
+  
   private NetworkTableEntry intakeOveride = NetworkTableInstance.getDefault().getTable("Intake").getEntry("OVERRIDE INTAKE");
   private NetworkTableEntry ntArmEdgeWarning;
 
@@ -63,6 +65,9 @@ public class ArmCommand extends CommandBase {
 
     clawSpeed = ntTable.getEntry("Claw Speed (MOTOR RPM)");
     clawSpeed.setDouble(6560);
+    
+    ignoreIntakeLock = ntTable.getEntry("Ignore Intake?");
+    ignoreIntakeLock.setBoolean(false);
     
     ntArmEdgeWarning = ntTable.getEntry("ARM EDGE WARNING");
     ntArmEdgeWarning.setBoolean(true);
@@ -107,12 +112,12 @@ public class ArmCommand extends CommandBase {
 
     } else {
       ntArmEdgeWarning.setBoolean(true);
-      
+
       toggleArmExtention = false;
       prevORExtention = false;
     }
 
-    if (lock){
+    if (lock && !ignoreIntakeLock.getBoolean(false)){
       return;
     }
 

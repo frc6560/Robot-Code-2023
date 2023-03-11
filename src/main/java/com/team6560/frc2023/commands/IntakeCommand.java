@@ -50,6 +50,8 @@ public class IntakeCommand extends CommandBase {
   private NetworkTableEntry ntOverideToggle;
   private NetworkTableEntry ntIntakeEdgeWarning;
 
+  private NetworkTableEntry ntIgnoreIntake = NetworkTableInstance.getDefault().getTable("Arm").getEntry("Ignore Intake?");
+
   public IntakeCommand(Intake intake, ArmCommand armCommand, Controls controls) {
     this.intake = intake;
     this.controls = controls;
@@ -211,6 +213,15 @@ public class IntakeCommand extends CommandBase {
       return;
     } else {
       ntIntakeEdgeWarning.setBoolean(true);
+    }
+
+    if(ntIgnoreIntake.getBoolean(false)){
+      if(armCommand.canRunIntake())
+        intake.setIntakeState(IntakePose.RETRACTED);
+
+      intake.setSuckMotor(0.0);
+
+      return;
     }
 
     if(initializing){

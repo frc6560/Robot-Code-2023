@@ -159,7 +159,7 @@ public class Arm extends SubsystemBase {
     breakMotorPid.setD(0, 1);
     breakMotorPid.setFF(0.00008, 1);
 
-    breakMotor.setSmartCurrentLimit(15);
+    breakMotor.setSmartCurrentLimit(25);
   }
 
   @Override
