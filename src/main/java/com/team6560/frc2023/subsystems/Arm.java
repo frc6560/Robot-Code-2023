@@ -126,7 +126,7 @@ public class Arm extends SubsystemBase {
     armPoseMap.put(ArmPose.HIGH_CONE, new ArmState(0.98, true, 1.25 * 0.175));
 
     armPoseMap.put(ArmPose.MEDIUM_CUBE, new ArmState(0.7, false, 2.0 * 0.175));
-    armPoseMap.put(ArmPose.HIGH_CUBE, new ArmState(0.9, false, 2.0 * 0.175));
+    armPoseMap.put(ArmPose.HIGH_CUBE, new ArmState(0.9, true, 2.0 * 0.175));
 
     armPoseMap.put(ArmPose.HUMAN_PLAYER_CUBE, new ArmState(0.804, false, 0.85));
     armPoseMap.put(ArmPose.HUMAN_PLAYER_CONE, new ArmState(0.798, false, 1.3));

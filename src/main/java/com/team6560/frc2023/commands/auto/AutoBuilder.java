@@ -159,7 +159,7 @@ public class AutoBuilder {
 
 
   public Command getTwoBallLeft(){
-    pathGroup = PathPlanner.loadPathGroup("TwoBallLeft", new PathConstraints(2.0, 1.5));
+    pathGroup = PathPlanner.loadPathGroup("TwoBallLeft", new PathConstraints(2.0, 2.0));
     
     return new SequentialCommandGroup(
       new IntakeInitAuto(intake, arm, false),
