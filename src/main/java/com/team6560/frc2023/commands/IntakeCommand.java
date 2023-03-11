@@ -200,7 +200,7 @@ public class IntakeCommand extends CommandBase {
     if(ntOverideToggle.getBoolean(false)){
       double edgeWarningThreshold = 0.05;
 
-      intake.setIntakePosition(controls.overideIntake()/2);
+      intake.setIntakeOveride(controls.overideIntake()/5);
       intake.setSuckMotor(0.0);
 
       if(intake.getIntakePosition() < edgeWarningThreshold || (1-intake.getIntakePosition()) < edgeWarningThreshold){
