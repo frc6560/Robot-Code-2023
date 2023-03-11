@@ -217,7 +217,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   
   public double armRotationOverride(){
-    return modifyAxis(controlStation.getLeftY());
+    return (controlStation.getLeftY());
   }
 
   @Override
@@ -335,6 +335,11 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   @Override 
   public boolean handOff(){
     return controlStation.getPOV() == 0;
+  }
+
+  @Override
+  public double overideIntake(){
+    return controlStation.getRightY();
   }
 
 }

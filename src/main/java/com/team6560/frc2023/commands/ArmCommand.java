@@ -40,6 +40,15 @@ public class ArmCommand extends CommandBase {
   private NetworkTableEntry clawSpeed;
   private boolean lock;
 
+  private NetworkTableEntry ignoreIntakeLock;
+  
+  private NetworkTableEntry intakeOveride = NetworkTableInstance.getDefault().getTable("Intake").getEntry("OVERRIDE INTAKE");
+  private NetworkTableEntry ntArmEdgeWarning;
+
+  private boolean toggleArmExtention = false;
+  private boolean prevORExtention = false;
+
+
   /** 
    * Constructs a new ArmCommand object.
    *
@@ -56,6 +65,12 @@ public class ArmCommand extends CommandBase {
 
     clawSpeed = ntTable.getEntry("Claw Speed (MOTOR RPM)");
     clawSpeed.setDouble(6560);
+    
+    ignoreIntakeLock = ntTable.getEntry("Ignore Intake?");
+    ignoreIntakeLock.setBoolean(false);
+    
+    ntArmEdgeWarning = ntTable.getEntry("ARM EDGE WARNING");
+    ntArmEdgeWarning.setBoolean(true);
   }
 
   /** 
@@ -73,7 +88,36 @@ public class ArmCommand extends CommandBase {
    */
   @Override
   public void execute() {
-    if (lock){
+    if(intakeOveride.getBoolean(false)){
+      double edgeWarningThreshold = 0.05;
+
+      arm.setClawSpeed(-0.1);
+      arm.setBreakMotor(controls.armRotationOverride()/2);
+
+      if(arm.getArmPose() < edgeWarningThreshold || (1-arm.getArmPose()) < edgeWarningThreshold){
+        ntArmEdgeWarning.setBoolean(false);
+      } else {
+        ntArmEdgeWarning.setBoolean(true);
+      }
+
+      if(controls.armExtentionOverride() && !prevORExtention){
+        toggleArmExtention = !toggleArmExtention;
+      }
+
+      arm.setArmExtention(toggleArmExtention);
+
+      prevORExtention = controls.armExtentionOverride();
+
+      return;
+
+    } else {
+      ntArmEdgeWarning.setBoolean(true);
+
+      toggleArmExtention = false;
+      prevORExtention = false;
+    }
+
+    if (lock && !ignoreIntakeLock.getBoolean(false)){
       return;
     }
 
