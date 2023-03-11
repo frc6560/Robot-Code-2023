@@ -94,6 +94,10 @@ public class Intake extends SubsystemBase {
     this.currSetIntakePose = intakePose;
   }
 
+  public void setIntakeOveride(double output) {
+    rightIntakeMotor.set(output);
+  }
+
   public void setSuckMotor(double velocity) {
     velocity = inverted ? -velocity : velocity;
     intakeSuckMotor.set(velocity);

@@ -92,7 +92,7 @@ public class ArmCommand extends CommandBase {
       double edgeWarningThreshold = 0.05;
 
       arm.setClawSpeed(-0.1);
-      arm.setBreakMotor(controls.armRotationOverride()/2);
+      arm.setBreakMotor(controls.armRotationOverride()/1.0);
 
       if(arm.getArmPose() < edgeWarningThreshold || (1-arm.getArmPose()) < edgeWarningThreshold){
         ntArmEdgeWarning.setBoolean(false);
@@ -151,7 +151,7 @@ public class ArmCommand extends CommandBase {
       double currPose = arm.getArmPose();
       double thing = Math.abs(desiredState - currPose);
       System.out.println(thing);
-      if (Math.abs(desiredState - currPose) > 0.012) {
+      if (Math.abs(desiredState - currPose) > arm.convertRawArmPoseToArmPose(Arm.ALLOWED_ERROR)) {
         arm.setArmState(controls.armState());
         return;
       }
