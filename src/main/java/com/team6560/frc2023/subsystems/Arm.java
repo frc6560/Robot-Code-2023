@@ -123,7 +123,7 @@ public class Arm extends SubsystemBase {
     armPoseMap.put(ArmPose.GROUND_CONE, new ArmState(0.35, true, 1.0));
 
     armPoseMap.put(ArmPose.MEDIUM_CONE, new ArmState(0.79, false, 1.4 * 0.175));
-    armPoseMap.put(ArmPose.HIGH_CONE, new ArmState(1.0, true, 1.25 * 0.175));
+    armPoseMap.put(ArmPose.HIGH_CONE, new ArmState(0.98, true, 1.25 * 0.175));
 
     armPoseMap.put(ArmPose.MEDIUM_CUBE, new ArmState(0.7, false, 2.0 * 0.175));
     armPoseMap.put(ArmPose.HIGH_CUBE, new ArmState(0.9, false, 2.0 * 0.175));
@@ -308,7 +308,7 @@ public class Arm extends SubsystemBase {
   }
 
   public boolean hasCube() {
-    return Math.abs(getClawSpeedR()) > 3000 && Math.abs(getClawCurrentOutput()) > 15.0;
+    return Math.abs(getClawSpeedR()) > 3000 && Math.abs(getClawCurrentOutput()) > 12.5;
   }
   public boolean hasCone() {
     return Math.abs(getClawSpeedR()) > 3000 && Math.abs(getClawCurrentOutput()) > 7.0;
