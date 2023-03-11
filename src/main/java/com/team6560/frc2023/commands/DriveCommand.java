@@ -427,7 +427,7 @@ public class DriveCommand extends CommandBase {
             // drivetrain wheel radius 2in
             // climb wheel radius 1.75in
 
-            drivetrain.setClimbDriveMotorVelocity(-Units.radiansPerSecondToRotationsPerMinute(
+            drivetrain.setClimbDriveMotorVelocity(Units.radiansPerSecondToRotationsPerMinute(
                     drivetrain.getAverageModuleDriveAngularTangentialSpeed() / Units.inchesToMeters(0.7)));
 
         } else {

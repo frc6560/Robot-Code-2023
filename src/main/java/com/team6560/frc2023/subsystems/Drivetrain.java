@@ -250,11 +250,11 @@ public class Drivetrain extends SubsystemBase {
         }
 
         public void setBatteryBullshit(boolean isClimbing) {
-                batteryBullshit.set(isClimbing);
+                batteryBullshit.set(!isClimbing);
         }
 
         public boolean isBatteryBullshitExtended() {
-                return batteryBullshit.get();
+                return !batteryBullshit.get();
         }
 
         public double getAverageModuleDriveAngularTangentialSpeed() {
