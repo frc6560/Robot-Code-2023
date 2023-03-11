@@ -27,6 +27,8 @@ public class IntakeCommand extends CommandBase {
     boolean handOff();
 
     boolean isCubeMode();
+
+    double overideIntake();
   }
 
   private Intake intake;
@@ -44,7 +46,9 @@ public class IntakeCommand extends CommandBase {
 
   private boolean armGotObject = false;
 
-  private boolean cubeIntakeEngaged = false;
+  private NetworkTable nTable = NetworkTableInstance.getDefault().getTable("Intake");
+  private NetworkTableEntry ntOverideToggle;
+  private NetworkTableEntry ntIntakeEdgeWarning;
 
   public IntakeCommand(Intake intake, ArmCommand armCommand, Controls controls) {
     this.intake = intake;
@@ -52,6 +56,12 @@ public class IntakeCommand extends CommandBase {
     this.armCommand = armCommand;
 
     addRequirements(intake);
+
+    ntOverideToggle = nTable.getEntry("OVERRIDE INTAKE");
+    ntOverideToggle.setBoolean(false);
+
+    ntIntakeEdgeWarning = nTable.getEntry("INTAKE EDGE WARNING");
+    ntIntakeEdgeWarning.setBoolean(true);
   }
 
   @Override
@@ -185,6 +195,24 @@ public class IntakeCommand extends CommandBase {
 
   @Override
   public void execute() {
+    if(ntOverideToggle.getBoolean(false)){
+      double edgeWarningThreshold = 0.05;
+
+      intake.setIntakePosition(controls.overideIntake()/2);
+      intake.setSuckMotor(0.0);
+
+      if(intake.getIntakePosition() < edgeWarningThreshold || (1-intake.getIntakePosition()) < edgeWarningThreshold){
+        ntIntakeEdgeWarning.setBoolean(false);
+      } else {
+        ntIntakeEdgeWarning.setBoolean(true);
+      }
+
+      closing = true;
+      return;
+    } else {
+      ntIntakeEdgeWarning.setBoolean(true);
+    }
+
     if(initializing){
       // initializing = false;
       init_sequence();
