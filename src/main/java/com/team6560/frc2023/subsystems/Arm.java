@@ -320,5 +320,9 @@ public class Arm extends SubsystemBase {
     return hasCube();
 
   }
+  
+  public boolean canRunIntake(){
+    return Math.abs(getArmPose() - IntakeConstants.ROTATION_ARM_CLEARANCE) < convertRawArmPoseToArmPose(Arm.ALLOWED_ERROR);
+  }
 
 }

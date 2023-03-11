@@ -219,6 +219,6 @@ public class ArmCommand extends CommandBase {
   }
 
   public boolean canRunIntake(){
-    return Math.abs(arm.getArmPose() - IntakeConstants.ROTATION_ARM_CLEARANCE) < arm.convertRawArmPoseToArmPose(Arm.ALLOWED_ERROR);
+    return arm.canRunIntake();
   }
 }

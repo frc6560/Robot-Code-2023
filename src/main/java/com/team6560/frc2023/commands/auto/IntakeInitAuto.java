@@ -89,7 +89,7 @@ public class IntakeInitAuto extends CommandBase {
         arm.setArmState(ArmPose.HIGH_CONE);
     }
 
-    if(intakeCleared && arm.isArmAtSetpoint()){
+    if(intakeCleared && arm.canRunIntake()){
       armCleared = true;
       System.out.println("arm cleared");
     }
