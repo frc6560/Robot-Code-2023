@@ -107,6 +107,10 @@ public class RobotContainer {
                 autoChooser.addOption("Place and Taxi and charge CUBE", autoBuilder.getPlaceTaxiChargeCube());
                 autoChooser.addOption("Place and Taxi and charge CONE", autoBuilder.getPlaceTaxiChargeCone());
 
+                autoChooser.addOption("Charge", autoBuilder.getCharge());
+                autoChooser.addOption("Place and charge CUBE", autoBuilder.getPlaceChargeCube());
+                autoChooser.addOption("Place and charge CONE", autoBuilder.getPlaceChargeCone());
+
                 autoChooser.addOption("Init Intake", autoBuilder.getInitiIntake());
 
                 // Put the chooser on the dashboard

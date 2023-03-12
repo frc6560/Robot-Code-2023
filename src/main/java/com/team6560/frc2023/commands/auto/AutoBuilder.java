@@ -144,6 +144,7 @@ public class AutoBuilder {
 
   public Command getPlaceCone(){
     return new SequentialCommandGroup(
+      new IntakeInitAuto(intake, arm, false),
       new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE),
       new MoveArmPistonCommand(this.arm, false),
       new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT, true)
@@ -151,6 +152,7 @@ public class AutoBuilder {
   }
   public Command getPlaceCube(){
     return new SequentialCommandGroup(
+      new IntakeInitAuto(intake, arm, false),
       new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE),
       new MoveArmPistonCommand(this.arm, false),
       new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT, true)
@@ -204,12 +206,29 @@ public class AutoBuilder {
     return getPlaceCube().andThen(getTaxi());
   }
 
+  public Command getCharge(){
+    pathGroup = PathPlanner.loadPathGroup("Charge", new PathConstraints(1, 1));
+
+    return new SequentialCommandGroup(
+      autoBuilder.fullAuto(pathGroup.get(0)),
+      new ChargingStationAuto(drivetrain)
+    );
+  }
+
+  public Command getPlaceChargeCone(){
+    return getPlaceCone().andThen(getCharge());
+  }
+  public Command getPlaceChargeCube(){
+    return getPlaceCube().andThen(getCharge());
+  }
+
 
   public Command getTestAutoCommand() {
     pathGroup = PathPlanner.loadPathGroup("Test3", new PathConstraints(3.5, 2.0));
 
 
     return new SequentialCommandGroup(
+        new IntakeInitAuto(intake, arm, false),
         new MoveArmToPoseCommand(this.arm, ArmPose.HIGH_CONE),
         new MoveArmPistonCommand(this.arm, false),
         new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT, true),
