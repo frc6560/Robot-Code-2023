@@ -418,7 +418,7 @@ public class DriveCommand extends CommandBase {
         if (controls.driveIsClimbing()) {
 
             drivetrain.setChassisState(
-                    Constants.m_kinematics.toSwerveModuleStates(new ChassisSpeeds(0.0, -controls.driveY(), 0.0)));
+                    Constants.m_kinematics.toSwerveModuleStates(new ChassisSpeeds(0.0, -controls.driveX(), 0.0)));
 
             // drivetrain.setLeftClimbExtensionVelocity(controls.climbVelocityL());
 
@@ -427,8 +427,9 @@ public class DriveCommand extends CommandBase {
             // drivetrain wheel radius 2in
             // climb wheel radius 1.75in
 
-            drivetrain.setClimbDriveMotorVelocity(Units.radiansPerSecondToRotationsPerMinute(
-                    drivetrain.getAverageModuleDriveAngularTangentialSpeed() / Units.inchesToMeters(0.7)));
+            double speed = Math.copySign(drivetrain.getAverageModuleDriveAngularTangentialSpeed(), -controls.driveX()) / Units.inchesToMeters(0.7);
+
+            drivetrain.setClimbDriveMotorVelocity(Units.radiansPerSecondToRotationsPerMinute(speed));
 
         } else {
             drivetrain.drive(
