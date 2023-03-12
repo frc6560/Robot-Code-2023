@@ -195,8 +195,17 @@ public class Arm extends SubsystemBase {
     breakMotor.set(-speed);
   }
 
+  boolean hasPiece = false;
+
   public void setClawSpeed(double output) {
     // if(output != 0) System.out.println("Claw is running at " + output);
+    if(Math.abs(output) <= 0.05){
+      hasPiece = false;
+    }
+    if(hasCube() || hasPiece){
+      hasPiece = true;
+      output = 0.05;
+    }
 
     clawMotorL.set(output);
     clawMotorR.set(output);
