@@ -6,6 +6,7 @@ package com.team6560.frc2023.commands.auto;
 
 import com.team6560.frc2023.subsystems.Drivetrain;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -16,6 +17,8 @@ public class ChargingStationAuto extends CommandBase {
   private double pitchOffsetDegrees;
   private double rollOffsetDegrees;
   private static final double k = 0.035;
+  private PIDController balanceControllerX = new PIDController(k, 0, 0);
+  private PIDController balanceControllerY = new PIDController(k, 0, 0);
 
   /** Creates a new ChargingStationAuto. */
   public ChargingStationAuto(Drivetrain drivetrain, double pitchOffsetDegrees, double rollOffsetDegrees) {
@@ -39,6 +42,15 @@ public class ChargingStationAuto extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    balanceControllerX.setP(k);
+    balanceControllerX.setI(0);
+    balanceControllerX.setD(0);
+    balanceControllerX.setTolerance(1.5);
+
+    balanceControllerY.setP(k);
+    balanceControllerY.setI(0);
+    balanceControllerY.setD(0);
+    balanceControllerY.setTolerance(1.5);
     // drivetrain.drive(
     // ChassisSpeeds.fromFieldRelativeSpeeds(
     // chargingStationPIDController.calculate(drivetrain.getCalculatedGyroPitchRoll().getDegrees(),
@@ -73,10 +85,8 @@ public class ChargingStationAuto extends CommandBase {
     // }
     double speed_x = 0.0;
     double speed_y = 0.0;
-    if (Math.hypot(drivetrain.getPitch().getDegrees() - pitchOffsetDegrees, drivetrain.getRoll().getDegrees() - rollOffsetDegrees) > 1.5) {
-      speed_x = (drivetrain.getRoll().getDegrees() - rollOffsetDegrees)* k;
-      speed_y = (drivetrain.getPitch().getDegrees() - pitchOffsetDegrees)* k;
-    }
+    speed_x = balanceControllerX.calculate(drivetrain.getRoll().getDegrees() - rollOffsetDegrees, 0);
+    speed_y = balanceControllerY.calculate(drivetrain.getPitch().getDegrees() - pitchOffsetDegrees, 0);
 
     drivetrain.drive(
         ChassisSpeeds.fromFieldRelativeSpeeds(
