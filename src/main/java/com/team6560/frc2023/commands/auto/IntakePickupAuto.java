@@ -127,7 +127,8 @@ public class IntakePickupAuto extends CommandBase {
       flag1 = true;
     }
     if(flag1){
-      intake.setIntakeState(IntakePose.CLEARANCE);
+      intake.setIntakeState(IntakePose.EXTENDED_CUBE);
+      intake.setSuckMotor(0.9);   
     }
 
     if(flag1 && intake.atSetpoint()){
@@ -172,6 +173,7 @@ public class IntakePickupAuto extends CommandBase {
     }
     if(flag2){
       arm.setClawSpeed(0.0);
+      arm.setArmExtention(true);
       
       intake.setIntakeState(IntakePose.RETRACTED);
     }

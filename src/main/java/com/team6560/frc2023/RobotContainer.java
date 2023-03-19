@@ -99,6 +99,10 @@ public class RobotContainer {
                 // }
 
                 
+                autoChooser.addOption("Two ball and climb", autoBuilder.getTowBallChargeLeft());
+                autoChooser.addOption("Loco", autoBuilder.getLoco());
+
+                
                 autoChooser.addOption("Taxi", autoBuilder.getTaxi());
                 autoChooser.addOption("Place and Taxi CUBE", autoBuilder.getPlaceTaxiCube());
                 autoChooser.addOption("Place and Taxi CONE", autoBuilder.getPlaceTaxiChargeCone());

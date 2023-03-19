@@ -5,6 +5,7 @@
 package com.team6560.frc2023.commands.auto;
 
 import com.team6560.frc2023.subsystems.Arm;
+import com.team6560.frc2023.subsystems.GamePiece;
 import com.team6560.frc2023.subsystems.Arm.ArmPose;
 
 import edu.wpi.first.util.function.BooleanConsumer;
@@ -23,6 +24,7 @@ public class MoveArmToPoseCommand extends CommandBase {
 
   private Timer clawTimer;
   private int clawSpeedSign;
+  private GamePiece gamePiece;
 
   /** Creates a new MoveArmToPoseCommand. */
   public MoveArmToPoseCommand(Arm arm, ArmPose pose) {
@@ -35,6 +37,15 @@ public class MoveArmToPoseCommand extends CommandBase {
     } else {
       this.clawSpeedSign = -1;
     }
+
+    if(armPose == ArmPose.LOW_CUBE || armPose == ArmPose.HIGH_CUBE || armPose == ArmPose.GROUND_CUBE || armPose == ArmPose.INTAKE_CUBE || armPose == ArmPose.MEDIUM_CUBE || armPose == ArmPose.HUMAN_PLAYER_CUBE) {
+      this.gamePiece = GamePiece.CUBE;
+    }
+
+    if(armPose == ArmPose.LOW_CONE || armPose == ArmPose.HIGH_CONE || armPose == ArmPose.GROUND_CONE || armPose == ArmPose.INTAKE_CONE || armPose == ArmPose.MEDIUM_CONE || armPose == ArmPose.HUMAN_PLAYER_CONE) {
+      this.gamePiece = GamePiece.CONE;
+    }
+
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -82,7 +93,7 @@ public class MoveArmToPoseCommand extends CommandBase {
         arm.setArmExtention(isExtended);
         pistonTimer.start();
 
-        if (pistonTimer.hasElapsed(isExtended ? 0.7 : 0.5)) {
+        if ((gamePiece == GamePiece.CONE && pistonTimer.hasElapsed(isExtended ? 0.6 : 0.5)) || (gamePiece == GamePiece.CUBE && pistonTimer.hasElapsed(isExtended ? 0.3 : 0.2))) {
           double clawSpeed = Math.copySign(Arm.armPoseMap.get(armPose).getClawSpeedMultiplier(), clawSpeedSign);
           arm.setClawSpeed(clawSpeed);
           clawTimer.start();
@@ -90,6 +101,10 @@ public class MoveArmToPoseCommand extends CommandBase {
 
         if ((clawTimer.hasElapsed(clawSpeedSign > 0 ? 0.75 : 0.4))) {
           arm.setClawSpeed(0.0);
+          this.finished = true;
+        }
+
+        if (!isExtended) {
           this.finished = true;
         }
 

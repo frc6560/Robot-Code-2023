@@ -430,6 +430,10 @@ public class Drivetrain extends SubsystemBase {
                 lastPose = poseEstimator.getEstimatedPosition();
 
                 field.setRobotPose(getPose());
+
+                if(DriverStation.isAutonomous()) {
+                        setBatteryBullshit(false);
+                }
         }
 
         /**

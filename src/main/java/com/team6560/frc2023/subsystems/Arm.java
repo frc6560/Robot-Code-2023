@@ -132,7 +132,7 @@ public class Arm extends SubsystemBase {
     armPoseMap.put(ArmPose.HUMAN_PLAYER_CONE, new ArmState(0.798, false, 1.3));
 
     armPoseMap.put(ArmPose.INTAKE_CONE, new ArmState(0.37, false, 1.3));
-    armPoseMap.put(ArmPose.INTAKE_CUBE, new ArmState(0.16, false, 0.5));
+    armPoseMap.put(ArmPose.INTAKE_CUBE, new ArmState(0.145, false, 0.5));
 
     armPoseMap.put(ArmPose.CLEARANCE, new ArmState(IntakeConstants.ROTATION_ARM_CLEARANCE, false, 1.0));
     // armPidController.disableContinuousInput();

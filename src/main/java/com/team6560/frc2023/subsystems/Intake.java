@@ -58,8 +58,8 @@ public class Intake extends SubsystemBase {
 
     pid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
 
-    pid.setSmartMotionMaxAccel(750, 0);
-    pid.setSmartMotionMaxVelocity(1600, 0);
+    pid.setSmartMotionMaxAccel(1000, 0);
+    pid.setSmartMotionMaxVelocity(10000, 0);
     pid.setSmartMotionAllowedClosedLoopError(0.02, 0);
     
 
@@ -125,6 +125,10 @@ public class Intake extends SubsystemBase {
 
   public IntakePose getCurrentPose() {
     return currSetIntakePose;
+  }
+
+  public boolean canRunArm(){
+    return getIntakePosition() < IntakeConstants.ROTATION_ARM_CLEARANCE;
   }
 
   @Override

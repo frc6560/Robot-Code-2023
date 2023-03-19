@@ -15,7 +15,9 @@ public class ChargingStationAuto extends CommandBase {
   private final Drivetrain drivetrain;
   private double pitchOffsetDegrees;
   private double rollOffsetDegrees;
-  private static final double k = 0.035;
+  private static final double k = 0.035 / 1.3;
+
+  private boolean rolledOver = true;
 
   /** Creates a new ChargingStationAuto. */
   public ChargingStationAuto(Drivetrain drivetrain, double pitchOffsetDegrees, double rollOffsetDegrees) {
@@ -31,51 +33,30 @@ public class ChargingStationAuto extends CommandBase {
     this(drivetrain, drivetrain.getPitch().getDegrees(), drivetrain.getRoll().getDegrees());
   }
 
-  // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    drivetrain.setBatteryBullshit(false);
   }
 
-  // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // drivetrain.drive(
-    // ChassisSpeeds.fromFieldRelativeSpeeds(
-    // chargingStationPIDController.calculate(drivetrain.getCalculatedGyroPitchRoll().getDegrees(),
-    // 0),
-    // 0,
-    // 0,
-    // drivetrain.getGyroscopeRotation()
-    // )
-    // );
+    double speedMultiplier = 1;
 
-    // if (drivetrain.getCalculatedGyroPitchRoll().getDegrees() < -3.5) {
-    //   drivetrain.drive(
-    //       ChassisSpeeds.fromFieldRelativeSpeeds(
-    //           0.225,
-    //           0,
-    //           0,
-    //           drivetrain.getGyroscopeRotation()));
-    // } else if (drivetrain.getCalculatedGyroPitchRoll().getDegrees() > 3.5) {
-    //   drivetrain.drive(
-    //       ChassisSpeeds.fromFieldRelativeSpeeds(
-    //           -0.225,
-    //           0,
-    //           0,
-    //           drivetrain.getGyroscopeRotation()));
-    // } else {
-    //   drivetrain.drive(
-    //       ChassisSpeeds.fromFieldRelativeSpeeds(
-    //           0,
-    //           0,
-    //           0,
-    //           drivetrain.getGyroscopeRotation()));
-    // }
+    boolean roll = Math.hypot(drivetrain.getPitch().getDegrees() - pitchOffsetDegrees, drivetrain.getRoll().getDegrees() - rollOffsetDegrees) > 1.5;
+
+    if(!rolledOver){
+      speedMultiplier = 2;
+
+      if(!roll){
+        rolledOver = true;
+      }
+    } 
+
     double speed_x = 0.0;
     double speed_y = 0.0;
-    if (Math.hypot(drivetrain.getPitch().getDegrees() - pitchOffsetDegrees, drivetrain.getRoll().getDegrees() - rollOffsetDegrees) > 1.5) {
-      speed_x = (drivetrain.getRoll().getDegrees() - rollOffsetDegrees)* k;
-      speed_y = (drivetrain.getPitch().getDegrees() - pitchOffsetDegrees)* k;
+    if (roll) {
+      speed_x = (drivetrain.getRoll().getDegrees() - rollOffsetDegrees) * k * speedMultiplier;
+      speed_y = (drivetrain.getPitch().getDegrees() - pitchOffsetDegrees) * k * speedMultiplier;
     }
 
     drivetrain.drive(

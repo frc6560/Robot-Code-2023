@@ -4,7 +4,7 @@
 
 package com.team6560.frc2023.commands.auto;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.List;
 
@@ -50,13 +50,6 @@ public class AutoBuilder {
    */
   private HashMap<String, Command> eventMap;
 
-  /**
-   * 
-   * A list of PathPlannerTrajectory objects that represent the group of paths for
-   * autonomous action.
-   */
-  private List<PathPlannerTrajectory> pathGroup;
-  private List<PathPlannerTrajectory> pathGroup2;
 
   /**
    * 
@@ -100,9 +93,13 @@ public class AutoBuilder {
     eventMap.put("PLACE_CUBE_HIGH", new MoveArmToPoseCommand(arm, ArmPose.HIGH_CUBE));
     eventMap.put("PLACE_CUBE_MID", new MoveArmToPoseCommand(arm, ArmPose.MEDIUM_CUBE));
     eventMap.put("PICK_GROUND_CUBE", new MoveArmToPoseCommand(arm, ArmPose.GROUND_CUBE));
-    eventMap.put("PICK_GROUND_CONE", new MoveArmToPoseCommand(arm, ArmPose.GROUND_CONE));
+    eventMap.put("RETRACT_ARM", new MoveArmPistonCommand(arm, false));
+    eventMap.put("INTAKE_CUBE", new IntakePickupAuto(intake, arm, true));
+
 
     eventMap.put("DEFAULT", new MoveArmToPoseCommand(arm, ArmPose.DEFAULT));
+    
+    drivetrain.setBatteryBullshit(false);
 
     autoBuilder = new SwerveAutoBuilder(
         () -> drivetrain.getOdometryPose2dNoApriltags(), // Pose2d supplier
@@ -133,7 +130,7 @@ public class AutoBuilder {
   }
   
   public Command getAutoCommand(String pathName) {
-    pathGroup = PathPlanner.loadPathGroup(pathName, new PathConstraints(1.5, 0.75));
+    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup(pathName, new PathConstraints(1.5, 0.75));
 
     return autoBuilder.fullAuto(pathGroup);
   }
@@ -161,7 +158,10 @@ public class AutoBuilder {
 
 
   public Command getTwoBallLeft(){
-    pathGroup = PathPlanner.loadPathGroup("TwoBallLeft", new PathConstraints(2.0, 2.0));
+    return getTwoBallLeft(2,2);
+  }
+  public Command getTwoBallLeft(double maxVelocity, double maxAcceleration){
+    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("TwoBallLeft", new PathConstraints(maxVelocity, maxAcceleration));
     
     return new SequentialCommandGroup(
       new IntakeInitAuto(intake, arm, false),
@@ -174,12 +174,12 @@ public class AutoBuilder {
       ),
 
       new MoveArmToPoseCommand(arm, ArmPose.HIGH_CUBE),
-      new MoveArmPistonCommand(this.arm, false)
+      new PrintCommand("Finished 2 ball biches")
     );
   }
 
   public Command getTaxiCharge(){
-    pathGroup = PathPlanner.loadPathGroup("TaxiCharge", new PathConstraints(2, 1));
+    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("TaxiCharge", new PathConstraints(2, 1));
 
     return new SequentialCommandGroup(
       autoBuilder.fullAuto(pathGroup.get(0)),
@@ -195,7 +195,7 @@ public class AutoBuilder {
   }
 
   public Command getTaxi(){
-    pathGroup = PathPlanner.loadPathGroup("Taxi", new PathConstraints(2, 1));
+    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("Taxi", new PathConstraints(2, 1));
 
     return autoBuilder.fullAuto(pathGroup.get(0));
   }
@@ -207,7 +207,7 @@ public class AutoBuilder {
   }
 
   public Command getCharge(){
-    pathGroup = PathPlanner.loadPathGroup("Charge", new PathConstraints(1, 1));
+    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("Charge", new PathConstraints(1, 1));
 
     return new SequentialCommandGroup(
       autoBuilder.fullAuto(pathGroup.get(0)),
@@ -215,16 +215,37 @@ public class AutoBuilder {
     );
   }
 
-  public Command getPlaceChargeCone(){
+  public Command getPlaceChargeCone(){  
     return getPlaceCone().andThen(getCharge());
   }
   public Command getPlaceChargeCube(){
     return getPlaceCube().andThen(getCharge());
   }
 
+  public Command getTowBallChargeLeft(){
+    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("ChargeFromPlaceLeft", new PathConstraints(2, 2.25));
+
+    return getTwoBallLeft(2.75,2.25).andThen(autoBuilder.fullAuto(pathGroup)).andThen(new ChargingStationAuto(drivetrain));
+  }
+
+  public Command getLoco(){
+    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("TwoBallLeftLoco", new PathConstraints(2.5, 2.25));
+
+    return new SequentialCommandGroup(
+      new IntakeInitAuto(intake, arm, false),
+
+      new MoveArmToPoseCommand(arm, ArmPose.HIGH_CONE),
+      new MoveArmPistonCommand(this.arm, false),
+
+      autoBuilder.fullAuto(pathGroup.get(0)),
+
+      new PrintCommand("Finished 2 ball biches"),
+      new ChargingStationAuto(drivetrain)
+    );
+  }
 
   public Command getTestAutoCommand() {
-    pathGroup = PathPlanner.loadPathGroup("Test3", new PathConstraints(3.5, 2.0));
+    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("Test3", new PathConstraints(3.5, 2.0));
 
 
     return new SequentialCommandGroup(
@@ -253,18 +274,6 @@ public class AutoBuilder {
         new PathPoint(desiredPose.getTranslation(), heading, desiredPose.getRotation()));
 
     return teleopAutoBuilder.followPath(traj);
-  }
-
-  public Command getAutoBalanceCommand() {
-    pathGroup = PathPlanner.loadPathGroup("ChargingStationAuto", new PathConstraints(1.5, 0.75));
-
-    drivetrain.resetOdometry(pathGroup.get(0).getInitialHolonomicPose());
-
-    double offsetRoll = drivetrain.getRoll().getDegrees();
-    double offsetPitch = drivetrain.getPitch().getDegrees();
-    return new SequentialCommandGroup(
-        autoBuilder.fullAuto(pathGroup),
-        new ChargingStationAuto(drivetrain, offsetPitch, offsetRoll));
   }
 
 }
