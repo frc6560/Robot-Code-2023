@@ -73,11 +73,11 @@ public class Limelight extends SubsystemBase {
 
 
   public int getPipeline() {
-    if (DriverStation.getAlliance() == Alliance.Blue && predictedPose.get().getX() > Constants.FieldConstants.length / 2.0)
-      return 0;
+    // if (DriverStation.getAlliance() == Alliance.Blue && predictedPose.get().getX() > Constants.FieldConstants.length / 2.0)
+    //   return 0;
     
-    if (DriverStation.getAlliance() == Alliance.Red && predictedPose.get().getX() < Constants.FieldConstants.length / 2.0)
-      return 0;
+    // if (DriverStation.getAlliance() == Alliance.Red && predictedPose.get().getX() < Constants.FieldConstants.length / 2.0)
+    //   return 0;
     
     return controls.getLimelightPipeline();
   }
@@ -149,7 +149,7 @@ public class Limelight extends SubsystemBase {
 
   public Pair<Pose2d, Double> getBotPose() {
 
-    if (ntPipeline.getInteger(0l) != 0) return null;
+    if (ntPipeline.getInteger(0l) != 0 && ntPipeline.getInteger(0l) != 1) return null;
     if (!hasTarget()) return null;
 
     double currentTime = Timer.getFPGATimestamp() - getLatency();
@@ -180,6 +180,7 @@ public class Limelight extends SubsystemBase {
 
   @Override
   public void periodic() {
-    ntPipeline.setNumber(forceOff ? 5 : controls.getLimelightPipeline());
+    ntPipeline.setNumber(controls.getLimelightPipeline());
+    // ntPipeline.setNumber(forceOff ? 5 : controls.getLimelightPipeline());
   }
 }

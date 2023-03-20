@@ -102,7 +102,7 @@ public class AutoBuilder {
     drivetrain.setBatteryBullshit(false);
 
     autoBuilder = new SwerveAutoBuilder(
-        () -> drivetrain.getOdometryPose2dNoApriltags(), // Pose2d supplier
+        () -> drivetrain.getPose(), // Pose2d supplier TODO: possibly revert back to no apriltags
         (pose) -> drivetrain.resetOdometry(pose), // Pose2d consumer, used to reset odometry at the beginning of auto
         Constants.m_kinematics, // SwerveDriveKinematics
         new PIDConstants(5.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
@@ -235,11 +235,28 @@ public class AutoBuilder {
       new IntakeInitAuto(intake, arm, false),
 
       new MoveArmToPoseCommand(arm, ArmPose.HIGH_CONE),
-      new MoveArmPistonCommand(this.arm, false),
+      // new MoveArmPistonCommand(this.arm, false),
+
+      new InstantCommand(() -> arm.setArmExtention(false)),
 
       autoBuilder.fullAuto(pathGroup.get(0)),
 
-      new PrintCommand("Finished 2 ball biches"),
+      new ChargingStationAuto(drivetrain)
+    );
+  }
+
+  public Command getChargingStationCableLoco() {
+    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("ChargingStationCableLoco", new PathConstraints(1.0, 1.0));
+
+    return new SequentialCommandGroup(
+      new IntakeInitAuto(intake, arm, false),
+
+      new MoveArmToPoseCommand(arm, ArmPose.HIGH_CONE),
+      // new InstantCommand(() -> arm.setArmExtention(false)),
+      // new MoveArmToPoseCommand(this.arm, ArmPose.DEFAULT),
+
+      autoBuilder.fullAuto(pathGroup.get(0)),
+
       new ChargingStationAuto(drivetrain)
     );
   }

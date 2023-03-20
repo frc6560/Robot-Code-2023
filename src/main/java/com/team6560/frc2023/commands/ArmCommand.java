@@ -128,7 +128,7 @@ public class ArmCommand extends CommandBase {
 
     double armSpeedMultiplyer;
     if (controls.armState() == ArmPose.NONE) { // If going manual mode
-      armSpeedMultiplyer = controls.runClaw() > 0.0 ? 1.0696942069 : 0.26969;
+      armSpeedMultiplyer = controls.runClaw() > 0.0 ? 1.0696942069 : 0.75;
     } else {
       armSpeedMultiplyer = Arm.armPoseMap.get(controls.armState()).getClawSpeedMultiplier();
     }

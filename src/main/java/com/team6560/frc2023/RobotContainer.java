@@ -116,6 +116,7 @@ public class RobotContainer {
                 autoChooser.addOption("Place and charge CONE", autoBuilder.getPlaceChargeCone());
 
                 autoChooser.addOption("Init Intake", autoBuilder.getInitiIntake());
+                autoChooser.addOption("Charge CABLECARRIER Loco", autoBuilder.getChargingStationCableLoco());
 
                 // Put the chooser on the dashboard
                 Shuffleboard.getTab("Auto Choose").add(autoChooser);

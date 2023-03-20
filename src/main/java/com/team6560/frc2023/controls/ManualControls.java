@@ -83,7 +83,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     armTable = NetworkTableInstance.getDefault().getTable("Arm");
     intakeTable.getEntry("speed").setDouble(0.0);
 
-    limelightTable.getEntry("limelightPipeline").setInteger( (long) 0);
+    // limelightTable.getEntry("limelightPipeline").setInteger( (long) 0);
     
     climbTable = NetworkTableInstance.getDefault().getTable("Climb");
 
@@ -197,9 +197,10 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public int getLimelightPipeline() {
-    if (DriverStation.isAutonomous())
-      return 1;
-    return 0;
+    //TODO: possibly change
+    // if (DriverStation.isAutonomous())
+    //   return 5;
+    return DriverStation.getAlliance() == Alliance.Blue ? 0 : 1;
     // if (isCubeMode()) {
     //   return 0;
     // }
