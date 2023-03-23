@@ -42,7 +42,8 @@ public class DriveCommand extends CommandBase {
 
         boolean driveResetYaw();
 
-        boolean autoAlign();
+        boolean autoAlignLeft();
+        boolean autoAlignRight();
 
         boolean driveResetGlobalPose();
 
@@ -219,7 +220,7 @@ public class DriveCommand extends CommandBase {
         translateAndRotate(xAngle, yAngle, rotation);
     }
 
-    public void autoAlign2() {
+    public void autoAlign2(boolean isLeft) {
         Pose2d estimatedGlobalPose = drivetrain.getPose();
 
         // ArrayList<Pose2d> allAprilTagPoses = new ArrayList<Pose2d>();
@@ -271,19 +272,22 @@ public class DriveCommand extends CommandBase {
             possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 4.4243, Rotation2d.fromRotations(0.0)));
             possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 2.7479, Rotation2d.fromRotations(0.0)));
         } else {
-            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 0.5127, Rotation2d.fromRotations(0.5)));
-            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 1.6303, Rotation2d.fromRotations(0.5)));
-            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 2.1891, Rotation2d.fromRotations(0.5)));
-            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 3.3091, Rotation2d.fromRotations(0.5)));
-            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 3.8655, Rotation2d.fromRotations(0.5)));
-            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 4.9847, Rotation2d.fromRotations(0.5)));
-    
-            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 0.5127, Rotation2d.fromRotations(0.0)));
-            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 1.6303, Rotation2d.fromRotations(0.0)));
-            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 2.1891, Rotation2d.fromRotations(0.0)));
-            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 3.3091, Rotation2d.fromRotations(0.0)));
-            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 3.8655, Rotation2d.fromRotations(0.0)));
-            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 4.9847, Rotation2d.fromRotations(0.0)));
+            if (isLeft) {
+                possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 1.6303, Rotation2d.fromRotations(0.5))); // L
+                possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 3.3091, Rotation2d.fromRotations(0.5))); // L
+                possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 4.9847, Rotation2d.fromRotations(0.5))); // L
+                possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 0.5127, Rotation2d.fromRotations(0.0))); // L
+                possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 2.1891, Rotation2d.fromRotations(0.0))); // L
+                possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 3.8655, Rotation2d.fromRotations(0.0))); // L
+            } else {
+                possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 0.5127, Rotation2d.fromRotations(0.5))); // R
+                possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 2.1891, Rotation2d.fromRotations(0.5))); // R
+                possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 3.8655, Rotation2d.fromRotations(0.5))); // R
+                possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 1.6303, Rotation2d.fromRotations(0.0))); // R
+                possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 3.3091, Rotation2d.fromRotations(0.0))); // R
+                possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 4.9847, Rotation2d.fromRotations(0.0))); // R
+            }
+            
         }
         
 
@@ -331,9 +335,9 @@ public class DriveCommand extends CommandBase {
     @Override
     public void execute() {
 
-        if (controls.autoAlign()) {
+        if (controls.autoAlignLeft() || controls.autoAlignRight()) {
             if (goToPoseAutoCommand == null) {
-                autoAlign2();
+                autoAlign2(controls.autoAlignLeft());
                 return;
             }
 
@@ -354,7 +358,8 @@ public class DriveCommand extends CommandBase {
             }
 
             return;
-        } else {
+        } 
+        else {
             this.autoAlignReady = true;
             drivetrain.setAutoLock(false);
             goToPoseAutoCommand = null;

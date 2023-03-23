@@ -186,8 +186,13 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   }
 
   @Override
-  public boolean autoAlign() {
+  public boolean autoAlignLeft() {
     return xbox.getAButton();
+  }
+
+  @Override
+  public boolean autoAlignRight() {
+    return xbox.getBButton();
   }
 
   @Override
