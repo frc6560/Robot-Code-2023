@@ -43,6 +43,10 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   private boolean prevclimbEngaged;
   private boolean climbEngaged;
 
+  private boolean prevIntakeOverrideEngaged;
+
+  private boolean intakeOverrideEngaged;
+
   /**
    * Creates a new `ManualControls` instance.
    *
@@ -346,6 +350,19 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   @Override
   public double overideIntake(){
     return controlStation.getRightY();
+  }
+
+  @Override
+  public boolean isOverridingIntake() {
+
+    if (prevIntakeOverrideEngaged != controlStation.getRightStickButton() && controlStation.getRightStickButton()){
+      intakeOverrideEngaged = !intakeOverrideEngaged;
+    }
+
+    prevIntakeOverrideEngaged = controlStation.getRightStickButton();
+    
+    return intakeOverrideEngaged;
+
   }
 
 }

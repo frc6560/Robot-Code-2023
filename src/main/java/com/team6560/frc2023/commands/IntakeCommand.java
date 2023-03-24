@@ -29,6 +29,8 @@ public class IntakeCommand extends CommandBase {
     boolean isCubeMode();
 
     double overideIntake();
+
+    boolean isOverridingIntake();
   }
 
   private Intake intake;
@@ -77,7 +79,8 @@ public class IntakeCommand extends CommandBase {
 
   @Override
   public void execute() {
-    if(ntOverideToggle.getBoolean(false)){
+    ntOverideToggle.setBoolean(controls.isOverridingIntake());
+    if(controls.isOverridingIntake()){
       double edgeWarningThreshold = 0.05;
 
       intake.setIntakeOveride(controls.overideIntake()/5);

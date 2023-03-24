@@ -30,6 +30,8 @@ public class ArmCommand extends CommandBase {
     boolean armExtentionOverride();
     boolean resetArmZero();
     boolean overrideArmSoftLimits();
+
+    boolean isOverridingIntake();
   }
 
   private Arm arm;
@@ -42,7 +44,6 @@ public class ArmCommand extends CommandBase {
 
   private NetworkTableEntry ignoreIntakeLock;
   
-  private NetworkTableEntry intakeOveride = NetworkTableInstance.getDefault().getTable("Intake").getEntry("OVERRIDE INTAKE");
   private NetworkTableEntry ntArmEdgeWarning;
 
   private boolean toggleArmExtention = false;
@@ -89,7 +90,7 @@ public class ArmCommand extends CommandBase {
    */
   @Override
   public void execute() {
-    if(intakeOveride.getBoolean(false)){
+    if(controls.isOverridingIntake()){
       double edgeWarningThreshold = 0.05;
 
       arm.setClawSpeed(-0.1);
@@ -131,7 +132,7 @@ public class ArmCommand extends CommandBase {
     if (controls.armState() == ArmPose.NONE) { // If going manual mode
       armSpeedMultiplyer = controls.runClaw() > 0.0 ? 1.0696942069 : 0.75;
       if (!controls.isCubeMode()) {
-        armSpeedMultiplyer *= 0.75;
+        armSpeedMultiplyer *= 0.4;
       }
     } else {
       armSpeedMultiplyer = Arm.armPoseMap.get(controls.armState()).getClawSpeedMultiplier();
