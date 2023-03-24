@@ -144,16 +144,8 @@ public class ArmCommand extends CommandBase {
       else
         armSpeedMultiplyer *= 1.5;
     }
-    // if(output != 0) System.out.println("Claw is running at " + output);
-    double output = armSpeedMultiplyer * controls.runClaw();
-    if(Math.abs(output) <= 0.05){
-      this.hasPiece = false;
-    }
-    if((controls.isCubeMode() && arm.hasCube()) || hasPiece){
-      hasPiece = true;
-      output = 0.05;
-    }
-    arm.setClawSpeed(output);
+    
+    this.setClawSpeed(armSpeedMultiplyer * controls.runClaw());
 
     if (controls.armExtentionOverride() && !prevControlArmExt) {
       arm.setArmExtention(!arm.getExtentionStatus());
@@ -207,7 +199,15 @@ public class ArmCommand extends CommandBase {
     arm.setArmState(armPose);
   }
 
-  public void setClawSpeed(double output){
+  public void setClawSpeed(double output){// if(output != 0) System.out.println("Claw is running at " + output);
+    if(Math.abs(output) <= 0.05){
+      this.hasPiece = false;
+    }
+    if((controls.isCubeMode() && arm.hasCube()) || hasPiece){
+      hasPiece = true;
+      output = 0.05;
+    }
+    
     arm.setClawSpeed(output);
   }
 
