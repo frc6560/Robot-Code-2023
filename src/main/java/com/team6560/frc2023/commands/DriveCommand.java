@@ -91,6 +91,38 @@ public class DriveCommand extends CommandBase {
 
     private boolean autoAlignReady;
 
+
+    private static final ArrayList<Pose2d> cubePoses = new ArrayList<>();
+    private static final ArrayList<Pose2d> leftConePoses = new ArrayList<>();
+    private static final ArrayList<Pose2d> rightConePoses = new ArrayList<>();
+
+    static {
+        cubePoses.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 1.0715, Rotation2d.fromRotations(0.5)));
+        cubePoses.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 4.4243, Rotation2d.fromRotations(0.5)));
+        cubePoses.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 2.7479, Rotation2d.fromRotations(0.5)));
+        cubePoses.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 1.0715, Rotation2d.fromRotations(0.0)));
+        cubePoses.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 4.4243, Rotation2d.fromRotations(0.0)));
+        cubePoses.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 2.7479, Rotation2d.fromRotations(0.0)));
+
+
+        leftConePoses.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 1.6303, Rotation2d.fromRotations(0.5))); // L
+        leftConePoses.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 3.3091, Rotation2d.fromRotations(0.5))); // L
+        leftConePoses.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 4.9847, Rotation2d.fromRotations(0.5))); // L
+        leftConePoses.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 0.5127, Rotation2d.fromRotations(0.0))); // L
+        leftConePoses.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 2.1891, Rotation2d.fromRotations(0.0))); // L
+        leftConePoses.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 3.8655, Rotation2d.fromRotations(0.0))); // L
+    
+    
+        rightConePoses.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 0.5127, Rotation2d.fromRotations(0.5))); // R
+        rightConePoses.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 2.1891, Rotation2d.fromRotations(0.5))); // R
+        rightConePoses.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 3.8655, Rotation2d.fromRotations(0.5))); // R
+        rightConePoses.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 1.6303, Rotation2d.fromRotations(0.0))); // R
+        rightConePoses.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 3.3091, Rotation2d.fromRotations(0.0))); // R
+        rightConePoses.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 4.9847, Rotation2d.fromRotations(0.0))); // R
+    }
+
+
+
     /**
      * Creates a new `DriveCommand` instance.
      *
@@ -223,104 +255,21 @@ public class DriveCommand extends CommandBase {
     public void autoAlign2(boolean isLeft) {
         Pose2d estimatedGlobalPose = drivetrain.getPose();
 
-        // ArrayList<Pose2d> allAprilTagPoses = new ArrayList<Pose2d>();
+        
 
-        // Constants.APRIL_TAG_FIELD_LAYOUT.getTags().forEach((i) -> {
-            // allAprilTagPoses.add(i.pose.toPose2d());
-        // });
-
-        // int currTargetId = limelight.getCurrentApriltagId();
-        // Optional<Pose3d> optional =
-        // Constants.APRIL_TAG_FIELD_LAYOUT.getTagPose(currTargetId);
-        // Pose2d apriltagPose = optional.isPresent() ? optional.get().toPose2d() :
-        // null;
-
-        // Pose2d apriltagPose = estimatedGlobalPose.nearest(allAprilTagPoses);
-
-
-        // Pose2d[] nearestApriltagPoses = { apriltagPose};
-
-        // if (apriltagPose == null || nearestApriltagPoses == null)
-            // return;
-
-        ArrayList<Pose2d> possibleLocations = new ArrayList<Pose2d>();
-
-        // double getXDistMeters = 0.804545;
-        // double getYDistMeters = 1.0;
-
-        // double getXDistMeters_cone = 0.94;
-        // double getXDistMeters_cube = 1.2;
-        // double getYDistMeters_up = 0.5558;
-        // double getYDistMeters_down = 0.5558;
-        // double getYDistMeters = 0.5538;
-
-        // if ((blueHumanPlayerApriltag.isPresent()
-        // && blueHumanPlayerApriltag.get().toPose2d().equals(apriltagPose))
-        // || (redHumanPlayerApriltag.isPresent()
-        // && redHumanPlayerApriltag.get().toPose2d().equals(apriltagPose))) {
-        // // the closest apriltag is the blue or red human player apriltag
-
-        // }
-
+        ArrayList<Pose2d> possibleLocations;
 
         if (controls.isCubeMode()) {
-            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 1.0715, Rotation2d.fromRotations(0.5)));
-            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 4.4243, Rotation2d.fromRotations(0.5)));
-            possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 2.7479, Rotation2d.fromRotations(0.5)));
-    
-            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 1.0715, Rotation2d.fromRotations(0.0)));
-            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 4.4243, Rotation2d.fromRotations(0.0)));
-            possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 2.7479, Rotation2d.fromRotations(0.0)));
+            possibleLocations = cubePoses;
         } else {
             if (isLeft) {
-                possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 1.6303, Rotation2d.fromRotations(0.5))); // L
-                possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 3.3091, Rotation2d.fromRotations(0.5))); // L
-                possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 4.9847, Rotation2d.fromRotations(0.5))); // L
-                possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 0.5127, Rotation2d.fromRotations(0.0))); // L
-                possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 2.1891, Rotation2d.fromRotations(0.0))); // L
-                possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 3.8655, Rotation2d.fromRotations(0.0))); // L
+                possibleLocations = leftConePoses;
             } else {
-                possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 0.5127, Rotation2d.fromRotations(0.5))); // R
-                possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 2.1891, Rotation2d.fromRotations(0.5))); // R
-                possibleLocations.add(new Pose2d(1.3751 + Units.inchesToMeters(17.75 + 3.0), 3.8655, Rotation2d.fromRotations(0.5))); // R
-                possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 1.6303, Rotation2d.fromRotations(0.0))); // R
-                possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 3.3091, Rotation2d.fromRotations(0.0))); // R
-                possibleLocations.add(new Pose2d(15.1603 - Units.inchesToMeters(17.75 + 3.0), 4.9847, Rotation2d.fromRotations(0.0))); // R
+                possibleLocations = rightConePoses;
             }
-            
         }
         
 
-        // for (Pose2d i : nearestApriltagPoses) {
-        //     if ((controls.isCubeMode())) {
-
-        //         possibleLocations.add(i
-        //                 .plus(new Transform2d(new Translation2d(getXDistMeters_cube, 0.0),
-        //                         Rotation2d.fromRotations(0.5))));
-        //         possibleLocations
-        //                 .add(apriltagPose
-        //                         .plus(new Transform2d(new Translation2d(-getXDistMeters_cube, 0.0), new Rotation2d())));
-        //     } else {
-        //         if (controls.desiredConeLocation() >= 0) {
-        //             possibleLocations.add(i.plus(
-        //                     new Transform2d(new Translation2d(getXDistMeters_cone, getYDistMeters_up),
-        //                             Rotation2d.fromRotations(0.5))));
-        //             possibleLocations.add(i
-        //                     .plus(new Transform2d(new Translation2d(-getXDistMeters_cone, getYDistMeters_up),
-        //                             new Rotation2d())));
-        //         }
-        //         if (controls.desiredConeLocation() <= 0) {
-        //             possibleLocations
-        //                     .add(i.plus(new Transform2d(new Translation2d(getXDistMeters_cone, -getYDistMeters_down),
-        //                             Rotation2d.fromRotations(0.5))));
-
-        //             possibleLocations.add(i
-        //                     .plus(new Transform2d(new Translation2d(-getXDistMeters_cone, -getYDistMeters_down),
-        //                             new Rotation2d())));
-        //         }
-        //     }
-
-        // }
 
         Pose2d desiredPose = estimatedGlobalPose.nearest(possibleLocations);
 
