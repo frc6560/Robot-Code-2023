@@ -44,6 +44,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -518,6 +519,18 @@ public class Drivetrain extends SubsystemBase {
                                 getRawGyroRotation(),
                                 getModulePositions(), pose);
         }
+
+        // public void onlyResetOdometry(Pose2d pose) {
+        //         odometry.resetPosition(getRawGyroRotation(), getModulePositions(), pose);
+        // }
+
+        // public void init() {
+        //         if (DriverStation.getAlliance() == Alliance.Blue) {
+        //                 this.onlyResetOdometry(new Pose2d(0, 0, Rotation2d.fromRotations(0.5)));
+        //         } else {
+        //                 this.onlyResetOdometry(new Pose2d());
+        //         }
+        // }
 
         /**
          * 

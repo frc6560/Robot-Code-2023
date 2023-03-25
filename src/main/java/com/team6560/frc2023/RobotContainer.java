@@ -100,6 +100,7 @@ public class RobotContainer {
 
                 
                 autoChooser.addOption("Two ball and climb", autoBuilder.getTowBallChargeLeft());
+                autoChooser.addOption("Two Ball NEW", autoBuilder.getTwoBallLeftNew());
                 autoChooser.addOption("Loco", autoBuilder.getLoco());
 
                 
@@ -118,6 +119,9 @@ public class RobotContainer {
                 autoChooser.addOption("Init Intake", autoBuilder.getInitiIntake());
                 autoChooser.addOption("Charge CABLECARRIER Loco", autoBuilder.getChargingStationCableLoco());
 
+
+                autoChooser.addOption("Place CONE do NOTHING", autoBuilder.getPlaceCone());
+                autoChooser.addOption("Place CUBE do NOTHING", autoBuilder.getPlaceCube());
                 // Put the chooser on the dashboard
                 Shuffleboard.getTab("Auto Choose").add(autoChooser);
 

@@ -178,6 +178,20 @@ public class AutoBuilder {
     );
   }
 
+  public Command getTwoBallLeftNew() {
+    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("TwoBallLeftNew", new PathConstraints(2.5, 2.25));
+    return new SequentialCommandGroup(
+      new IntakeInitAuto(intake, arm, false),
+
+      new MoveArmToPoseCommand(arm, ArmPose.HIGH_CONE),
+      // new MoveArmPistonCommand(this.arm, false),
+
+      new InstantCommand(() -> arm.setArmExtention(false)),
+
+      autoBuilder.fullAuto(pathGroup)
+    );
+  }
+
   public Command getTaxiCharge(){
     List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("TaxiCharge", new PathConstraints(2, 1));
 
