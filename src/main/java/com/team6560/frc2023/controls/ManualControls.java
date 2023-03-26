@@ -143,7 +143,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
    */
   @Override
   public double driveX() {
-    return (DriverStation.getAlliance() == Alliance.Blue ? -1.0 : 1.0) * modifyAxis(xbox.getLeftY() * speed.get());
+    return - modifyAxis(xbox.getLeftY() * speed.get());
   }
 
   /**
@@ -154,7 +154,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
    */
   @Override
   public double driveY() {
-    return (DriverStation.getAlliance() == Alliance.Blue ? -1.0 : 1.0) * modifyAxis(xbox.getLeftX() * speed.get());
+    return - modifyAxis(xbox.getLeftX() * speed.get());
   }
 
   /**
