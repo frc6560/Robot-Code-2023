@@ -122,6 +122,10 @@ public class RobotContainer {
 
                 autoChooser.addOption("Place CONE do NOTHING", autoBuilder.getPlaceCone());
                 autoChooser.addOption("Place CUBE do NOTHING", autoBuilder.getPlaceCube());
+
+
+                autoChooser.addOption("THREE BALL LOCO", autoBuilder.getThreeBallLoco());
+
                 // Put the chooser on the dashboard
                 Shuffleboard.getTab("Auto Choose").add(autoChooser);
 

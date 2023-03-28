@@ -49,9 +49,9 @@ public class MoveArmToPoseCommand extends CommandBase {
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
-  public MoveArmToPoseCommand(Arm arm, ArmPose pose, boolean runWhileMoving) {
+  public MoveArmToPoseCommand(Arm arm, ArmPose pose, boolean place) {
     this(arm, pose);
-    finished = true;
+    this.place = place;
   }
 
   // Called when the command is initially scheduled.
@@ -96,6 +96,11 @@ public class MoveArmToPoseCommand extends CommandBase {
         if ((gamePiece == GamePiece.CONE && pistonTimer.hasElapsed(isExtended ? 0.6 : 0.5)) || (gamePiece == GamePiece.CUBE && pistonTimer.hasElapsed(isExtended ? 0.3 : 0.2))) {
           double clawSpeed = Math.copySign(Arm.armPoseMap.get(armPose).getClawSpeedMultiplier(), clawSpeedSign);
           arm.setClawSpeed(clawSpeed);
+          if (!place) {
+            this.finished = true;
+            return;
+          }
+
           clawTimer.start();
         }
 
@@ -109,6 +114,10 @@ public class MoveArmToPoseCommand extends CommandBase {
         }
 
       } else {
+        if (!place) {
+          this.finished = true;
+          return;
+        }
         arm.setClawSpeed(Math.copySign(Arm.armPoseMap.get(armPose).getClawSpeedMultiplier(), clawSpeedSign));
         clawTimer.start();
 
