@@ -269,6 +269,21 @@ public class AutoBuilder {
     );
   }
 
+  public Command getTwoAndAHalfBallLoco(){
+    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("TwoAndAHalfBallLeftLoco", new PathConstraints(2.5, 2.25));
+
+    return new SequentialCommandGroup(
+      new IntakeInitAuto(intake, arm, false),
+
+      new MoveArmToPoseCommand(arm, ArmPose.HIGH_CONE, true),
+      // new MoveArmPistonCommand(this.arm, false),
+
+      new InstantCommand(() -> arm.setArmExtention(false)),
+
+      autoBuilder.fullAuto(pathGroup.get(0))
+    );
+  }
+
   public Command getThreeBallLoco() {
     List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("ThreeBallLeftLoco", new PathConstraints(4.0, 3.5));
 

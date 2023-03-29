@@ -54,6 +54,8 @@ public class IntakeCommand extends CommandBase {
 
   private NetworkTableEntry ntIgnoreIntake = NetworkTableInstance.getDefault().getTable("Arm").getEntry("Ignore Intake?");
 
+  private final Timer coneTimer = new Timer();
+
   public IntakeCommand(Intake intake, ArmCommand armCommand, Controls controls) {
     this.intake = intake;
     this.controls = controls;
@@ -79,6 +81,7 @@ public class IntakeCommand extends CommandBase {
 
   @Override
   public void execute() {
+
     ntOverideToggle.setBoolean(controls.isOverridingIntake());
     if(controls.isOverridingIntake()){
       double edgeWarningThreshold = 0.05;
@@ -240,6 +243,8 @@ public class IntakeCommand extends CommandBase {
     }
 
     if(flag1 && flag2 && flag3 && intake.hasObject()){
+      NetworkTableInstance.getDefault().getTable("Intake").getEntry("hasCone").setBoolean(true);
+
       handing = true;
       
       flag1 = false;
