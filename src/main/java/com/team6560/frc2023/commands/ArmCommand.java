@@ -38,6 +38,7 @@ public class ArmCommand extends CommandBase {
   private Controls controls;
   private boolean prevControlArmExt = false;
   private NetworkTable ntTable = NetworkTableInstance.getDefault().getTable("Arm");
+  private NetworkTable ntTableIntake = NetworkTableInstance.getDefault().getTable("Intake");
   private NetworkTableEntry rotationSpeed;
   private NetworkTableEntry clawSpeed;
   private boolean lock;
@@ -45,6 +46,8 @@ public class ArmCommand extends CommandBase {
   private NetworkTableEntry ignoreIntakeLock;
   
   private NetworkTableEntry ntArmEdgeWarning;
+
+  private NetworkTableEntry ntSignalLight;
 
   private boolean toggleArmExtention = false;
   private boolean prevORExtention = false;
@@ -73,6 +76,8 @@ public class ArmCommand extends CommandBase {
     
     ntArmEdgeWarning = ntTable.getEntry("ARM EDGE WARNING");
     ntArmEdgeWarning.setBoolean(true);
+    
+    ntSignalLight = ntTableIntake.getEntry("Has game piece signal");
   }
 
   /** 
@@ -146,6 +151,10 @@ public class ArmCommand extends CommandBase {
     }
     
     this.setClawSpeed(armSpeedMultiplyer * controls.runClaw());
+
+    if(arm.getClawSpeed() < 0.2){ // i have no idea why this works
+      ntSignalLight.setBoolean(false);
+    }
 
     if (controls.armExtentionOverride() && !prevControlArmExt) {
       arm.setArmExtention(!arm.getExtentionStatus());

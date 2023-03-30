@@ -369,7 +369,8 @@ public class DriveCommand extends CommandBase {
         drivetrain.setBatteryBullshit(controls.driveIsClimbing());
         // drivetrain.setBatteryBullshit(false);
 
-        if (controls.driveIsClimbing()) {
+        // if (controls.driveIsClimbing()) {
+        if (false) {
 
             drivetrain.setChassisState(
                     Constants.m_kinematics.toSwerveModuleStates(new ChassisSpeeds(0.0, -controls.driveX(), 0.0)));
