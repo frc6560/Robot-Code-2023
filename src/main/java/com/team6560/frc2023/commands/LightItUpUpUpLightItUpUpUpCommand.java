@@ -8,8 +8,6 @@ package com.team6560.frc2023.commands;
 import com.team6560.frc2023.subsystems.LightItUpUpUpLightItUpUpUp;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class LightItUpUpUpLightItUpUpUpCommand extends CommandBase {
@@ -20,7 +18,6 @@ public class LightItUpUpUpLightItUpUpUpCommand extends CommandBase {
   private LightItUpUpUpLightItUpUpUp subsystem;
   private Controls controls;
 
-  private final Timer blinkTimer = new Timer();
 
   /** Creates a new LightItUpUpUpLightItUpUpUpCommand. */
   public LightItUpUpUpLightItUpUpUpCommand(LightItUpUpUpLightItUpUpUp subsystem, Controls controls) {
@@ -38,16 +35,8 @@ public class LightItUpUpUpLightItUpUpUpCommand extends CommandBase {
   @Override
   public void execute() {
     if (NetworkTableInstance.getDefault().getTable("Intake").getEntry("hasCone").getBoolean(false)) {
-      blinkTimer.start();
-      if (((int) (blinkTimer.get() * 10)) % 2 == 0) {
-        subsystem.setColor(Color.kGreen);
-      } else {
-        subsystem.setColor(Color.kYellow);
-      }
-
-      if (blinkTimer.hasElapsed(4)) {
-        NetworkTableInstance.getDefault().getTable("Intake").getEntry("hasCone").setBoolean(false);
-      }
+      subsystem.setColor(255, 0, 0);
+     
     } else {
       subsystem.setColor(controls.isCubeMode());
 

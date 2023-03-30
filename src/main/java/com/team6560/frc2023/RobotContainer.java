@@ -126,6 +126,7 @@ public class RobotContainer {
 
                 autoChooser.addOption("THREE BALL LOCO", autoBuilder.getThreeBallLoco());
                 autoChooser.addOption("TWO AND A HALF BALL LOCO", autoBuilder.getTwoAndAHalfBallLoco());
+                autoChooser.addOption("CABLE CARRIER LOCO", autoBuilder.getCableCarrierLoco());
 
                 // Put the chooser on the dashboard
                 Shuffleboard.getTab("Auto Choose").add(autoChooser);

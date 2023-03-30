@@ -284,6 +284,21 @@ public class AutoBuilder {
     );
   }
 
+  public Command getCableCarrierLoco() {
+    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("CableCarrierLoco", new PathConstraints(1.7, 1.5));
+
+    return new SequentialCommandGroup(
+      new IntakeInitAuto(intake, arm, false),
+
+      new MoveArmToPoseCommand(arm, ArmPose.HIGH_CONE, true),
+      // new MoveArmPistonCommand(this.arm, false),
+
+      new InstantCommand(() -> arm.setArmExtention(false)),
+
+      autoBuilder.fullAuto(pathGroup.get(0))
+    );
+  }
+
   public Command getThreeBallLoco() {
     List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("ThreeBallLeftLoco", new PathConstraints(4.0, 3.5));
 

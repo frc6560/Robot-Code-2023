@@ -131,6 +131,9 @@ public class IntakeCommand extends CommandBase {
     } else if(closing){
       closing_sequence(cubeMode);
     } else {
+
+      NetworkTableInstance.getDefault().getTable("Intake").getEntry("hasCone").setBoolean(false);
+
       
       flag1 = false;
       flag2 = false;
@@ -165,6 +168,7 @@ public class IntakeCommand extends CommandBase {
   }
 
   private void closing_sequence(boolean cubeMode){
+
     boolean fin = false;
     
     flag1 = false;
@@ -243,7 +247,6 @@ public class IntakeCommand extends CommandBase {
     }
 
     if(flag1 && flag2 && flag3 && intake.hasObject()){
-      NetworkTableInstance.getDefault().getTable("Intake").getEntry("hasCone").setBoolean(true);
 
       handing = true;
       
@@ -254,6 +257,9 @@ public class IntakeCommand extends CommandBase {
   }
 
   private void handOffCone(){
+
+    NetworkTableInstance.getDefault().getTable("Intake").getEntry("hasCone").setBoolean(true);
+
     armCommand.setArmState(ArmPose.INTAKE_CONE);
     armCommand.setClawSpeed(0.8);
 
@@ -268,6 +274,7 @@ public class IntakeCommand extends CommandBase {
       flag2 = true;
     }
     if(flag2){
+      NetworkTableInstance.getDefault().getTable("Intake").getEntry("hasCone").setBoolean(false);
       intake.setIntakeState(IntakePose.RETRACTED);
       intake.setSuckMotor(0.9);
 
