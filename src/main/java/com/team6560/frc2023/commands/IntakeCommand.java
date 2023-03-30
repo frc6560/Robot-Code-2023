@@ -54,6 +54,8 @@ public class IntakeCommand extends CommandBase {
 
   private NetworkTableEntry ntIgnoreIntake = NetworkTableInstance.getDefault().getTable("Arm").getEntry("Ignore Intake?");
 
+  private NetworkTableEntry ntSignalLight;
+
   private final Timer coneTimer = new Timer();
 
   public IntakeCommand(Intake intake, ArmCommand armCommand, Controls controls) {
@@ -68,6 +70,9 @@ public class IntakeCommand extends CommandBase {
 
     ntIntakeEdgeWarning = nTable.getEntry("INTAKE EDGE WARNING");
     ntIntakeEdgeWarning.setBoolean(true);
+
+    ntSignalLight = nTable.getEntry("Has game piece signal");
+    ntSignalLight.setBoolean(false);
   }
 
   @Override
@@ -131,9 +136,6 @@ public class IntakeCommand extends CommandBase {
     } else if(closing){
       closing_sequence(cubeMode);
     } else {
-
-      NetworkTableInstance.getDefault().getTable("Intake").getEntry("hasCone").setBoolean(false);
-
       
       flag1 = false;
       flag2 = false;
@@ -168,7 +170,6 @@ public class IntakeCommand extends CommandBase {
   }
 
   private void closing_sequence(boolean cubeMode){
-
     boolean fin = false;
     
     flag1 = false;
@@ -218,6 +219,8 @@ public class IntakeCommand extends CommandBase {
 
   
   private void runCone(){
+    ntSignalLight.setBoolean(false);
+    
     if(handing) {
       handOffCone();
       return;
@@ -247,7 +250,6 @@ public class IntakeCommand extends CommandBase {
     }
 
     if(flag1 && flag2 && flag3 && intake.hasObject()){
-
       handing = true;
       
       flag1 = false;
@@ -257,8 +259,7 @@ public class IntakeCommand extends CommandBase {
   }
 
   private void handOffCone(){
-
-    NetworkTableInstance.getDefault().getTable("Intake").getEntry("hasCone").setBoolean(true);
+    ntSignalLight.setBoolean(true);
 
     armCommand.setArmState(ArmPose.INTAKE_CONE);
     armCommand.setClawSpeed(0.8);
@@ -274,7 +275,6 @@ public class IntakeCommand extends CommandBase {
       flag2 = true;
     }
     if(flag2){
-      NetworkTableInstance.getDefault().getTable("Intake").getEntry("hasCone").setBoolean(false);
       intake.setIntakeState(IntakePose.RETRACTED);
       intake.setSuckMotor(0.9);
 
@@ -294,6 +294,8 @@ public class IntakeCommand extends CommandBase {
 
 
   private void runCube(){
+    ntSignalLight.setBoolean(false);
+    
     if(handing) {
       handOffCube();
       return;
@@ -339,6 +341,8 @@ public class IntakeCommand extends CommandBase {
   }
 
   private void handOffCube(){
+    ntSignalLight.setBoolean(true);
+    
     if(!flag2) intake.setIntakeState(IntakePose.CLEARANCE);
 
     if(intake.atSetpoint()){
