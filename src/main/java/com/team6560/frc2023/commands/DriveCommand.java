@@ -364,28 +364,27 @@ public class DriveCommand extends CommandBase {
 
         drivetrain.setOverrideMaxVisionPoseCorrection(true);
 
-        setClimbExtension(controls.driveIsClimbing());
+        // setClimbExtension(controls.driveIsClimbing());
 
         drivetrain.setBatteryBullshit(controls.driveIsClimbing());
-        // drivetrain.setBatteryBullshit(false);
 
-        if (controls.driveIsClimbing()) {
+        // if (controls.driveIsClimbing()) {
 
-            drivetrain.setChassisState(
-                    Constants.m_kinematics.toSwerveModuleStates(new ChassisSpeeds(0.0, -controls.driveX(), 0.0)));
+        //     drivetrain.setChassisState(
+        //             Constants.m_kinematics.toSwerveModuleStates(new ChassisSpeeds(0.0, -controls.driveX(), 0.0)));
 
-            // drivetrain.setLeftClimbExtensionVelocity(controls.climbVelocityL());
+        //     // drivetrain.setLeftClimbExtensionVelocity(controls.climbVelocityL());
 
-            // drivetrain.setRightClimbExtensionVelocity(controls.climbVelocityR());
+        //     // drivetrain.setRightClimbExtensionVelocity(controls.climbVelocityR());
 
-            // drivetrain wheel radius 2in
-            // climb wheel radius 1.75in
+        //     // drivetrain wheel radius 2in
+        //     // climb wheel radius 1.75in
 
-            double speed = Math.copySign(drivetrain.getAverageModuleDriveAngularTangentialSpeed(), -controls.driveX()) / Units.inchesToMeters(0.7);
+        //     double speed = Math.copySign(drivetrain.getAverageModuleDriveAngularTangentialSpeed(), -controls.driveX()) / Units.inchesToMeters(0.7);
 
-            drivetrain.setClimbDriveMotorVelocity(Units.radiansPerSecondToRotationsPerMinute(speed));
+        //     drivetrain.setClimbDriveMotorVelocity(Units.radiansPerSecondToRotationsPerMinute(speed));
 
-        } else {
+        // } else {
             drivetrain.drive(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
                             controls.driveX() * controls.driveBoostMultiplier(),
@@ -393,7 +392,7 @@ public class DriveCommand extends CommandBase {
                             controls.driveRotationX()
                                     * (controls.driveBoostMultiplier() > 1.0 ? 1.0 : controls.driveBoostMultiplier()),
                             drivetrain.getGyroscopeRotationNoApriltags())); // perhaps use getRawGyroRotation() instead?
-        }
+        // }
 
     }
 
