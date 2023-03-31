@@ -55,12 +55,14 @@ public class IntakePickupAuto extends CommandBase {
       return;
     }
 
-    arm.setArmState(ArmPose.CLEARANCE);
+    if(!flag1){
+      arm.setArmState(ArmPose.CLEARANCE);
+    }
 
     if(arm.isArmAtSetpoint()){
       flag1 = true;
     }
-    if(flag1){
+    if(flag1 && !flag2){
       intake.setIntakeState(IntakePose.EXTENDED_CONE);
     }
 

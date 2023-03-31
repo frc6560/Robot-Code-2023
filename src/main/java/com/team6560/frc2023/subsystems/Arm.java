@@ -308,10 +308,10 @@ public class Arm extends SubsystemBase {
   }
 
   public boolean hasCube() {
-    return Math.abs(getClawSpeedR()) > 3000 && Math.abs(getClawCurrentOutput()) > 12.5;
+    return Math.abs(getClawSpeedR()) > 2500 && Math.abs(getClawCurrentOutput()) > 12.5;
   }
   public boolean hasCone() {
-    return Math.abs(getClawSpeedR()) > 3000 && Math.abs(getClawCurrentOutput()) > 7.0;
+    return Math.abs(getClawSpeedR()) > 1500 && Math.abs(getClawCurrentOutput()) > 7.0;
   }
 
   public boolean transferFromIntake(double clawSpeed) {

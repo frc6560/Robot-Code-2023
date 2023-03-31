@@ -270,7 +270,7 @@ public class AutoBuilder {
   }
 
   public Command getTwoAndAHalfBallLoco(){
-    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("TwoAndAHalfBallLeftLoco", new PathConstraints(2.5, 2.25));
+    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("TwoAndAHalfBallLeftLoco", new PathConstraints(3, 2.5));
 
     return new SequentialCommandGroup(
       new IntakeInitAuto(intake, arm, false),
