@@ -95,7 +95,9 @@ public class Arm extends SubsystemBase {
         .add("Extention Status", this::getExtentionStatus)
         .add("raw arm pos", this::getRawArmPose)
         .add("armPose", this::getArmPose)
-        .add("Target Pos", () -> currentReference);
+        .add("Target Pos", () -> currentReference)
+        .add("LeftCurrent", () -> this.clawMotorL.getOutputCurrent())
+        .add("RightCurrent", () -> this.clawMotorR.getOutputCurrent());
 
     breakMultiplyer = ntTable.getEntry("Break Motor Multiplyer");
     breakMultiplyer.setDouble(0.1);
@@ -303,8 +305,7 @@ public class Arm extends SubsystemBase {
   }
 
   public double getClawCurrentOutput() {
-    return Math.copySign((Math.abs(clawMotorL.getOutputCurrent()) + Math.abs(clawMotorR.getOutputCurrent())) / 2.0,
-        clawMotorL.getOutputCurrent() + clawMotorR.getOutputCurrent());
+    return (Math.abs(clawMotorL.getOutputCurrent()) + Math.abs(clawMotorR.getOutputCurrent())) / 2.0;
   }
 
   public boolean hasCube() {
