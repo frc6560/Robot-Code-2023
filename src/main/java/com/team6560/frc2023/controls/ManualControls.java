@@ -184,20 +184,6 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     return xbox.getStartButton();
   }
 
-  @Override
-  public double driveBoostMultiplier() {
-    return xbox.getLeftBumper() ? 0.5 : xbox.getRightBumper() ? 1.5 : 1.0;
-  }
-
-  @Override
-  public boolean autoAlignLeft() {
-    return xbox.getAButton();
-  }
-
-  @Override
-  public boolean autoAlignRight() {
-    return xbox.getBButton();
-  }
 
   @Override
   public boolean driveResetGlobalPose() {
@@ -219,12 +205,6 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     // return 1;
     // // return (int) limelightTable.getEntry("limelightPipeline").getInteger( (long) 0);
   }
-
-  @Override
-  public boolean overrideMaxVisionPoseCorrection() {
-    return xbox.getYButton();
-  }
-
   
   public double armRotationOverride(){
     return modifyAxis(controlStation.getLeftY());
@@ -293,20 +273,6 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   @Override
   public boolean isCubeMode() {
     return controlStation.getLeftTriggerAxis() > 0.5;
-  }
-
-  @Override
-  public boolean driveIsAutoRotating() {
-    return xbox.getLeftTriggerAxis() > 0.5;
-  }
-
-  @Override
-  public int desiredConeLocation() {
-    // if (modifyAxis2(controlStation.getLeftX()) > 0)
-    //   return 1;
-    // if (modifyAxis2(controlStation.getLeftX()) < 0)
-    //   return -1;
-    return 0;
   }
 
   @Override

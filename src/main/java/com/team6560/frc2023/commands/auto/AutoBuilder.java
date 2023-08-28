@@ -351,8 +351,6 @@ public class AutoBuilder {
 
     Pose2d currPose = drivetrain.getPose();
 
-    ChassisSpeeds currChassisSpeeds = drivetrain.getChassisSpeeds();
-
     double currSpeed = Math.abs(Math.hypot(currChassisSpeeds.vxMetersPerSecond, currChassisSpeeds.vyMetersPerSecond));
 
     PathPlannerTrajectory traj = PathPlanner.generatePath(
