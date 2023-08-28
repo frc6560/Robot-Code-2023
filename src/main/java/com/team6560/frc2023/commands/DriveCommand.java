@@ -49,12 +49,6 @@ public class DriveCommand extends CommandBase {
 
         boolean overrideMaxVisionPoseCorrection();
 
-        boolean driveIsClimbing();
-
-        double climbVelocityL();
-
-        double climbVelocityR();
-
         double driveBoostMultiplier();
 
         boolean driveIsAutoRotating();
@@ -77,17 +71,11 @@ public class DriveCommand extends CommandBase {
     private PIDController driveTranslationYPIDController = new PIDController(0.13, 0.02, 0.0);
     private PIDController driveTranslationXPIDController = new PIDController(0.13, 0.02, 0.0);
 
-    private boolean rotationIsPosition = true;
-
     private double lastRotationTheta;
 
     private boolean isOverridingAngle = true;
 
-    private double lastTranslationY;
-
     private boolean isOverridingTranslation;
-
-    private double lastTranslationX;
 
     private boolean autoAlignReady;
 
@@ -161,9 +149,7 @@ public class DriveCommand extends CommandBase {
     public void rotate(double rotation) {
         double current = drivetrain.getGyroscopeRotation().getDegrees();
 
-        lastRotationTheta = rotation;
-
-        // double thing = MathUtil.inputModulus(current - lastRotationTheta, -180, 180);
+        lastRotationTheta = rotation;;
 
         double calculated = driveRotationPIDController.calculate(current, lastRotationTheta);
 
@@ -177,11 +163,6 @@ public class DriveCommand extends CommandBase {
     }
 
     public void translateY(double translationY) {
-
-        lastTranslationY = translationY;
-
-        // double thing = MathUtil.inputModulus(current - lastRotationTheta, -180, 180);
-
         double calculated = driveTranslationYPIDController.calculate(translationY, 0);
 
         if (driveTranslationYPIDController.atSetpoint()) {
@@ -205,22 +186,13 @@ public class DriveCommand extends CommandBase {
 
         lastRotationTheta = rotation;
 
-        // double thing = MathUtil.inputModulus(current - lastRotationTheta, -180, 180);
-
         double calculatedRotation = driveRotationPIDController.calculate(currentRotation, lastRotationTheta);
 
         if (limelight.getTargetArea() < 0.5)
             translationX += translationX > 0 ? 14.35 : -14.35;
 
-        lastTranslationY = translationY;
-        lastTranslationX = translationX;
-
-        // double thing = MathUtil.inputModulus(current - lastRotationTheta, -180, 180);
-
         double calculatedTranslationY = driveTranslationYPIDController.calculate(translationY, 0);
         double calculatedTranslationX = driveTranslationXPIDController.calculate(translationX, 0);
-
-        // System.out.println(driveRotationPIDController.getPositionError());
 
         if (!limelight.hasTarget() || Math.abs(driveRotationPIDController.getPositionError()) > 7.5) {
             calculatedTranslationX = 0.0;
@@ -324,20 +296,6 @@ public class DriveCommand extends CommandBase {
             return;
         }
 
-        // if (controls.autoAlign() && !goingToPose) {
-        // goToPoseAutoCommand = autoBuilder.goToPose(new Pose2d(new Translation2d(0,
-        // limelight.getXDistMeters()), Rotation2d.fromDegrees(0.0)));
-        // goToPoseAutoCommand.initialize();
-        // goingToPose = true;
-
-        // }
-        // if (goingToPose && goToPoseAutoCommand != null &&
-        // !goToPoseAutoCommand.isFinished()) {
-        // goToPoseAutoCommand.execute();
-        // return;
-        // }
-        // goingToPose=false;
-
         if (controls.driveResetYaw()) {
             drivetrain.zeroGyroscope();
         }
@@ -345,77 +303,17 @@ public class DriveCommand extends CommandBase {
         if (controls.driveResetGlobalPose())
             drivetrain.resetOdometry(new Pose2d());
 
-        // double poseX = drivetrain.getPose().getX();
-        // Pose2d estPose = drivetrain.getLimelightEstimatedPosition();
-        // Double poseXEstimated = estPose == null ? null : estPose.getX();
-        // Pose2d odometryEstimatedPose = drivetrain.getOdometryPose2dNoApriltags();
-        // Double odometryEstX = odometryEstimatedPose == null ? null : odometryEstimatedPose.getX();
-
-        // if ((poseX > 0 && poseX < Constants.FieldConstants.length * 0.25) || (poseX > Constants.FieldConstants.length * 0.75 && poseX < Constants.FieldConstants.length)) {
-        //     drivetrain.setOverrideMaxVisionPoseCorrection(true);
-
-        // } else if (poseXEstimated != null && ((poseXEstimated > 0 && poseXEstimated < Constants.FieldConstants.length * 0.25) || (poseXEstimated > Constants.FieldConstants.length * 0.75 && poseXEstimated < Constants.FieldConstants.length))) {
-        //     drivetrain.setOverrideMaxVisionPoseCorrection(true);
-        // } else if (odometryEstX != null && ((odometryEstX > 0 && odometryEstX < Constants.FieldConstants.length * 0.25) || (odometryEstX > Constants.FieldConstants.length * 0.75 && odometryEstX < Constants.FieldConstants.length)))
-        //     drivetrain.setOverrideMaxVisionPoseCorrection(true);
-        // else {
-        //     drivetrain.setOverrideMaxVisionPoseCorrection(controls.overrideMaxVisionPoseCorrection());
-        // }
-
         drivetrain.setOverrideMaxVisionPoseCorrection(true);
 
-        // setClimbExtension(controls.driveIsClimbing());
 
-        drivetrain.setBatteryBullshit(controls.driveIsClimbing());
+        drivetrain.drive(
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                        controls.driveX() * controls.driveBoostMultiplier(),
+                        controls.driveY() * controls.driveBoostMultiplier(),
+                        controls.driveRotationX()
+                                * (controls.driveBoostMultiplier() > 1.0 ? 1.0 : controls.driveBoostMultiplier()),
+                        drivetrain.getGyroscopeRotationNoApriltags())); // perhaps use getRawGyroRotation() instead?
 
-        // if (controls.driveIsClimbing()) {
-
-
-        //     drivetrain.setChassisState(
-        //             Constants.m_kinematics.toSwerveModuleStates(new ChassisSpeeds(0.0, -controls.driveX(), 0.0)));
-
-        //     // drivetrain.setLeftClimbExtensionVelocity(controls.climbVelocityL());
-
-        //     // drivetrain.setRightClimbExtensionVelocity(controls.climbVelocityR());
-
-        //     // drivetrain wheel radius 2in
-        //     // climb wheel radius 1.75in
-
-        //     double speed = Math.copySign(drivetrain.getAverageModuleDriveAngularTangentialSpeed(), -controls.driveX()) / Units.inchesToMeters(0.7);
-
-        //     drivetrain.setClimbDriveMotorVelocity(Units.radiansPerSecondToRotationsPerMinute(speed));
-
-        // } else {
-            drivetrain.drive(
-                    ChassisSpeeds.fromFieldRelativeSpeeds(
-                            controls.driveX() * controls.driveBoostMultiplier(),
-                            controls.driveY() * controls.driveBoostMultiplier(),
-                            controls.driveRotationX()
-                                    * (controls.driveBoostMultiplier() > 1.0 ? 1.0 : controls.driveBoostMultiplier()),
-                            drivetrain.getGyroscopeRotationNoApriltags())); // perhaps use getRawGyroRotation() instead?
-        // }
-
-    }
-
-    public void setClimbExtension(boolean extended) {
-        double leftCurrPose = drivetrain.getLeftClimbPosition();
-        double rightCurrPose = drivetrain.getRightClimbPosition();
-
-        double target = extended ? 100.0 : 0.0;
-
-        if (Math.abs(leftCurrPose - target) > 5.0)
-            drivetrain.setLeftClimbExtensionVelocity(Math.copySign(0.12, target - leftCurrPose));
-        else if (Math.abs(leftCurrPose - target) > 0.5)
-            drivetrain.setLeftClimbExtensionVelocity(Math.copySign(0.025, target - leftCurrPose));
-        else
-            drivetrain.setLeftClimbExtensionVelocity(0.0);
-
-        if (Math.abs(rightCurrPose - target) > 5.0)
-            drivetrain.setRightClimbExtensionVelocity(Math.copySign(0.12, target - rightCurrPose));
-        else if (Math.abs(rightCurrPose - target) > 0.5)
-            drivetrain.setRightClimbExtensionVelocity(Math.copySign(0.025, target - rightCurrPose));
-        else
-            drivetrain.setRightClimbExtensionVelocity(0.0);
     }
 
     /**

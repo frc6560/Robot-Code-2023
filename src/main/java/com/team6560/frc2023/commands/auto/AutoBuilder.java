@@ -109,8 +109,6 @@ public class AutoBuilder {
 
     eventMap.put("DEFAULT", new MoveArmToPoseCommand(arm, ArmPose.DEFAULT));
     
-    drivetrain.setBatteryBullshit(false);
-
     autoBuilder = new SwerveAutoBuilder(
         () -> drivetrain.getOdometryPose2dNoApriltags(), // Pose2d supplier TODO: possibly revert back to no apriltags
         (pose) -> drivetrain.resetOdometry(pose), // Pose2d consumer, used to reset odometry at the beginning of auto

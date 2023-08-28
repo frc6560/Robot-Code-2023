@@ -241,29 +241,6 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   }
 
   @Override
-  public boolean driveIsClimbing() {
-    if (prevclimbEngaged != controlStation.getBackButton() && controlStation.getBackButton()){
-      climbEngaged = !climbEngaged;
-    }
-
-    prevclimbEngaged = controlStation.getBackButton();
-    
-    return climbEngaged;
-    // return this.climbTable.getEntry("isClimbing").getBoolean(false);
-  }
-
-  @Override
-  public double climbVelocityL() {
-    return this.climbTable.getEntry("climbVelocityL").getDouble(0.0);
-  }
-
-
-  @Override
-  public double climbVelocityR() {
-    return this.climbTable.getEntry("climbVelocityR").getDouble(0.0);
-  }
-
-  @Override
   public ArmPose armState() {
     // if (!controlStation.getRawButton(4) || !controlStation.getRawButton(1))
     //   return ArmPose.ZERO;
