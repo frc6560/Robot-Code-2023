@@ -71,7 +71,7 @@ public class Drivetrain extends SubsystemBase {
         private ChassisSpeeds currentManualSetChassisSpeeds;
 
 
-        public Drivetrain(Supplier<Pair<Pose2d, Double>> poseSupplier) {
+        public Drivetrain() {
                 m_frontLeftModule = new MkSwerveModuleBuilder(MkModuleConfiguration.getDefaultSteerNEO())
                                 // .withLayout(tab.getLayout("Back Right Module", BuiltInLayouts.kList)
                                 //                 .withSize(2, 4)

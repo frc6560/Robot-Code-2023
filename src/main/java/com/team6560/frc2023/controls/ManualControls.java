@@ -6,15 +6,9 @@ package com.team6560.frc2023.controls;
 
 import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.Constants.*;
-import com.team6560.frc2023.subsystems.Arm.ArmPose;
-import com.team6560.frc2023.subsystems.Intake.IntakePose;
-import com.team6560.frc2023.subsystems.Limelight;
 import com.team6560.frc2023.commands.DriveCommand;
 import com.team6560.frc2023.utility.NumberStepper;
-import com.team6560.frc2023.commands.ArmCommand;
-import com.team6560.frc2023.commands.IntakeCommand;
 import com.team6560.frc2023.utility.PovNumberStepper;
-import com.team6560.frc2023.commands.LightItUpUpUpLightItUpUpUpCommand;
 import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab;
 
 import edu.wpi.first.networktables.NetworkTable;
@@ -24,7 +18,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
-public class ManualControls implements DriveCommand.Controls, Limelight.Controls, ArmCommand.Controls, IntakeCommand.Controls, LightItUpUpUpLightItUpUpUpCommand.Controls {
+public class ManualControls implements DriveCommand.Controls {
   private XboxController xbox;
 
   private final PovNumberStepper speed;
@@ -189,122 +183,6 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   public boolean driveResetGlobalPose() {
     return xbox.getBackButton();
   }
-
-  @Override
-  public int getLimelightPipeline() {
-    //TODO: possibly change
-    // if (DriverStation.isAutonomous())
-    //   return 5;
-    return DriverStation.getAlliance() == Alliance.Blue ? 0 : 1;
-    // if (isCubeMode()) {
-    //   return 0;
-    // }
-    // // if (autoAlign()) {
-    // //   return 1;
-    // // }
-    // return 1;
-    // // return (int) limelightTable.getEntry("limelightPipeline").getInteger( (long) 0);
-  }
-  
-  public double armRotationOverride(){
-    return modifyAxis(controlStation.getLeftY());
-  }
-
-  @Override
-  public boolean armExtentionOverride(){
-    return controlStation.getLeftBumper();
-  }
-
-  @Override
-  public double runClaw(){
-    return (controlStation.getRightBumper() ? 1 : (xbox.getRightTriggerAxis() > 0.5 ? -1 : 0));
-  }
-
-  @Override
-  public ArmPose armState() {
-    // if (!controlStation.getRawButton(4) || !controlStation.getRawButton(1))
-    //   return ArmPose.ZERO;
-
-
-
-    // return xbox.getBButton() ? ArmPose.MEDIUM_CONE : ArmPose.ZERO;
-    
-    if (controlStation.getXButton())
-      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.MEDIUM_CUBE : ArmPose.MEDIUM_CONE;
-    
-    if (controlStation.getYButton())
-      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.HIGH_CUBE : ArmPose.HIGH_CONE;
-    
-    if (controlStation.getAButton())
-      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.LOW_CUBE : ArmPose.LOW_CONE;
-    
-    if (controlStation.getBButton())
-      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.HUMAN_PLAYER_CUBE : ArmPose.HUMAN_PLAYER_CONE;
-
-    // if (controlStation.getRightY() < -0.5)
-    //   return ArmPose.LOW;
-    
-    // if (controlStation.getStartButton())
-    //   return ArmPose.DEFAULT;
-
-    if (controlStation.getStartButton())
-      return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.GROUND_CUBE : ArmPose.GROUND_CONE;
-    
-    return ArmPose.NONE;
-    
-  }
-
-  @Override
-  public boolean isOverridingArm() {
-    // TODO Auto-generated method stub ahahahahahaha
-    return false;
-  }
-
-  @Override
-  public boolean resetArmZero() {
-    return armTable.getEntry("resetArmZero").getBoolean(false);
-  }
-
-  @Override
-  public boolean overrideArmSoftLimits() {
-    return armTable.getEntry("overrideSoftLimits").getBoolean(false);
-  }
-
-  @Override
-  public boolean isCubeMode() {
-    return controlStation.getLeftTriggerAxis() > 0.5;
-  }
-
-  @Override
-  public boolean runIntake() {
-    return controlStation.getRightTriggerAxis() > 0.25;
-  }
-
-  @Override 
-  public boolean reverseIntake(){
-    return controlStation.getRightStickButton();
-  }
-
-  @Override 
-  public boolean handOff(){
-    return controlStation.getPOV() == 0;
-  }
-
-  @Override
-  public double overideIntake(){
-    return controlStation.getRightY();
-  }
-
-  @Override
-  public boolean isOverridingIntake() {
-
-    if (prevIntakeOverrideEngaged != controlStation.getRightStickButton() && controlStation.getRightStickButton()){
-      intakeOverrideEngaged = !intakeOverrideEngaged;
-    }
-
-    prevIntakeOverrideEngaged = controlStation.getRightStickButton();
-    
-    return intakeOverrideEngaged;
 
   }
 
