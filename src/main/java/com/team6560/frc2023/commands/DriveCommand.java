@@ -1,7 +1,6 @@
 package com.team6560.frc2023.commands;
 
 import com.team6560.frc2023.subsystems.Drivetrain;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -28,11 +27,6 @@ public class DriveCommand extends CommandBase {
 
     private Controls controls;
 
-    private PIDController driveRotationPIDController = new PIDController(0.06, 0.05, 0.0);
-    private PIDController driveTranslationYPIDController = new PIDController(0.13, 0.02, 0.0);
-    private PIDController driveTranslationXPIDController = new PIDController(0.13, 0.02, 0.0);
-
-
 
     /**
      * Creates a new `DriveCommand` instance.
@@ -45,19 +39,6 @@ public class DriveCommand extends CommandBase {
         this.controls = controls;
 
         addRequirements(drivetrainSubsystem);
-
-        driveRotationPIDController.setIntegratorRange(-0.5, 0.5);
-        // driveRotationPIDController.setTolerance(3.5);
-        driveRotationPIDController.setTolerance(0.0);
-        driveRotationPIDController.enableContinuousInput(-180.0, 180.0);
-
-        driveTranslationYPIDController.setIntegratorRange(-0.6, 0.6);
-        driveTranslationYPIDController.setTolerance(0.0);
-        driveTranslationYPIDController.enableContinuousInput(-180.0, 180.0);
-
-        driveTranslationXPIDController.setIntegratorRange(-0.6, 0.6);
-        driveTranslationXPIDController.setTolerance(0.0);
-        driveTranslationXPIDController.enableContinuousInput(-180.0, 180.0);
     }
 
     @Override

@@ -67,7 +67,6 @@ public class Drivetrain extends SubsystemBase {
         private final SwerveDriveOdometry odometry;
 
         // CONTROL
-        private boolean autoLock = true;
         private ChassisSpeeds currentManualSetChassisSpeeds;
 
 
@@ -129,41 +128,15 @@ public class Drivetrain extends SubsystemBase {
 
         // This method is used to control the movement of the chassis.
         public void drive(ChassisSpeeds chassisSpeeds) {
-                if (driveNoX(chassisSpeeds)) {
-                        SwerveModuleState[] speeds = m_kinematics.toSwerveModuleStates(currentManualSetChassisSpeeds);
-                        SwerveDriveKinematics.desaturateWheelSpeeds(speeds, 0.0);
-                        setChassisState(speeds);
-
-                }
-                // setChassisState(DEFAULT_MODULE_STATES);
+                SwerveModuleState[] speeds = m_kinematics.toSwerveModuleStates(chassisSpeeds);
+                SwerveDriveKinematics.desaturateWheelSpeeds(speeds, MAX_VELOCITY_METERS_PER_SECOND);
+                setChassisState(speeds);
         }
 
-        public boolean driveNoX(ChassisSpeeds chassisSpeeds) { // X Break Formation
-                this.currentManualSetChassisSpeeds = chassisSpeeds;
-                if (this.autoLock)
-                        return false;
-                SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
-                SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
-
-                if (DriverStation.isAutonomous()) {
-                        setChassisState(states);
-                        return false;
-                }
-
-                for (SwerveModuleState state : states) {
-                        if (state.speedMetersPerSecond > 0.05) {
-                                setChassisState(states);
-                                return false;
-                        }
-                }
-
-                return true;
-        }
 
         // Sets the speeds and orientations of each swerve module.
         // array order: front left, front right, back left, back right
         public void setChassisState(SwerveModuleState[] states) {
-
                 m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                                 states[0].angle.getRadians());
                 m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
@@ -174,6 +147,7 @@ public class Drivetrain extends SubsystemBase {
                                 states[3].angle.getRadians());
 
         }
+
         public void setChassisState(double fLdeg, double fRdeg, double bLdeg, double bRdeg) {
                 setChassisState(
                                 new SwerveModuleState[] {

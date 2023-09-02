@@ -14,12 +14,13 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public class RobotContainer {
         // The robot's subsystems and commands are defined here...
 
         // not public or private so Robot.java has access to it.
-        private final Drivetrain drivetrain;
+        final Drivetrain drivetrain;
         private final DriveCommand driveCommand;
 
         private final ManualControls manualControls = new ManualControls(new XboxController(0), new XboxController(1));
@@ -31,8 +32,8 @@ public class RobotContainer {
         public RobotContainer() {
                 drivetrain = new Drivetrain();
                 driveCommand = new DriveCommand(drivetrain, manualControls);
-                drivetrain.setDefaultCommand(driveCommand);
 
+                drivetrain.setDefaultCommand(driveCommand);
         }
 
 

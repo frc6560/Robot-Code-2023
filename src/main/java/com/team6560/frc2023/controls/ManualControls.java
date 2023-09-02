@@ -184,6 +184,4 @@ public class ManualControls implements DriveCommand.Controls {
     return xbox.getBackButton();
   }
 
-  }
-
 }
