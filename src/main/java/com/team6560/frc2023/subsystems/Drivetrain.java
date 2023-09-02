@@ -66,8 +66,6 @@ public class Drivetrain extends SubsystemBase {
         // ODOMETRY
         private final SwerveDriveOdometry odometry;
 
-        // CONTROL
-        private ChassisSpeeds currentManualSetChassisSpeeds;
 
 
         public Drivetrain() {

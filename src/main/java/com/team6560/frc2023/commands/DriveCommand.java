@@ -8,9 +8,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 public class DriveCommand extends CommandBase {
     private final Drivetrain drivetrain;
 
-    /**
-     * Interface for defining the controls for the drive command.
-     */
+
     public static interface Controls {
         double driveX();
 
@@ -27,13 +25,7 @@ public class DriveCommand extends CommandBase {
 
     private Controls controls;
 
-
-    /**
-     * Creates a new `DriveCommand` instance.
-     *
-     * @param drivetrainSubsystem the `Drivetrain` subsystem used by the command
-     * @param controls            the controls for the command
-     */
+    
     public DriveCommand(Drivetrain drivetrainSubsystem, Controls controls) {
         this.drivetrain = drivetrainSubsystem;
         this.controls = controls;
@@ -51,8 +43,9 @@ public class DriveCommand extends CommandBase {
             drivetrain.zeroGyroscope();
         }
 
-        if (controls.driveResetGlobalPose())
+        if (controls.driveResetGlobalPose()){
             drivetrain.resetOdometry(new Pose2d());
+        }
 
 
         drivetrain.drive(
