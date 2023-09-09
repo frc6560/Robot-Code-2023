@@ -271,7 +271,7 @@ public class IntakeCommand extends CommandBase {
       intake.setIntakeState(IntakePose.HANDOFF_CONE);
     }
 
-    if(flag1 && armCommand.hasObject(false)){
+    if(flag1 && intake.atSetpoint() && armCommand.hasObject(false)){
       flag2 = true;
     }
     if(flag2){
