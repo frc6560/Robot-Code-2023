@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class ManualControls implements DriveCommand.Controls, Limelight.Controls, ArmCommand.Controls, IntakeCommand.Controls, LightItUpUpUpLightItUpUpUpCommand.Controls {
   private XboxController xbox;
+  private XboxController controlStation;
 
   private final PovNumberStepper speed;
   private final PovNumberStepper turnSpeed;
@@ -36,7 +37,6 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   private NetworkTable intakeTable;
 
-  private XboxController controlStation;
 
   private NetworkTable armTable;
 
