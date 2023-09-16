@@ -230,7 +230,7 @@ public class IntakeCommand extends CommandBase {
       armCommand.setArmState(ArmPose.CLEARANCE);
     }
 
-    if(armCommand.isArmAtSetpoint()){
+    if(armCommand.isArmAtSetpoint() || armCommand.canRunIntake()){
       flag1 = true;
     }
     if(flag1){
