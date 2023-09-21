@@ -6,15 +6,11 @@ package com.team6560.frc2023.commands.auto;
 
 import java.util.List;
 import java.util.HashMap;
-import java.util.List;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
-import com.pathplanner.lib.PathPlannerTrajectory.StopEvent;
-import com.pathplanner.lib.PathPlannerTrajectory.StopEvent.ExecutionBehavior;
-import com.pathplanner.lib.PathPlannerTrajectory.StopEvent.WaitBehavior;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.team6560.frc2023.Constants;
@@ -26,41 +22,19 @@ import com.team6560.frc2023.subsystems.Arm.ArmPose;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
-/**
- * 
- * The AutoBuilder class generates commands for autonomous actions using a
- * Drivetrain and path planning.
- * 
- * It uses a HashMap to store "marker" events and corresponding actions, as well
- * as a SwerveAutoBuilder for generating path following commands.
- */
+
 public class AutoBuilder {
 
-  /**
-   * 
-   * A HashMap containing "marker" events and corresponding actions.
-   */
   private HashMap<String, Command> eventMap;
 
 
-  /**
-   * 
-   * An instance of SwerveAutoBuilder used to generate path following commands.
-   */
   private SwerveAutoBuilder autoBuilder;
 
-  /**
-   * 
-   * An instance of Drivetrain that represents the drive subsystem.
-   */
   private Drivetrain drivetrain;
 
   private Arm arm;
@@ -68,14 +42,7 @@ public class AutoBuilder {
 
   private SwerveAutoBuilder teleopAutoBuilder;
 
-  /**
-   * 
-   * Constructor for AutoBuilder class. Initializes eventMap, autoBuilder, and
-   * drivetrain.
-   * 
-   * @param drivetrain An instance of Drivetrain that represents the drive
-   *                   ubsystem.
-   */
+
   public AutoBuilder(Drivetrain drivetrain, Arm arm, Intake intake) {
     this.drivetrain = drivetrain;
     this.arm = arm;
@@ -83,9 +50,6 @@ public class AutoBuilder {
 
     eventMap = new HashMap<>();
     eventMap.put("printCommand", new PrintCommand("test Print command"));
-    // eventMap.put("PLACE_CONE_HIGH", new RunCommand( () ->
-    // arm.setArmState(ArmPose.HIGH_CONE), arm).until( () ->
-    // arm.isArmAtSetpoint()));
     eventMap.put("PLACE_CONE_HIGH", new MoveArmToPoseCommand(arm, ArmPose.HIGH_CONE, true));
     eventMap.put("PLACE_CONE_MID", new MoveArmToPoseCommand(arm, ArmPose.MEDIUM_CONE, true));
     eventMap.put("PLACE_CUBE_LOW", new MoveArmToPoseCommand(arm, ArmPose.LOW_CUBE, true));
@@ -108,8 +72,6 @@ public class AutoBuilder {
 
 
     eventMap.put("DEFAULT", new MoveArmToPoseCommand(arm, ArmPose.DEFAULT));
-    
-    drivetrain.setBatteryBullshit(false);
 
     autoBuilder = new SwerveAutoBuilder(
         () -> drivetrain.getOdometryPose2dNoApriltags(), // Pose2d supplier TODO: possibly revert back to no apriltags

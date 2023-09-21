@@ -35,7 +35,6 @@ public class ChargingStationAuto extends CommandBase {
 
   @Override
   public void initialize() {
-    drivetrain.setBatteryBullshit(false);
   }
 
   @Override
