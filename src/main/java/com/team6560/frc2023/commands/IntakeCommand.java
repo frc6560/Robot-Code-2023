@@ -1,20 +1,20 @@
 package com.team6560.frc2023.commands;
 
-import com.team6560.frc2023.Constants;
+// import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.Constants.*;
 import com.team6560.frc2023.subsystems.Arm;
 import com.team6560.frc2023.subsystems.Arm.ArmPose;
-import com.team6560.frc2023.subsystems.ArmState;
-import com.team6560.frc2023.subsystems.GamePiece;
+// import com.team6560.frc2023.subsystems.ArmState;
+// import com.team6560.frc2023.subsystems.GamePiece;
 import com.team6560.frc2023.subsystems.Intake;
 import com.team6560.frc2023.subsystems.Intake.IntakePose;
-import com.team6560.frc2023.utility.NetworkTable.NtValueDisplay;
-import com.team6560.frc2023.subsystems.IntakeState;
+// import com.team6560.frc2023.utility.NetworkTable.NtValueDisplay;
+// import com.team6560.frc2023.subsystems.IntakeState;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Timer;
+// import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class IntakeCommand extends CommandBase {
@@ -46,7 +46,7 @@ public class IntakeCommand extends CommandBase {
 
   private boolean handing = false;
 
-  private boolean armGotObject = false;
+  // private boolean armGotObject = false;
 
   private NetworkTable nTable = NetworkTableInstance.getDefault().getTable("Intake");
   private NetworkTableEntry ntOverideToggle;
@@ -56,7 +56,7 @@ public class IntakeCommand extends CommandBase {
 
   private NetworkTableEntry ntSignalLight;
 
-  private final Timer coneTimer = new Timer();
+  // private final Timer coneTimer = new Timer();
 
   public IntakeCommand(Intake intake, ArmCommand armCommand, Controls controls) {
     this.intake = intake;

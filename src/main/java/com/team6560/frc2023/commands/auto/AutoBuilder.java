@@ -6,15 +6,15 @@ package com.team6560.frc2023.commands.auto;
 
 import java.util.List;
 import java.util.HashMap;
-import java.util.List;
+// import java.util.List;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
-import com.pathplanner.lib.PathPlannerTrajectory.StopEvent;
-import com.pathplanner.lib.PathPlannerTrajectory.StopEvent.ExecutionBehavior;
-import com.pathplanner.lib.PathPlannerTrajectory.StopEvent.WaitBehavior;
+// import com.pathplanner.lib.PathPlannerTrajectory.StopEvent;
+// import com.pathplanner.lib.PathPlannerTrajectory.StopEvent.ExecutionBehavior;
+// import com.pathplanner.lib.PathPlannerTrajectory.StopEvent.WaitBehavior;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.team6560.frc2023.Constants;
@@ -26,12 +26,12 @@ import com.team6560.frc2023.subsystems.Arm.ArmPose;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.Trajectory;
+// import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+// import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
+// import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 /**

@@ -1,7 +1,7 @@
 package com.team6560.frc2023.commands;
 
 import java.util.ArrayList;
-import java.util.Optional;
+// import java.util.Optional;
 
 import com.team6560.frc2023.Constants;
 import com.team6560.frc2023.commands.auto.AutoBuilder;
@@ -10,17 +10,17 @@ import com.team6560.frc2023.subsystems.Limelight;
 import com.team6560.frc2023.utility.Util;
 import com.team6560.frc2023.utility.NetworkTable.NtValueDisplay;
 
-import edu.wpi.first.apriltag.AprilTag;
-import edu.wpi.first.math.MathUtil;
+// import edu.wpi.first.apriltag.AprilTag;
+// import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
+// import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
+// import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
+// import edu.wpi.first.math.geometry.Transform2d;
+// import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+// import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -77,17 +77,17 @@ public class DriveCommand extends CommandBase {
     private PIDController driveTranslationYPIDController = new PIDController(0.13, 0.02, 0.0);
     private PIDController driveTranslationXPIDController = new PIDController(0.13, 0.02, 0.0);
 
-    private boolean rotationIsPosition = true;
+    // private boolean rotationIsPosition = true;
 
     private double lastRotationTheta;
 
     private boolean isOverridingAngle = true;
 
-    private double lastTranslationY;
+    // private double lastTranslationY;
 
     private boolean isOverridingTranslation;
 
-    private double lastTranslationX;
+    // private double lastTranslationX;
 
     private boolean autoAlignReady;
 
@@ -178,7 +178,7 @@ public class DriveCommand extends CommandBase {
 
     public void translateY(double translationY) {
 
-        lastTranslationY = translationY;
+        // lastTranslationY = translationY;
 
         // double thing = MathUtil.inputModulus(current - lastRotationTheta, -180, 180);
 
@@ -212,18 +212,18 @@ public class DriveCommand extends CommandBase {
         if (limelight.getTargetArea() < 0.5)
             translationX += translationX > 0 ? 14.35 : -14.35;
 
-        lastTranslationY = translationY;
-        lastTranslationX = translationX;
+        // lastTranslationY = translationY;
+        // lastTranslationX = translationX;
 
         // double thing = MathUtil.inputModulus(current - lastRotationTheta, -180, 180);
 
         double calculatedTranslationY = driveTranslationYPIDController.calculate(translationY, 0);
-        double calculatedTranslationX = driveTranslationXPIDController.calculate(translationX, 0);
+        // double calculatedTranslationX = driveTranslationXPIDController.calculate(translationX, 0);
 
         // System.out.println(driveRotationPIDController.getPositionError());
 
         if (!limelight.hasTarget() || Math.abs(driveRotationPIDController.getPositionError()) > 7.5) {
-            calculatedTranslationX = 0.0;
+            // calculatedTranslationX = 0.0;
             calculatedTranslationY = 0.0;
         }
 

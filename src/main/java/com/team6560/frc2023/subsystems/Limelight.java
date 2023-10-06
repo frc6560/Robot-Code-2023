@@ -7,18 +7,18 @@ package com.team6560.frc2023.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
+// import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation2d;
+// import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.util.Units;
+// import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
+// import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
+// import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -51,13 +51,13 @@ public class Limelight extends SubsystemBase {
   // private final Field2d reflectiveTapeField = new Field2d();
 
   private final Controls controls;
-  private boolean forceOff = true;
+  // private boolean forceOff = true;
 
-  private Supplier<Pose2d> predictedPose;
+  // private Supplier<Pose2d> predictedPose;
 
   public Limelight(Controls controls, Supplier<Pose2d> predictedPose) {
     this.controls = controls;
-    this.predictedPose = predictedPose;
+    // this.predictedPose = predictedPose;
     
     setForceOff(false);
 
@@ -99,7 +99,7 @@ public class Limelight extends SubsystemBase {
   }
 
   public void setForceOff(boolean value) {
-    forceOff = value;
+    // forceOff = value;
   }
 
   public Pose3d getTargetPoseRobotSpace() {

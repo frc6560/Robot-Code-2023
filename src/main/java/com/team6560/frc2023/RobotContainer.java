@@ -12,8 +12,8 @@ import com.team6560.frc2023.commands.DriveCommand;
 import com.team6560.frc2023.commands.IntakeCommand;
 import com.team6560.frc2023.commands.LightItUpUpUpLightItUpUpUpCommand;
 import com.team6560.frc2023.commands.auto.AutoBuilder;
-import com.team6560.frc2023.commands.auto.IntakeInitAuto;
-import com.team6560.frc2023.commands.auto.IntakePickupAuto;
+// import com.team6560.frc2023.commands.auto.IntakeInitAuto;
+// import com.team6560.frc2023.commands.auto.IntakePickupAuto;
 import com.team6560.frc2023.controls.ManualControls;
 import com.team6560.frc2023.subsystems.Arm;
 import com.team6560.frc2023.subsystems.Drivetrain;
@@ -21,14 +21,14 @@ import com.team6560.frc2023.subsystems.Intake;
 import com.team6560.frc2023.subsystems.LightItUpUpUpLightItUpUpUp;
 import com.team6560.frc2023.subsystems.Limelight;
 
-import edu.wpi.first.wpilibj.Joystick;
+// import edu.wpi.first.wpilibj.Joystick;
 // import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 // import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+// import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class RobotContainer {
         // The robot's subsystems and commands are defined here...

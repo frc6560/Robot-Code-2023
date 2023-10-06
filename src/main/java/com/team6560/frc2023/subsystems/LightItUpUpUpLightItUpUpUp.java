@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix.led.CANdle;
 import com.team6560.frc2023.Constants;
-import com.team6560.frc2023.controls.ManualControls;
+// import com.team6560.frc2023.controls.ManualControls;
 
 public class LightItUpUpUpLightItUpUpUp extends SubsystemBase {
   private final CANdle candle;
