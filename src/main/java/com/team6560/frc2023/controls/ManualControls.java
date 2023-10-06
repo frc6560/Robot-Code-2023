@@ -5,9 +5,9 @@
 package com.team6560.frc2023.controls;
 
 import com.team6560.frc2023.Constants;
-// import com.team6560.frc2023.Constants.*;
+import com.team6560.frc2023.Constants.*;
 import com.team6560.frc2023.subsystems.Arm.ArmPose;
-// import com.team6560.frc2023.subsystems.Intake.IntakePose;
+import com.team6560.frc2023.subsystems.Intake.IntakePose;
 import com.team6560.frc2023.subsystems.Limelight;
 import com.team6560.frc2023.commands.DriveCommand;
 import com.team6560.frc2023.utility.NumberStepper;
@@ -20,7 +20,7 @@ import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
-// import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
@@ -31,7 +31,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
   private final PovNumberStepper speed;
   private final PovNumberStepper turnSpeed;
 
-  // private NetworkTable limelightTable;
+  private NetworkTable limelightTable;
 
   private NetworkTable climbTable;
 
@@ -82,7 +82,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
       .add("Rotation Joystick", this::driveRotationX);
 
     
-    // limelightTable = NetworkTableInstance.getDefault().getTable("Limelight");
+    limelightTable = NetworkTableInstance.getDefault().getTable("Limelight");
     intakeTable = NetworkTableInstance.getDefault().getTable("Intake");
     armTable = NetworkTableInstance.getDefault().getTable("Arm");
     intakeTable.getEntry("speed").setDouble(0.0);
@@ -125,15 +125,15 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     return value;
   }
 
-  // private static double modifyAxis2(double value) {
-  //   // Deadband
-  //   value = deadband(value, 0.1);
+  private static double modifyAxis2(double value) {
+    // Deadband
+    value = deadband(value, 0.1);
 
-  //   // Square the axis
-  //   value = Math.copySign(value * value, value);
+    // Square the axis
+    value = Math.copySign(value * value, value);
 
-  //   return value;
-  // }
+    return value;
+  }
 
   /**
    * Returns the x component of the robot's velocity, as controlled by the Xbox

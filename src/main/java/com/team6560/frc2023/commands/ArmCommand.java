@@ -4,7 +4,7 @@
 
 package com.team6560.frc2023.commands;
 
-// import com.team6560.frc2023.Constants.IntakeConstants;
+import com.team6560.frc2023.Constants.IntakeConstants;
 import com.team6560.frc2023.subsystems.Arm;
 import com.team6560.frc2023.subsystems.Arm.ArmPose;
 

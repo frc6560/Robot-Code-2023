@@ -8,7 +8,7 @@ import com.team6560.frc2023.subsystems.Arm;
 import com.team6560.frc2023.subsystems.GamePiece;
 import com.team6560.frc2023.subsystems.Arm.ArmPose;
 
-// import edu.wpi.first.util.function.BooleanConsumer;
+import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
