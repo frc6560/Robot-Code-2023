@@ -84,7 +84,7 @@ public class Arm extends SubsystemBase {
 
     clawMotorR.restoreFactoryDefaults();
     clawMotorR.setIdleMode(IdleMode.kBrake);
-    clawMotorR.setInverted(true);
+    clawMotorL.setInverted(true);
 
     ntDispTab("Arm")
         .add("Break Motor Speed", this::getBreakMotorSpeed)
