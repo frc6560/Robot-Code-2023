@@ -46,6 +46,9 @@ public class IntakeInitAuto extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    fin = true;
+    if(true) return; // new intake
+
     if(closing){
       close();
       return;
