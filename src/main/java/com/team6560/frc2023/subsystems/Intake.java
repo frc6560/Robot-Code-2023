@@ -61,8 +61,6 @@ public class Intake extends SubsystemBase {
     pid.setSmartMotionMaxAccel(1000, 0);
     pid.setSmartMotionMaxVelocity(10000, 0);
     pid.setSmartMotionAllowedClosedLoopError(0.02, 0);
-
-    rightIntakeMotor.setInverted(true);
     
 
     leftIntakeMotor.follow(rightIntakeMotor, true);
