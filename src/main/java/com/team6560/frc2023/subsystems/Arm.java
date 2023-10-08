@@ -67,7 +67,7 @@ public class Arm extends SubsystemBase {
 
   public static HashMap<ArmPose, ArmState> armPoseMap = new HashMap<ArmPose, ArmState>();
 
-  private static final double DEFAULT_TOP_SOFT_LIMIT = 235.0;
+  private static final double DEFAULT_TOP_SOFT_LIMIT = 210.0;
   public static final double ALLOWED_ERROR = 4.5;
 
   // private PIDController armPidController = new PIDController(25.0, 7.25, 6.0);
@@ -84,7 +84,7 @@ public class Arm extends SubsystemBase {
 
     clawMotorR.restoreFactoryDefaults();
     clawMotorR.setIdleMode(IdleMode.kBrake);
-    clawMotorR.setInverted(true);
+    clawMotorL.setInverted(true);
 
     ntDispTab("Arm")
         .add("Break Motor Speed", this::getBreakMotorSpeed)
@@ -133,8 +133,8 @@ public class Arm extends SubsystemBase {
     armPoseMap.put(ArmPose.HUMAN_PLAYER_CUBE, new ArmState(0.804, false, 0.85));
     armPoseMap.put(ArmPose.HUMAN_PLAYER_CONE, new ArmState(0.798, false, 1.3));
 
-    armPoseMap.put(ArmPose.INTAKE_CONE, new ArmState(0.36, false, 1.3));
-    armPoseMap.put(ArmPose.INTAKE_CUBE, new ArmState(0.145, false, 0.5));
+    armPoseMap.put(ArmPose.INTAKE_CONE, new ArmState(0.347, false, 1.3));
+    armPoseMap.put(ArmPose.INTAKE_CUBE, new ArmState(0.1375, false, 0.5));
 
     armPoseMap.put(ArmPose.CLEARANCE, new ArmState(IntakeConstants.ROTATION_ARM_CLEARANCE, false, 1.0));
     // armPidController.disableContinuousInput();

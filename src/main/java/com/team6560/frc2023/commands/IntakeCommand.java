@@ -77,11 +77,12 @@ public class IntakeCommand extends CommandBase {
 
   @Override
   public void initialize() {
-    if(Math.abs(intake.getIntakePosition() ) < IntakeConstants.INTAKE_ACCEPTABLE_ERROR && Math.abs(armCommand.getArmPosition()) < Arm.ALLOWED_ERROR){
-      initializing = true;
-    } else {
-      initializing = false;
-    }
+    // if(Math.abs(intake.getIntakePosition() ) < IntakeConstants.INTAKE_ACCEPTABLE_ERROR && Math.abs(armCommand.getArmPosition()) < Arm.ALLOWED_ERROR){
+    //   initializing = true;
+    // } else {
+    //   initializing = false;
+    // }
+    initializing = false;
   }
 
   @Override
@@ -91,7 +92,7 @@ public class IntakeCommand extends CommandBase {
     if(controls.isOverridingIntake()){
       double edgeWarningThreshold = 0.05;
 
-      intake.setIntakeOveride(controls.overideIntake()/5);
+      intake.setIntakeOveride(controls.overideIntake()/4);
       intake.setSuckMotor(0.1);
 
       if(intake.getIntakePosition() < edgeWarningThreshold || (1-intake.getIntakePosition()) < edgeWarningThreshold){
