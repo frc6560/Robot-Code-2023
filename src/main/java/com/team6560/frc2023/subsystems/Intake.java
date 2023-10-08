@@ -46,8 +46,8 @@ public class Intake extends SubsystemBase {
     rightIntakeMotor.restoreFactoryDefaults();
     rightIntakeMotor.getEncoder().setPosition(INTAKE_START_POSITION);
 
-    rightIntakeMotor.setSmartCurrentLimit(12);
-    leftIntakeMotor.setSmartCurrentLimit(12);
+    rightIntakeMotor.setSmartCurrentLimit(25);
+    leftIntakeMotor.setSmartCurrentLimit(25);
 
     SparkMaxPIDController pid = rightIntakeMotor.getPIDController();
 
