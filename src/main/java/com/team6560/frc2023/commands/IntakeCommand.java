@@ -153,7 +153,6 @@ public class IntakeCommand extends CommandBase {
 
     if(armCommand.canRunIntake()){
       intake.setIntakeState(IntakePose.RETRACTED);
-      
       if(intake.atSetpoint() && intake.getCurrentPose() == IntakePose.RETRACTED){
         initializing = false;
         armCommand.setArmState(ArmPose.DEFAULT);
