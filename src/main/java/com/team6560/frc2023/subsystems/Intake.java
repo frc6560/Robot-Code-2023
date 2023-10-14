@@ -46,8 +46,8 @@ public class Intake extends SubsystemBase {
     rightIntakeMotor.restoreFactoryDefaults();
     rightIntakeMotor.getEncoder().setPosition(INTAKE_START_POSITION);
 
-    rightIntakeMotor.setSmartCurrentLimit(25);
-    leftIntakeMotor.setSmartCurrentLimit(25);
+    rightIntakeMotor.setSmartCurrentLimit(14);
+    leftIntakeMotor.setSmartCurrentLimit(14);
 
     SparkMaxPIDController pid = rightIntakeMotor.getPIDController();
 
@@ -75,7 +75,7 @@ public class Intake extends SubsystemBase {
     .add("has ball", this::hasObject);
     
       intakePoseMap.put(IntakePose.EXTENDED_CUBE, new IntakeState(0.86, 0.9, ArmPose.DEFAULT));
-      intakePoseMap.put(IntakePose.EXTENDED_CONE, new IntakeState(0.9, -0.8, ArmPose.DEFAULT));
+      intakePoseMap.put(IntakePose.EXTENDED_CONE, new IntakeState(1.053, -0.8, ArmPose.DEFAULT));
       intakePoseMap.put(IntakePose.RETRACTED, new IntakeState(-0.22, 0.0, ArmPose.NONE));
       intakePoseMap.put(IntakePose.HANDOFF_CONE, new IntakeState(0.45, -0.6, ArmPose.INTAKE_CONE));
       intakePoseMap.put(IntakePose.CLEARANCE, new IntakeState(1.015, 0.0, ArmPose.CLEARANCE));
