@@ -61,7 +61,7 @@ public class Arm extends SubsystemBase {
   private double currentReference;
 
   public enum ArmPose {
-    ZERO, DEFAULT, GROUND_CONE, LOW_CUBE, LOW_CONE, MEDIUM_CONE, HIGH_CONE, MEDIUM_CUBE, HIGH_CUBE, HUMAN_PLAYER_CONE,
+    ZERO, DEFAULT, GROUND_CONE, LOW_CUBE, LOW_CONE, MEDIUM_CONE, HIGH_CONE, MEDIUM_CUBE, HIGH_CUBE, HUMAN_PLAYER_CONE, DOUBLE_SUB_CONE,
     NONE, HUMAN_PLAYER_CUBE, GROUND_CUBE, INTAKE_CONE, INTAKE_CUBE, CLEARANCE
   }
 
@@ -132,6 +132,7 @@ public class Arm extends SubsystemBase {
 
     armPoseMap.put(ArmPose.HUMAN_PLAYER_CUBE, new ArmState(0.804, false, 0.85));
     armPoseMap.put(ArmPose.HUMAN_PLAYER_CONE, new ArmState(0.798, false, 1.3));
+    armPoseMap.put(ArmPose.DOUBLE_SUB_CONE, new ArmState(0.798, false, 1.3));
 
     armPoseMap.put(ArmPose.INTAKE_CONE, new ArmState(0.347, false, 1.3));
     armPoseMap.put(ArmPose.INTAKE_CUBE, new ArmState(0.1375, false, 0.5));

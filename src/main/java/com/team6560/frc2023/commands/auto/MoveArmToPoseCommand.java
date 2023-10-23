@@ -42,7 +42,7 @@ public class MoveArmToPoseCommand extends CommandBase {
       this.gamePiece = GamePiece.CUBE;
     }
 
-    if(armPose == ArmPose.LOW_CONE || armPose == ArmPose.HIGH_CONE || armPose == ArmPose.GROUND_CONE || armPose == ArmPose.INTAKE_CONE || armPose == ArmPose.MEDIUM_CONE || armPose == ArmPose.HUMAN_PLAYER_CONE) {
+    if(armPose == ArmPose.LOW_CONE || armPose == ArmPose.HIGH_CONE || armPose == ArmPose.GROUND_CONE || armPose == ArmPose.INTAKE_CONE || armPose == ArmPose.MEDIUM_CONE || armPose == ArmPose.HUMAN_PLAYER_CONE || armPose == ArmPose.DOUBLE_SUB_CONE) {
       this.gamePiece = GamePiece.CONE;
     }
 
