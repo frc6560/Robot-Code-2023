@@ -237,7 +237,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
   @Override
   public double runClaw(){
-    return (controlStation.getRightBumper() ? 1 : (xbox.getRightTriggerAxis() > 0.5 ? -0.3 : 0));
+    return (controlStation.getRightBumper() ? 0.7 : (xbox.getRightTriggerAxis() > 0.5 ? -0.21 : 0));
   }
 
   @Override
