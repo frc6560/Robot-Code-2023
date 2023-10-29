@@ -235,22 +235,6 @@ public class DriveCommand extends CommandBase {
                         drivetrain.getGyroscopeRotation()));
     }
 
-    public void autoAlign() {
-        double xAngle;
-        double rotation;
-
-        if (drivetrain.getPose().getX() < Constants.FieldConstants.length / 2.0) {
-            xAngle = -limelight.getHorizontalAngle();
-            rotation = 180.0;
-        } else {
-            xAngle = limelight.getHorizontalAngle();
-            rotation = 0.0;
-        }
-
-        double yAngle = limelight.getVerticalAngle();
-
-        translateAndRotate(xAngle, yAngle, rotation);
-    }
 
     public void autoAlign2(boolean isLeft) {
         Pose2d estimatedGlobalPose = drivetrain.getPose();
@@ -273,7 +257,7 @@ public class DriveCommand extends CommandBase {
 
         Pose2d desiredPose = estimatedGlobalPose.nearest(possibleLocations);
 
-        goToPoseAutoCommand = autoBuilder.goToPose(desiredPose, new Rotation2d(0));
+        goToPoseAutoCommand = autoBuilder.goToPose(desiredPose);
 
     }
 

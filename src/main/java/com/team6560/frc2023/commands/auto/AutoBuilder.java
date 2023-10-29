@@ -349,12 +349,13 @@ public class AutoBuilder {
   }
 
   
-  public Command goToPose(Pose2d desiredPose, Rotation2d heading) {
+  public Command goToPose(Pose2d desiredPose) {
 
     Pose2d currPose = drivetrain.getPose();
 
     ChassisSpeeds currChassisSpeeds = drivetrain.getChassisSpeeds();
 
+    Rotation2d heading = Rotation2d.fromRadians(Math.atan2(currChassisSpeeds.vyMetersPerSecond, currChassisSpeeds.vxMetersPerSecond));
     double currSpeed = Math.abs(Math.hypot(currChassisSpeeds.vxMetersPerSecond, currChassisSpeeds.vyMetersPerSecond));
 
     PathPlannerTrajectory traj = PathPlanner.generatePath(
