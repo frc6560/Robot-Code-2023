@@ -272,7 +272,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
     // return xbox.getBButton() ? ArmPose.MEDIUM_CONE : ArmPose.ZERO;
     
-    if (controlStation.getXButton())
+    if (controlStation.getBButton())
       return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.MEDIUM_CUBE : ArmPose.MEDIUM_CONE;
     
     if (controlStation.getYButton())
@@ -281,7 +281,7 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     if (controlStation.getAButton())
       return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.LOW_CUBE : ArmPose.LOW_CONE;
     
-    if (controlStation.getBButton())
+    if (controlStation.getXButton())
       return controlStation.getLeftTriggerAxis() > 0.5 ? ArmPose.HUMAN_PLAYER_CUBE : ArmPose.HUMAN_PLAYER_CONE;
 
     // if (controlStation.getRightY() < -0.5)
