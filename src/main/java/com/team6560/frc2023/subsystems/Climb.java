@@ -40,6 +40,9 @@ public class Climb extends SubsystemBase {
 
   /** Creates a new Climb. */
   public Climb() {
+    maxClimbRotation = 0.0;
+    minClimbRotation = 0.0;
+
     ClimbMotorLeft = new WPI_TalonFX(Constants.LEFT_CLIMB_MOTOR);
     ClimbMotorRight = new WPI_TalonFX(Constants.RIGHT_CLIMB_MOTOR);
 
@@ -50,8 +53,8 @@ public class Climb extends SubsystemBase {
 
     ClimbMotorLeft.setSelectedSensorPosition(0);
 
-    ClimbMotorLeft.config_kP(0, 0.1);
-    ClimbMotorLeft.config_kI(0, 0.0);
+    ClimbMotorLeft.config_kP(0, 0.1); // Dont need these, make it manual control not auto
+    ClimbMotorLeft.config_kI(0, 0.0); //      so you only need open loop speed control
     ClimbMotorLeft.config_kD(0, 0.0);
     ClimbMotorLeft.config_kF(0, 0);
 
@@ -60,24 +63,10 @@ public class Climb extends SubsystemBase {
     ClimbMotorRight.follow(ClimbMotorLeft);
     ClimbMotorRight.setInverted(InvertType.OpposeMaster);
 
+    // Set climb motors neutral mode to kBreak
 
-
-
-
-
-    maxClimbRotation = 0.0;
-    minClimbRotation = 0.0;
-
-
-
-
-
-
-
-
-
-
-
+    // ClimbMotorLeft.configForwardSoftLimitThreshold(maxClimbRotation);  // try using these for soft limits
+    // ClimbMotorLeft.configReverseSoftLimitThreshold(minClimbRotation);
 
 
     ntDispTab("Climb")
@@ -95,9 +84,9 @@ public class Climb extends SubsystemBase {
 
 
 
-  public void setPos(double targetPosRotation) {
+  public void setPos(double targetPosRotation) { // Instead of position control use velocity control
 
-    if (targetPosRotation > maxClimbRotation) {
+    if (targetPosRotation > maxClimbRotation) {  // Try using the build in soft limits (line 66)
       targetPosRotation = maxClimbRotation;
     } else if (targetPosRotation < minClimbRotation) {
       targetPosRotation = minClimbRotation;
