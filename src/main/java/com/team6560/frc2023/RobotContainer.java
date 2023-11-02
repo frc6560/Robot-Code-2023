@@ -5,6 +5,7 @@
 package com.team6560.frc2023;
 
 import com.team6560.frc2023.commands.ArmCommand;
+import com.team6560.frc2023.commands.ClimbCommand;
 
 // import java.io.File;
 
@@ -16,6 +17,7 @@ import com.team6560.frc2023.commands.auto.IntakeInitAuto;
 import com.team6560.frc2023.commands.auto.IntakePickupAuto;
 import com.team6560.frc2023.controls.ManualControls;
 import com.team6560.frc2023.subsystems.Arm;
+import com.team6560.frc2023.subsystems.Climb;
 import com.team6560.frc2023.subsystems.Drivetrain;
 import com.team6560.frc2023.subsystems.Intake;
 import com.team6560.frc2023.subsystems.LightItUpUpUpLightItUpUpUp;
@@ -44,6 +46,14 @@ public class RobotContainer {
 
         private final Arm arm;
 
+
+
+
+
+
+
+        private final Climb climb;
+
         private final ManualControls manualControls = new ManualControls(new XboxController(0), new XboxController(1));
 
 
@@ -58,6 +68,23 @@ public class RobotContainer {
         private LightItUpUpUpLightItUpUpUp candlesubsystem;
 
         private LightItUpUpUpLightItUpUpUpCommand candlecommand;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        private ClimbCommand climbCommand;
+        
 
 
         /**
@@ -78,6 +105,16 @@ public class RobotContainer {
 
                 driveCommand = new DriveCommand(drivetrain, autoBuilder, limelight, manualControls);
                 drivetrain.setDefaultCommand(driveCommand);
+
+
+
+
+
+
+
+
+                climb = new Climb();
+                climbCommand = new ClimbCommand(climb, manualControls);
 
 
                 intakeCommand = new IntakeCommand(intake, armCommand, manualControls);

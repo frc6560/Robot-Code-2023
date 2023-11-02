@@ -137,6 +137,22 @@ public final class Constants {
 
   public static final int CANdleId = 0;
 
+public static final double TALONFX_POS_TO_ROTATION = 2048;
+
+public static final int LEFT_CLIMB_MOTOR = 0;
+
+public static final int RIGHT_CLIMB_MOTOR = 0;
+
+
+
+
+
+
+
+
+
+
+
   public static AprilTagFieldLayout APRIL_TAG_FIELD_LAYOUT;
   static {
     try {
