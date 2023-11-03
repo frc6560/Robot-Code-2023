@@ -6,6 +6,9 @@ package com.team6560.frc2023.commands;
 
 import com.team6560.frc2023.subsystems.Climb;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class ClimbCommand extends CommandBase {
@@ -16,14 +19,24 @@ public class ClimbCommand extends CommandBase {
 
   private Climb climb;
 
+  NetworkTable ntTable = NetworkTableInstance.getDefault().getTable("Climb");
+  NetworkTableEntry climbSpeed;
+
+  final double DEFAULT_CLIMB_SPEED = 0.2;
+
   public static interface Controls {
-    boolean putClimbUp();
-    boolean putClimbDown();
+    double getClimb();
   }
 
   /** Creates a new ClimbCommand. */
   public ClimbCommand(Climb climb, Controls controls) {
-    // Use addRequirements() here to declare subsystem dependencies.
+    this.climb = climb;
+    this.controls = controls;
+
+    addRequirements(climb);
+
+    climbSpeed = ntTable.getEntry("Climb Speed");
+    climbSpeed.setDouble(DEFAULT_CLIMB_SPEED);
   }
 
   // Called when the command is initially scheduled.
@@ -34,18 +47,13 @@ public class ClimbCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (controls.putClimbUp()) { // Change these to manual velocity control
-      climb.setPos(0.0);
-    }
-    if (controls.putClimbDown()) {
-      climb.setPos(0.0);
-      
-    }
+    climb.runClimb(controls.getClimb() * climbSpeed.getDouble(0.0));
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    climb.runClimb(0);
     // set climb velocity to 0
   }
 

@@ -345,15 +345,21 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
 
 
 
-  @Override
-  public boolean putClimbUp() {
-    return controlStation.getAButtonPressed();
-  }
+  // @Override
+  // public boolean putClimbUp() {
+  //   return controlStation.getAButtonPressed();
+  // }
+
+  // @Override
+  // public boolean putClimbDown() {
+  //   return controlStation.getBButtonPressed();
+  // }
 
   @Override
-  public boolean putClimbDown() {
-    return controlStation.getBButtonPressed();
+  public double getClimb(){
+    return controlStation.getPOV() == 0 ? 1 : controlStation.getPOV() == 180 ? -1 : 0;
   }
+
 
   @Override
   public boolean handOff() {

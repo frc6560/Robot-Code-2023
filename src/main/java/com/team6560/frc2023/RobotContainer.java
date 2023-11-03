@@ -70,19 +70,6 @@ public class RobotContainer {
         private LightItUpUpUpLightItUpUpUpCommand candlecommand;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
         private ClimbCommand climbCommand;
         
 
@@ -105,12 +92,6 @@ public class RobotContainer {
 
                 driveCommand = new DriveCommand(drivetrain, autoBuilder, limelight, manualControls);
                 drivetrain.setDefaultCommand(driveCommand);
-
-
-
-
-
-
 
 
                 climb = new Climb();
