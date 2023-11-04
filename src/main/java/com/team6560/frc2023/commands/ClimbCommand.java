@@ -47,6 +47,7 @@ public class ClimbCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    System.out.println(controls.getClimb() * climbSpeed.getDouble(0.0));
     climb.runClimb(controls.getClimb() * climbSpeed.getDouble(0.0));
   }
 

@@ -70,8 +70,8 @@ public class Climb extends SubsystemBase {
     ClimbMotorLeft.setNeutralMode(NeutralMode.Brake);
     ClimbMotorRight.setNeutralMode(NeutralMode.Brake);
 
-    ClimbMotorLeft.configForwardSoftLimitThreshold(maxClimbRotation);  // try using these for soft limits
-    ClimbMotorLeft.configReverseSoftLimitThreshold(minClimbRotation);
+    // ClimbMotorLeft.configForwardSoftLimitThreshold(maxClimbRotation);  // try using these for soft limits
+    // ClimbMotorLeft.configReverseSoftLimitThreshold(minClimbRotation);
 
 
     softLimits = ntTable.getEntry("Soft Limits");
@@ -116,6 +116,13 @@ public class Climb extends SubsystemBase {
 
   public void runClimb(double output){
     targetOut = output;
+
+    if(getClimbPose() > ntHigh.getDouble(0.0)){
+      output = Math.min(0,output);
+    } else if(getClimbPose() < ntLow.getDouble(0.0)){
+      output = Math.max(0,output);
+    } 
+
     ClimbMotorLeft.set(ControlMode.PercentOutput, output);
   }
 

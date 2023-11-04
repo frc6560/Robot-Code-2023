@@ -13,6 +13,7 @@ import com.team6560.frc2023.commands.DriveCommand;
 import com.team6560.frc2023.utility.NumberStepper;
 import com.team6560.frc2023.commands.ArmCommand;
 import com.team6560.frc2023.commands.IntakeCommand;
+import com.team6560.frc2023.commands.ClimbCommand;
 import com.team6560.frc2023.utility.PovNumberStepper;
 import com.team6560.frc2023.commands.LightItUpUpUpLightItUpUpUpCommand;
 import static com.team6560.frc2023.utility.NetworkTable.NtValueDisplay.ntDispTab;
@@ -24,7 +25,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
-public class ManualControls implements DriveCommand.Controls, Limelight.Controls, ArmCommand.Controls, IntakeCommand.Controls, LightItUpUpUpLightItUpUpUpCommand.Controls {
+public class ManualControls implements DriveCommand.Controls, Limelight.Controls, ArmCommand.Controls, IntakeCommand.Controls, LightItUpUpUpLightItUpUpUpCommand.Controls, ClimbCommand.Controls {
   private XboxController xbox;
 
   private final PovNumberStepper speed;
@@ -64,8 +65,8 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
       this.controlStation = controlStation;
 
     this.speed = new PovNumberStepper(
-        new NumberStepper(Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.4, 0.0,
-            Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.6, Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.025),
+        new NumberStepper(Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.6, 0.0,
+            Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.8, Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.025),
         xbox,
         PovNumberStepper.PovDirection.VERTICAL);
 
@@ -363,6 +364,13 @@ public class ManualControls implements DriveCommand.Controls, Limelight.Controls
     
     return intakeOverrideEngaged;
 
+  }
+
+  public double getClimb(){
+    double pov = controlStation.getPOV();
+    
+    System.out.println(pov);
+    return pov == 0 ? 1 : pov == 180 ? -1 : 0;
   }
 
 }

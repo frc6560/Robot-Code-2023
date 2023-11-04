@@ -137,6 +137,10 @@ public final class Constants {
 
   public static final int CANdleId = 0;
 
+  public static final int LEFT_CLIMB_MOTOR = 31;
+  public static final int RIGHT_CLIMB_MOTOR = 32;
+
+
   public static AprilTagFieldLayout APRIL_TAG_FIELD_LAYOUT;
   static {
     try {

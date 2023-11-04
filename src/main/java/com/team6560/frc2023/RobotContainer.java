@@ -5,6 +5,7 @@
 package com.team6560.frc2023;
 
 import com.team6560.frc2023.commands.ArmCommand;
+import com.team6560.frc2023.commands.ClimbCommand;
 
 // import java.io.File;
 
@@ -16,6 +17,7 @@ import com.team6560.frc2023.commands.auto.IntakeInitAuto;
 import com.team6560.frc2023.commands.auto.IntakePickupAuto;
 import com.team6560.frc2023.controls.ManualControls;
 import com.team6560.frc2023.subsystems.Arm;
+import com.team6560.frc2023.subsystems.Climb;
 import com.team6560.frc2023.subsystems.Drivetrain;
 import com.team6560.frc2023.subsystems.Intake;
 import com.team6560.frc2023.subsystems.LightItUpUpUpLightItUpUpUp;
@@ -46,6 +48,8 @@ public class RobotContainer {
 
         private final ManualControls manualControls = new ManualControls(new XboxController(0), new XboxController(1));
 
+        private final Climb climb;
+
 
         // A chooser for autonomous commands
         private final SendableChooser<Command> autoChooser;
@@ -55,6 +59,9 @@ public class RobotContainer {
         private IntakeCommand intakeCommand;
 
         private ArmCommand armCommand;
+
+        private ClimbCommand climbCommand;
+
         private LightItUpUpUpLightItUpUpUp candlesubsystem;
 
         private LightItUpUpUpLightItUpUpUpCommand candlecommand;
@@ -71,6 +78,8 @@ public class RobotContainer {
                 arm = new Arm();
                 intake = new Intake();
 
+                climb = new Climb();
+
                 armCommand = new ArmCommand(arm, manualControls);
                 arm.setDefaultCommand(armCommand);
 
@@ -82,6 +91,9 @@ public class RobotContainer {
 
                 intakeCommand = new IntakeCommand(intake, armCommand, manualControls);
                 intake.setDefaultCommand(intakeCommand);
+
+                climbCommand = new ClimbCommand(climb, manualControls);
+                climb.setDefaultCommand(climbCommand);
 
 
                 autoChooser = new SendableChooser<Command>();
