@@ -52,6 +52,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+// This class is used to control the swerve drive of the robot
 public class Drivetrain extends SubsystemBase {
         /**
          * The maximum voltage that will be delivered to the drive motors.
@@ -69,6 +70,7 @@ public class Drivetrain extends SubsystemBase {
 
         /**
          * The default states for each module, corresponding to an X shape.
+         * sets the default state of the swerve modules
          */
         public static final SwerveModuleState[] DEFAULT_MODULE_STATES = new SwerveModuleState[] {
                         new SwerveModuleState(0.0, Rotation2d.fromDegrees(45.0)),
@@ -111,8 +113,9 @@ public class Drivetrain extends SubsystemBase {
         private ChassisSpeeds currentManualSetChassisSpeeds;
 
         public Drivetrain(Supplier<Pair<Pose2d, Double>> poseSupplier) {
-                this.poseSupplier = poseSupplier;
 
+                this.poseSupplier = poseSupplier;
+                 // displays the gyro rotation on the shuffleboard
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
                 NtValueDisplay.ntDispTab("Drivetrain")
@@ -162,10 +165,10 @@ public class Drivetrain extends SubsystemBase {
                                 .withSteerEncoderPort(BACK_RIGHT_MODULE_STEER_ENCODER)
                                 .withSteerOffset(BACK_RIGHT_MODULE_STEER_OFFSET)
                                 .build();
-
+                // create an array of the swerve modules
                 modules = new SwerveModule[] { m_frontLeftModule, m_frontRightModule, m_backLeftModule,
                                 m_backRightModule };
-
+                // sets up the pose estimator, which is used to estimate the position of the robot on field
                 poseEstimator = new SwerveDrivePoseEstimator(m_kinematics,
                                 getRawGyroRotation(), getModulePositions(), new Pose2d(),
                                 new MatBuilder<N3, N1>(Nat.N3(), Nat.N1()).fill(0.115, 0.115, 0.115), // State measurement
@@ -177,9 +180,9 @@ public class Drivetrain extends SubsystemBase {
                                                                                                     // standard
                                                                                                     // deviations.
                                                                                                     // X, Y, theta.
-
+                // sets up odometry, which is used to track robot's position on field
                 odometry = new SwerveDriveOdometry(m_kinematics, getRawGyroRotation(), getModulePositions());
-
+                // sets up climb motors
                 climbExtensionMotorLeft = new CANSparkMax(24, CANSparkMaxLowLevel.MotorType.kBrushless);
 
                 climbExtensionMotorRight = new CANSparkMax(22, CANSparkMaxLowLevel.MotorType.kBrushless);
@@ -193,7 +196,7 @@ public class Drivetrain extends SubsystemBase {
 
 
                 
-
+                        // PID values for climb motors
                         climbDriveMotorLeft.restoreFactoryDefaults();
                         climbDriveMotorLeft.getPIDController().setFF(0.001);
                         climbDriveMotorLeft.getPIDController().setP(0.0);
@@ -205,13 +208,15 @@ public class Drivetrain extends SubsystemBase {
                         climbDriveMotorLeft.setIdleMode(IdleMode.kBrake);
                         climbDriveMotorRight.setIdleMode(IdleMode.kBrake);
 
-                
+                // right climb motor follows left climb motor
                 climbDriveMotorRight.follow(climbDriveMotorLeft);
+                
 
                 batteryBullshit = new Solenoid(PneumaticsModuleType.CTREPCM, 1); // TODO: CHANGE
 
                 resetOdometry(new Pose2d());
 
+                // displays climb position and state on Shuffleboard
                 SmartDashboard.putData("Field", field);
 
                 NtValueDisplay.ntDispTab("Climb")
@@ -221,7 +226,7 @@ public class Drivetrain extends SubsystemBase {
                                 .add("climbMotorVelocityRPM", () -> getClimbDriveMotorVelocityRPM())
                                 .add("batteryBullshitExtended", () -> isBatteryBullshitExtended());
         }
-
+        
         public boolean isClimbExtended() {
                 return Math.abs(climbExtensionMotorLeft.getEncoder().getPosition()) > 0.0;
         }
@@ -257,7 +262,8 @@ public class Drivetrain extends SubsystemBase {
         public boolean isBatteryBullshitExtended() {
                 return !batteryBullshit.get();
         }
-
+        
+        //calculates the speed and direction of rotation 
         public double getAverageModuleDriveAngularTangentialSpeed() {
                 double sum = 0;
                 double sign = 0;
@@ -268,11 +274,9 @@ public class Drivetrain extends SubsystemBase {
                 return Math.copySign(sum / modules.length, sign);
         }
 
-        /**
-         * Sets the gyroscope angle to zero. This can be used to set the direction the
-         * robot is currently facing to the
-         * 'forwards' direction.
-         */
+        
+         // Sets the gyroscope angle to zero
+         
         public void zeroGyroscope() {
                 // m_navx.zeroYaw();
                 // if (poseEstimator == null)
@@ -280,7 +284,7 @@ public class Drivetrain extends SubsystemBase {
                 resetOdometry(new Pose2d(getPose().getTranslation(), new Rotation2d(0.0)));
 
         }
-
+      
         public Rotation2d getRawGyroRotation() {
                 return Rotation2d.fromDegrees(pigeon.getYaw());
         }
@@ -352,11 +356,11 @@ public class Drivetrain extends SubsystemBase {
                 }
 
         }
-
+        // finds if robot is tilting up or down 
         public Rotation2d getPitch() {
                 return Rotation2d.fromDegrees(pigeon.getPitch());
         }
-
+        // finds if robot is tilting left or right
         public Rotation2d getRoll() {
                 return Rotation2d.fromDegrees(pigeon.getRoll());
         }
@@ -396,7 +400,7 @@ public class Drivetrain extends SubsystemBase {
                 }
                 // setChassisState(DEFAULT_MODULE_STATES);
         }
-
+        // sets chassis speed to desired speed 
         public boolean driveNoX(ChassisSpeeds chassisSpeeds) {
                 this.currentManualSetChassisSpeeds = chassisSpeeds;
                 if (this.autoLock)
@@ -475,7 +479,8 @@ public class Drivetrain extends SubsystemBase {
                 // ChassisSpeeds(speeds.vxMetersPerSecond,
                 // speeds.vyMetersPerSecond, -speeds.omegaRadiansPerSecond)));
         }
-
+        
+        // sets the chassis state 
         public void setChassisState(double fLdeg, double fRdeg, double bLdeg, double bRdeg) {
                 setChassisState(
                                 new SwerveModuleState[] {
@@ -542,6 +547,7 @@ public class Drivetrain extends SubsystemBase {
                 }
         }
 
+        // 
         public void setOverrideMaxVisionPoseCorrection(boolean overided) {
                 this.overrideMaxVisionPoseCorrection = overided;
         }
@@ -580,7 +586,7 @@ public class Drivetrain extends SubsystemBase {
         public void setAutoLock(boolean lock) {
                 this.autoLock = lock;
         }
-
+        // gets the limelight estimated position
         public Pose2d getLimelightEstimatedPosition() {
                 Pair<Pose2d, Double> result = poseSupplier.get();
                 if (result == null)
