@@ -74,6 +74,8 @@ public class Arm extends SubsystemBase {
 
   /** Creates a new Arm. */
   public Arm() {
+
+    
     breakMotor.restoreFactoryDefaults();
     // breakMotor.setInverted(true);
     breakMotor.setIdleMode(IdleMode.kBrake);
@@ -86,6 +88,7 @@ public class Arm extends SubsystemBase {
     clawMotorR.setIdleMode(IdleMode.kBrake);
     clawMotorL.setInverted(true);
 
+    // displays arm stuff on shuffleboard 
     ntDispTab("Arm")
         .add("Break Motor Speed", this::getBreakMotorSpeed)
         .add("Claw Speed Left", this::getClawSpeedL)
@@ -143,12 +146,13 @@ public class Arm extends SubsystemBase {
 
     final double zeroToFullTime = 0.35;
     breakMotor.setOpenLoopRampRate(zeroToFullTime);
-
+    
     breakMotorPid.setP(6.560e-8, 0);
     breakMotorPid.setI(1.06560e-9, 0);
     breakMotorPid.setD(6.560e-12, 0);
     breakMotorPid.setFF(0.003, 0);
 
+    // sets max velocity and acceleration 
     breakMotorPid.setSmartMotionMaxAccel(600.0, 0);
     breakMotorPid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
     // breakMotorPid.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
@@ -247,6 +251,7 @@ public class Arm extends SubsystemBase {
 
   public void setArmRotation(double pose) {
     this.currentReference = pose;
+    //calculates the rotation 
     double rot = currentReference * (ntTopLimit.getDouble(DEFAULT_TOP_SOFT_LIMIT)
         - ntBottomLimit.getDouble(armPoseMap.get(ArmPose.ZERO).getPosition()));
 
