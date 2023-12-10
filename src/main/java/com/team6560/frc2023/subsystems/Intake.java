@@ -32,6 +32,7 @@ public class Intake extends SubsystemBase {
   }
 
   public HashMap<IntakePose, IntakeState> intakePoseMap = new HashMap<IntakePose, IntakeState>();
+
   private IntakeState currSetIntakeState = new IntakeState(0.0, 0.0, ArmPose.NONE);
   private IntakePose currSetIntakePose = IntakePose.RETRACTED;
   private boolean inverted;
@@ -67,10 +68,11 @@ public class Intake extends SubsystemBase {
     
     rightIntakeMotor.getEncoder().setPositionConversionFactor(1.0 / MAX_OUTAKE_POSITION);
     // rightIntakeMotor.getEncoder().setVelocityConversionFactor(1);
-
+    
+    // displays intake info on shuffleboard
     NtValueDisplay.ntDispTab("Intake")
     .add("Position", () -> this.rightIntakeMotor.getEncoder().getPosition())
-    .add("curretn", this::getCurrentDraw)
+    .add("current", this::getCurrentDraw)
     .add("target current", ()->23)
     .add("has ball", this::hasObject);
     
@@ -99,7 +101,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void setSuckMotor(double velocity) {
-    velocity = inverted ? -velocity : velocity;
+    velocity = inverted ? -velocity : velocity; //if inverted, set velocity to negative
     intakeSuckMotor.set(velocity);
   }
 
@@ -115,8 +117,9 @@ public class Intake extends SubsystemBase {
     return Math.abs(getCurrentDraw()) > 24.0;
   }
 
+
   public boolean atSetpoint() {
-    return Math.abs(getIntakePosition() - currSetIntakeState.getPosition()) < IntakeConstants.INTAKE_ACCEPTABLE_ERROR;
+    return Math.abs(getIntakePosition() - currSetIntakeState.getPosition()) < IntakeConstants.INTAKE_ACCEPTABLE_ERROR; 
   }
 
   public IntakeState getCurrentState() {
